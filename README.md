@@ -1,2 +1,3 @@
-# acceltran
-AccelTran: A Sparsity-Aware Accelerator for Transformers
+# AccelTran
+
+A Sparsity-Aware Accelerator for Transformers. More details coming soon...
