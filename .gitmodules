@@ -1,3 +1,6 @@
 [submodule "cacti"]
 	path = cacti
 	url = https://github.com/HewlettPackard/cacti.git
+[submodule "nvmain"]
+	path = nvmain
+	url = https://github.com/shikhartuli/nvmain.git
