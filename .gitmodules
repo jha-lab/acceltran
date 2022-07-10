@@ -1,0 +1,3 @@
+[submodule "NVmain"]
+	path = NVmain
+	url = https://github.com/SEAL-UCSB/NVmain.git
