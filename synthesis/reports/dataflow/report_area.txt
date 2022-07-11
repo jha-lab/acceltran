@@ -1,0 +1,32 @@
+ 
+****************************************
+Report : area
+Design : dataflow
+Version: I-2013.12-SP4
+Date   : Wed May 26 21:09:35 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Warning: Design 'dataflow' contains 3 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                        81923
+Number of nets:                        301194
+Number of cells:                       260231
+Number of combinational cells:         178311
+Number of sequential cells:             81920
+Number of macros/black boxes:               0
+Number of buf/inv:                      55751
+Number of references:                      12
+
+Combinational area:              23346.479078
+Buf/Inv area:                     9212.546419
+Noncombinational area:           52600.502930
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                 75946.982008
+Total area:                 undefined
+1

@@ -1,0 +1,108 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : stochastic_rounding
+Version: I-2013.12-SP4
+Date   : Wed May 12 16:28:45 2021
+****************************************
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+  Startpoint: lfsr/data_reg[15]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: lfsr/data_reg[1]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  stochastic_rounding
+                     1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  clock clk (rise edge)                    0.00       0.00
+  clock network delay (ideal)              0.00       0.00
+  lfsr/data_reg[15]/CP (dff_sg)            0.00       0.00 r
+  lfsr/data_reg[15]/Q (dff_sg)            38.50      38.50 f
+  U1068/X (inv_x1_sg)                     23.51      62.01 r
+  U1106/X (nor_x1_sg)                     12.48      74.49 f
+  U1104/X (nor_x1_sg)                      9.15      83.64 r
+  U721/X (nand_x2_sg)                      5.29      88.93 f
+  lfsr/data_reg[1]/D (dff_sg)              0.00      88.93 f
+  data arrival time                                  88.93
+
+  clock clk (rise edge)                 1429.00    1429.00
+  clock network delay (ideal)              0.00    1429.00
+  clock uncertainty                      -50.00    1379.00
+  lfsr/data_reg[1]/CP (dff_sg)             0.00    1379.00 r
+  library setup time                      -2.94    1376.06
+  data required time                               1376.06
+  -----------------------------------------------------------
+  data required time                               1376.06
+  data arrival time                                 -88.93
+  -----------------------------------------------------------
+  slack (MET)                                      1287.13
+
+
+  Startpoint: i[16] (input port)
+  Endpoint: f[7] (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  stochastic_rounding
+                     1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  input external delay                     0.00       0.00 f
+  i[16] (in)                               0.00       0.00 f
+  U743/X (inv_x16_sg)                      2.63       2.63 r
+  U847/X (nor_x1_sg)                      14.12      16.75 f
+  U785/X (nand_x1_sg)                     17.93      34.69 r
+  U846/X (nor_x1_sg)                      19.54      54.23 f
+  U991/X (nand_x1_sg)                     21.57      75.80 r
+  U990/X (nor_x1_sg)                      31.04     106.84 f
+  U694/X (nand_x8_sg)                      9.88     116.72 r
+  U849/X (inv_x1_sg)                      14.94     131.66 f
+  U993/X (nand_x1_sg)                     20.34     152.00 r
+  U992/X (nor_x1_sg)                      30.95     182.95 f
+  U695/X (nand_x8_sg)                      9.88     192.82 r
+  U850/X (inv_x1_sg)                      14.94     207.76 f
+  U985/X (nand_x1_sg)                     20.34     228.10 r
+  U984/X (nor_x1_sg)                      30.95     259.05 f
+  U551/X (nand_x8_sg)                     12.15     271.20 r
+  U986/X (nor_x1_sg)                      11.27     282.47 f
+  U644/X (nand_x2_sg)                     24.38     306.85 r
+  U851/X (nand_x1_sg)                     19.47     326.33 f
+  U989/X (nor_x1_sg)                      13.71     340.04 r
+  U987/X (nor_x1_sg)                      15.76     355.80 f
+  U790/X (nor_x1_sg)                      11.39     367.19 r
+  U705/X (nand_x4_sg)                      5.98     373.17 f
+  U704/X (inv_x1_sg)                       9.41     382.58 r
+  U663/X (nor_x1_sg)                      21.34     403.92 f
+  U664/X (inv_x1_sg)                      24.28     428.20 r
+  U670/X (inv_x1_sg)                      35.71     463.91 f
+  U859/X (nor_x1_sg)                      10.52     474.43 r
+  U815/X (nand_x1_sg)                      5.17     479.60 f
+  f[7] (out)                               0.00     479.60 f
+  data arrival time                                 479.60
+
+  max_delay                             1429.00    1429.00
+  output external delay                    0.00    1429.00
+  data required time                               1429.00
+  -----------------------------------------------------------
+  data required time                               1429.00
+  data arrival time                                -479.60
+  -----------------------------------------------------------
+  slack (MET)                                       949.40
+
+
+1

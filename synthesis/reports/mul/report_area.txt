@@ -1,0 +1,31 @@
+ 
+****************************************
+Report : area
+Design : mul
+Version: I-2013.12-SP4
+Date   : Wed May 12 14:18:32 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                           82
+Number of nets:                          3896
+Number of cells:                         3856
+Number of combinational cells:           3856
+Number of sequential cells:                 0
+Number of macros/black boxes:               0
+Number of buf/inv:                       1056
+Number of references:                      15
+
+Combinational area:                494.817296
+Buf/Inv area:                      154.918010
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   494.817296
+Total area:                 undefined
+1

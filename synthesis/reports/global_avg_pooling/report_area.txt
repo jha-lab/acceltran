@@ -1,0 +1,31 @@
+ 
+****************************************
+Report : area
+Design : global_avg_pooling
+Version: I-2013.12-SP4
+Date   : Sun Nov 14 00:55:28 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                          528
+Number of nets:                         14940
+Number of cells:                        14433
+Number of combinational cells:          13908
+Number of sequential cells:               525
+Number of macros/black boxes:               0
+Number of buf/inv:                       4532
+Number of references:                      16
+
+Combinational area:               1499.022521
+Buf/Inv area:                      347.168135
+Noncombinational area:             337.100391
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                  1836.122912
+Total area:                 undefined
+1

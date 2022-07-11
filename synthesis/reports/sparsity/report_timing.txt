@@ -1,0 +1,110 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : sparsity
+Version: I-2013.12-SP4
+Date   : Wed May 26 11:19:32 2021
+****************************************
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+  Startpoint: shifter_0/pointer_reg[1]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: shifter_0/oi_1_reg[9]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  sparsity           1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clk (rise edge)                                   0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  shifter_0/pointer_reg[1]/CP (dff_sg)                    0.00 #     0.00 r
+  shifter_0/pointer_reg[1]/Q (dff_sg)                    45.67      45.67 f
+  U37368/X (inv_x1_sg)                                   17.24      62.91 r
+  U37824/X (inv_x1_sg)                                   23.38      86.29 f
+  U37825/X (inv_x1_sg)                                   34.34     120.63 r
+  U47989/X (nor_x1_sg)                                   15.86     136.49 f
+  U37434/X (inv_x1_sg)                                   17.59     154.08 r
+  U38275/X (inv_x1_sg)                                   23.59     177.67 f
+  U38276/X (inv_x1_sg)                                   29.42     207.09 r
+  U47934/X (nor_x1_sg)                                   15.85     222.94 f
+  U40200/X (inv_x1_sg)                                   24.08     247.02 r
+  U40201/X (inv_x1_sg)                                   16.58     263.60 f
+  U37748/X (inv_x1_sg)                                   18.08     281.68 r
+  U37749/X (inv_x1_sg)                                   13.10     294.78 f
+  U48652/X (nand_x1_sg)                                  19.93     314.70 r
+  U48651/X (nor_x1_sg)                                   21.77     336.47 f
+  U47991/X (inv_x1_sg)                                   21.64     358.11 r
+  U40733/X (nor_x1_sg)                                   29.09     387.20 f
+  U40734/X (inv_x1_sg)                                   24.95     412.15 r
+  U40738/X (inv_x1_sg)                                   19.32     431.47 f
+  U39590/X (inv_x1_sg)                                   23.15     454.62 r
+  U39592/X (inv_x1_sg)                                   19.36     473.97 f
+  U47992/X (nor_x1_sg)                                   11.19     485.17 r
+  U40714/X (inv_x1_sg)                                   23.01     508.17 f
+  U40715/X (inv_x1_sg)                                   16.90     525.07 r
+  U40534/X (inv_x1_sg)                                   23.38     548.46 f
+  U36434/X (inv_x1_sg)                                   16.96     565.42 r
+  U40539/X (inv_x1_sg)                                   23.39     588.81 f
+  U36430/X (inv_x1_sg)                                   16.96     605.77 r
+  U37866/X (inv_x1_sg)                                   23.39     629.16 f
+  U36423/X (inv_x1_sg)                                   16.96     646.12 r
+  U36424/X (inv_x1_sg)                                   23.39     669.51 f
+  U38321/X (inv_x1_sg)                                   14.60     684.11 r
+  U51238/X (nand_x1_sg)                                   7.92     692.03 f
+  U42977/X (nand_x1_sg)                                   9.60     701.63 r
+  shifter_0/oi_1_reg[9]/D (dff_sg)                        0.00     701.64 r
+  data arrival time                                                701.64
+
+  clock clk (rise edge)                                1429.00    1429.00
+  clock network delay (ideal)                             0.00    1429.00
+  clock uncertainty                                     -50.00    1379.00
+  shifter_0/oi_1_reg[9]/CP (dff_sg)                       0.00    1379.00 r
+  library setup time                                     -0.48    1378.52
+  data required time                                              1378.52
+  --------------------------------------------------------------------------
+  data required time                                              1378.52
+  data arrival time                                               -701.64
+  --------------------------------------------------------------------------
+  slack (MET)                                                      676.88
+
+
+  Startpoint: state_reg[0]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: state[0] (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  sparsity           1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  state_reg[0]/CP (dff_sg)                 0.00 #     0.00 r
+  state_reg[0]/Q (dff_sg)                 32.05      32.05 f
+  state[0] (out)                           0.00      32.06 f
+  data arrival time                                  32.06
+
+  max_delay                             1429.00    1429.00
+  output external delay                    0.00    1429.00
+  data required time                               1429.00
+  -----------------------------------------------------------
+  data required time                               1429.00
+  data arrival time                                 -32.06
+  -----------------------------------------------------------
+  slack (MET)                                      1396.94
+
+
+1

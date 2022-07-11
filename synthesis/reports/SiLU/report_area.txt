@@ -1,0 +1,33 @@
+ 
+****************************************
+Report : area
+Design : SiLU
+Version: I-2013.12-SP4
+Date   : Tue Sep 21 22:15:34 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                           42
+Number of nets:                          6659
+Number of cells:                         6539
+Number of combinational cells:           6519
+Number of sequential cells:                20
+Number of macros/black boxes:               0
+Number of buf/inv:                       1789
+Number of references:                      16
+
+Combinational area:                823.825644
+Buf/Inv area:                      223.301234
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   823.825644
+Total area:                 undefined
+
+Information: This design contains unmapped logic. (RPT-7)
+1

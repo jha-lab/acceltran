@@ -1,0 +1,23 @@
+# This script file creates reports for all modules #
+
+set maxpaths 15
+check_design > "${rpt_path}/report_design.txt"
+report_area > "${rpt_path}/report_area.txt"
+report_power > "${rpt_path}/report_power.txt"
+report_timing > "${rpt_path}/report_timing.txt"
+report_design > "${rpt_path}/report_design.txt"
+report_cell > "${rpt_path}/report_cell.txt"
+#report_reference >> "${rpt_path}/${rpt_file}"
+#report_port -verbose >> "${rpt_path}/${rpt_file}"
+#report_isolate_ports >> "${rpt_path}/${rpt_file}"
+report_net > "${rpt_path}/report_net.txt"
+report_compile_options >> "${rpt_path}/${rpt_file}"
+report_constraint -all_violators -verbose >> "${rpt_path}/${rpt_file}"
+report_timing -path end -delay min -max_path $maxpaths >> "${rpt_path}/${rpt_file}"
+report_timing -path end -delay max -max_path $maxpaths >> "${rpt_path}/${rpt_file}"
+report_timing -path full_clock -input_pins -nets -max_path $maxpaths -delay min >> "${rpt_path}/${rpt_file}"
+report_timing -path full_clock -input_pins -nets -max_path $maxpaths -delay max >> "${rpt_path}/${rpt_file}"           
+report_clock -skew >> "${rpt_path}/${rpt_file}"
+echo "Reporting Fanout\n" >> "${rpt_path}/${rpt_file}"
+echo "================\n" >> "${rpt_path}/${rpt_file}"
+report_net_fanout -high -nosplit >> "${rpt_path}/${rpt_file}"

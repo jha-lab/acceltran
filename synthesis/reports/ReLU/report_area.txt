@@ -1,0 +1,31 @@
+ 
+****************************************
+Report : area
+Design : ReLU
+Version: I-2013.12-SP4
+Date   : Tue Sep 21 21:52:07 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                           42
+Number of nets:                            59
+Number of cells:                           38
+Number of combinational cells:             38
+Number of sequential cells:                 0
+Number of macros/black boxes:               0
+Number of buf/inv:                         19
+Number of references:                       2
+
+Combinational area:                  5.943504
+Buf/Inv area:                        3.753792
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                     5.943504
+Total area:                 undefined
+1

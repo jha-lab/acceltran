@@ -1,0 +1,86 @@
+Warning: Design 'dma_axi64' has '3' unresolved references. For more detailed information, use the "link" command. (UID-341)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : dma_axi64
+Version: I-2013.12-SP4
+Date   : Wed May 26 21:10:56 2021
+****************************************
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+  Startpoint: dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[16]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: dma_axi64_dual_core/dma_axi64_reg/prdata_reg[16]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  dma_axi64          1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clk (rise edge)                                   0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[16]/clocked_on (**FFGEN**)
+                                                          0.00       0.00 r
+  dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[16]/QN (**FFGEN**)
+                                                          0.00       0.00 f
+  U2108/X (nor_x1_sg)                                    10.92      10.92 r
+  U2106/X (nor_x1_sg)                                    14.77      25.69 f
+  U1951/X (nand_x4_sg)                                    9.99      35.67 r
+  U1661/X (nor_x1_sg)                                    12.29      47.97 f
+  U1660/X (inv_x1_sg)                                     3.68      51.64 r
+  dma_axi64_dual_core/dma_axi64_reg/prdata_reg[16]/next_state (**FFGEN**)
+                                                          0.00      51.64 r
+  data arrival time                                                 51.64
+
+  clock clk (rise edge)                                1429.00    1429.00
+  clock network delay (ideal)                             0.00    1429.00
+  clock uncertainty                                     -50.00    1379.00
+  dma_axi64_dual_core/dma_axi64_reg/prdata_reg[16]/clocked_on (**FFGEN**)
+                                                          0.00    1379.00 r
+  library setup time                                      0.00    1379.00
+  data required time                                              1379.00
+  --------------------------------------------------------------------------
+  data required time                                              1379.00
+  data arrival time                                                -51.64
+  --------------------------------------------------------------------------
+  slack (MET)                                                     1327.36
+
+
+  Startpoint: dma_axi64_dual_core/delay_pslverr1/dout (internal pin)
+  Endpoint: pslverr (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  dma_axi64          1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  dma_axi64_dual_core/delay_pslverr1/dout (prgen_delay)
+                                                          0.00       0.00 r
+  U1625/X (nor_x1_sg)                                     8.99       8.99 f
+  U1624/X (nand_x1_sg)                                    6.57      15.56 r
+  pslverr (out)                                           0.00      15.56 r
+  data arrival time                                                 15.56
+
+  max_delay                                            1429.00    1429.00
+  output external delay                                   0.00    1429.00
+  data required time                                              1429.00
+  --------------------------------------------------------------------------
+  data required time                                              1429.00
+  data arrival time                                                -15.56
+  --------------------------------------------------------------------------
+  slack (MET)                                                     1413.44
+
+
+1

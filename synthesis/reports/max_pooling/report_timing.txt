@@ -1,0 +1,41 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : max_pooling
+Version: I-2013.12-SP4
+Date   : Mon Nov 15 17:28:11 2021
+****************************************
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+  Startpoint: om_reg[0] (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: om[0] (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  max_pooling        1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  om_reg[0]/CP (dff_sg)                    0.00       0.00 r
+  om_reg[0]/Q (dff_sg)                     9.05       9.05 f
+  om[0] (out)                              0.00       9.05 f
+  data arrival time                                   9.05
+
+  max_delay                             1429.00    1429.00
+  output external delay                    0.00    1429.00
+  data required time                               1429.00
+  -----------------------------------------------------------
+  data required time                               1429.00
+  data arrival time                                  -9.05
+  -----------------------------------------------------------
+  slack (MET)                                      1419.95
+
+
+1

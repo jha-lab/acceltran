@@ -1,0 +1,32 @@
+ 
+****************************************
+Report : area
+Design : im2col_cpu
+Version: I-2013.12-SP4
+Date   : Tue May 25 13:47:43 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Warning: Design 'im2col_cpu' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                          358
+Number of nets:                         72735
+Number of cells:                        71249
+Number of combinational cells:          58489
+Number of sequential cells:             12760
+Number of macros/black boxes:               0
+Number of buf/inv:                      15753
+Number of references:                      13
+
+Combinational area:               6114.038198
+Buf/Inv area:                     1178.838860
+Noncombinational area:            8193.144743
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                 14307.182942
+Total area:                 undefined
+1

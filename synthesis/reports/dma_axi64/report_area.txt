@@ -1,0 +1,35 @@
+Warning: Design 'dma_axi64' has '3' unresolved references. For more detailed information, use the "link" command. (UID-341)
+ 
+****************************************
+Report : area
+Design : dma_axi64
+Version: I-2013.12-SP4
+Date   : Wed May 26 21:10:56 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                          445
+Number of nets:                          2137
+Number of cells:                         1235
+Number of combinational cells:           1135
+Number of sequential cells:               100
+Number of macros/black boxes:               0
+Number of buf/inv:                        286
+Number of references:                      19
+
+Combinational area:                144.636242
+Buf/Inv area:                       29.915088
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   144.636242
+Total area:                 undefined
+
+Information: This design contains unmapped logic. (RPT-7)
+Information: This design contains black box (unknown) components. (RPT-8)
+1

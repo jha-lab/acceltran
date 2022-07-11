@@ -1,0 +1,31 @@
+ 
+****************************************
+Report : area
+Design : mac_lane_one
+Version: I-2013.12-SP4
+Date   : Fri Jan  7 22:53:37 2022
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                           63
+Number of nets:                          5317
+Number of cells:                         5274
+Number of combinational cells:           5178
+Number of sequential cells:                96
+Number of macros/black boxes:               0
+Number of buf/inv:                       1680
+Number of references:                      12
+
+Combinational area:                536.701711
+Buf/Inv area:                      130.600680
+Noncombinational area:              61.641214
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                   598.342925
+Total area:                 undefined
+1

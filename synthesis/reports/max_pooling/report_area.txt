@@ -1,0 +1,33 @@
+ 
+****************************************
+Report : area
+Design : max_pooling
+Version: I-2013.12-SP4
+Date   : Mon Nov 15 17:28:10 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                          528
+Number of nets:                          8521
+Number of cells:                         7914
+Number of combinational cells:           7374
+Number of sequential cells:               540
+Number of macros/black boxes:               0
+Number of buf/inv:                       1924
+Number of references:                      14
+
+Combinational area:                819.915442
+Buf/Inv area:                      148.266552
+Noncombinational area:             333.889911
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                  1153.805353
+Total area:                 undefined
+
+Information: This design contains unmapped logic. (RPT-7)
+1

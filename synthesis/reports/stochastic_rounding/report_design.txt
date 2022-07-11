@@ -1,0 +1,86 @@
+ 
+****************************************
+Report : design
+Design : stochastic_rounding
+Version: I-2013.12-SP4
+Date   : Wed May 12 16:28:45 2021
+****************************************
+
+Design allows ideal nets on clock nets.
+
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Local Link Library:
+
+    {/u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db}
+
+Flip-Flop Types:
+
+    No flip-flop types specified.
+
+Latch Types:
+
+    No latch types specified.
+
+Operating Conditions:
+
+
+    Operating Condition Name : TYPICAL
+    Library : 14nm_sg_345K_maxfan4_wire
+    Process :   1.00
+    Temperature :  27.00
+    Voltage :   0.80
+    Interconnect Model : balanced_tree
+
+Wire Loading Model:
+
+    Selected manually by the user.
+
+Name           :   1K
+Location       :   14nm_sg_345K_maxfan4_wire
+Resistance     :   0.055
+Capacitance    :   0.143
+Area           :   0
+Slope          :   0
+Fanout   Length   Points Average Cap Std Deviation
+--------------------------------------------------------------
+     1     0.37
+     2     1.19
+     3     1.84
+     4     2.49
+     5     3.06
+     6     3.63
+     7     4.20
+     8     4.77
+     9     5.34
+
+
+
+Wire Loading Model Mode: top.
+
+Timing Ranges:
+
+    No timing ranges specified.
+
+Pin Input Delays:
+
+    None specified.
+
+Pin Output Delays:
+
+    None specified.
+
+Disabled Timing Arcs:
+
+    No arcs disabled.
+
+Required Licenses:
+
+    DesignWare
+
+Design Parameters:
+
+    None specified.
+1

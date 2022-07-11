@@ -1,0 +1,2499 @@
+Warning: Design 'dma_axi64' has '3' unresolved references. For more detailed information, use the "link" command. (UID-341)
+ 
+****************************************
+Report : cell
+Design : dma_axi64
+Version: I-2013.12-SP4
+Date   : Wed May 26 21:10:56 2021
+****************************************
+
+Attributes:
+    b - black box (unknown)
+    h - hierarchical
+    n - noncombinational
+    p - parameterized
+    r - removable
+   so - sizing only
+    u - contains unmapped logic
+
+Cell                      Reference       Library             Area  Attributes
+--------------------------------------------------------------------------------
+U536                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U539                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U675                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U676                      nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U677                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U680                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U683                      nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U684                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U687                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U690                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U691                      nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U692                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U695                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U700                      nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U701                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U704                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U863                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U864                      nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U865                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U868                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U871                      nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U872                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U875                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U878                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U879                      nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U880                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U883                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U888                      nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U889                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U892                      nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1113                     nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1120                     nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1146                     nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1350                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1351                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1352                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1353                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1354                     nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1355                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1356                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1357                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1358                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1359                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1360                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1361                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1362                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1363                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1364                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1365                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1366                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1367                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1368                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1369                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1370                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1371                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1372                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1373                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1374                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1375                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1376                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1377                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1378                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1379                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1380                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1381                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1382                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1383                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1384                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1385                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1386                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1387                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1388                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1389                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1390                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1391                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1392                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1393                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1394                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1395                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1396                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1397                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1398                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1399                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1400                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1401                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1402                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1403                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1404                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1405                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1406                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1407                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1408                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1409                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1410                     nor_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.691488  
+U1411                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1412                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1413                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1414                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1415                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1416                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1417                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1418                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1419                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1420                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1421                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1422                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1423                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1424                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1425                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1426                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1427                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1428                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1429                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1430                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1431                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1432                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1433                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1434                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1435                     inv_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1436                     inv_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1437                     inv_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1438                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1439                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1440                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1441                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1442                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1443                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1444                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1445                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1446                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1447                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1448                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1449                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1450                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1451                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1452                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1453                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1454                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1455                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1456                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1457                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1458                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1459                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1460                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1461                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1462                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1463                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1464                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1465                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1466                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1467                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1468                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1469                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1470                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1471                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1472                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1473                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1474                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1475                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1476                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1477                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1478                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1479                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1480                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1481                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1482                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1483                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1484                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1485                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1486                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1487                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1488                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1489                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1490                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1491                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1492                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1493                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1494                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1495                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1496                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1497                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1498                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1499                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1500                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1501                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1502                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1503                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1504                     nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1505                     inv_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1506                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1507                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1508                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1509                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1510                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1511                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1512                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1513                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1514                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1515                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1516                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1517                     nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1518                     nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1519                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1520                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1521                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1522                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1523                     nor_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.691488  
+U1524                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1525                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1526                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1527                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1528                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1529                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1530                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1531                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1532                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1533                     nand_x16_sg     14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1534                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1535                     nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1536                     nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1537                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1538                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1539                     nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1540                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1541                     nand_x16_sg     14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1542                     nor_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.691488  
+U1543                     nor_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.691488  
+U1544                     nand_x16_sg     14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1545                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1546                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1547                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1548                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1549                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1550                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1551                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1552                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1553                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1554                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1555                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1556                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1557                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1558                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1559                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1560                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1561                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1562                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1563                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1564                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1565                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1566                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1567                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1568                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1569                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1570                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1571                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1572                     nor_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1573                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1574                     nand_x8_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1575                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1576                     nand_x16_sg     14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1577                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1578                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1579                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1580                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1581                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1582                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1583                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1584                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1585                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1586                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1587                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1588                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1589                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1590                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1591                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1592                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1593                     nor_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          1.350048  
+U1594                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1595                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1596                     inv_x16_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1597                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1598                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1599                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1600                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1601                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1602                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1603                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1604                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1605                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1606                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1607                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1608                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1609                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1610                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1611                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1612                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1613                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1614                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1615                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1616                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1617                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1618                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1619                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1620                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1621                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1622                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1623                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1624                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1625                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1626                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1627                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1628                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1629                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1630                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1631                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1632                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1633                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1634                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1635                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1636                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1637                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1638                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1639                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1640                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1641                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1642                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1643                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1644                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1645                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1646                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1647                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1648                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1649                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1650                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1651                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1652                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1653                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1654                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1655                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1656                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1657                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1658                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1659                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1660                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1661                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1662                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1663                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1664                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1665                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1666                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1667                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1668                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1669                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1670                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1671                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1672                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1673                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1674                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1675                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1676                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1677                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1678                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1679                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1680                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1681                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1682                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1683                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1684                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1685                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1686                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1687                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1688                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1689                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1690                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1691                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1692                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1693                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1694                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1695                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1696                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1697                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1698                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1699                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1700                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1701                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1702                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1703                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1704                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1705                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1706                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1707                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1708                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1709                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1710                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1711                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1712                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1713                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1714                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1715                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1716                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1717                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1718                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1719                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1720                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1721                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1722                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1723                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1724                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1725                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1726                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1727                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1728                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1729                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1730                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1731                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1732                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1733                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1734                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1735                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1736                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1737                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1738                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1739                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1740                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1741                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1742                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1743                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1744                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1745                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1746                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1747                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1748                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1749                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1750                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1751                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1752                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1753                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1754                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1755                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1756                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1757                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1758                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1759                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1760                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1761                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1762                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1763                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1764                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1765                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1766                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1767                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1768                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1769                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1770                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1771                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1772                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1773                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1774                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1775                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1776                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1777                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1778                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1779                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1780                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1781                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1782                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1783                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1784                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1785                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1786                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1787                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1788                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1789                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1790                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1791                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1792                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1793                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1794                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1795                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1796                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1797                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1798                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1799                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1800                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1801                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1802                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1803                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1804                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1805                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1806                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1807                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1808                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1809                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1810                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1811                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1812                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1813                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1814                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1815                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1816                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1817                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1818                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1819                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1820                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1821                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1822                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1823                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1824                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1825                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1826                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1827                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1828                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1829                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1830                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1831                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1832                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1833                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1834                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1835                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1836                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1837                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1838                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1839                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1840                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1841                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1842                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1843                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1844                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1845                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1846                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1847                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1848                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1849                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1850                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1851                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1852                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1853                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1854                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1855                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1856                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1857                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1858                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1859                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1860                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1861                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1862                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1863                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1864                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1865                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1866                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1867                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1868                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1869                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1870                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1871                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1872                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1873                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1874                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1875                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1876                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1877                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1878                     nand_x2_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1879                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1880                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1881                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1882                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1883                     nor_x4_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1884                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1885                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1886                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1887                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1888                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1889                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1890                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1891                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1892                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1893                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1894                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1895                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1896                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1897                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1898                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1899                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1900                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1901                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1902                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1903                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1904                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1905                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1906                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1907                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1908                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1909                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1910                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1911                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1912                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1913                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1914                     inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U1915                     nand_x16_sg     14nm_sg_345K_maxfan4_wire
+                                                          0.362208  
+U1916                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1917                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1918                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1919                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1920                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1921                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1922                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1923                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1924                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1925                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1926                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1927                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1928                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1929                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1930                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1931                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1932                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1933                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1934                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1935                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1936                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1937                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1938                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1939                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1940                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1941                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1942                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1943                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1944                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1945                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1946                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1947                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1948                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1949                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1950                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1951                     nand_x4_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1952                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1953                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1954                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1955                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1956                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1957                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1958                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1959                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1960                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1961                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1962                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1963                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1964                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1965                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1966                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1967                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1968                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1969                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1970                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1971                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1972                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1973                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1974                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1975                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U1976                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1977                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1978                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1979                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1980                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1981                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1982                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1983                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1984                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1985                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1986                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1987                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1988                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1989                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1990                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1991                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1992                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1993                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1994                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1995                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1996                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1997                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1998                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U1999                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2000                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2001                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2002                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2003                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2004                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2005                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2006                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2007                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2008                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2009                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2010                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2011                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2012                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2013                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2014                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2015                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2016                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2017                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2018                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2019                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2020                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2021                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2022                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2023                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2024                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2025                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2026                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2027                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2028                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2029                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2030                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2031                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2032                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2033                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2034                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2035                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2036                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2037                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2038                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2039                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2040                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2041                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2042                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2043                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2044                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2045                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2046                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2047                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2048                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2049                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2050                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2051                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2052                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2053                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2054                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2055                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2056                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2057                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2058                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2059                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2060                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2061                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2062                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2063                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2064                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2065                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2066                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2067                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2068                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2069                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2070                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2071                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2072                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2073                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2074                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2075                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2076                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2077                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2078                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2079                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2080                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2081                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2082                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2083                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2084                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2085                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2086                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2087                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2088                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2089                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2090                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2091                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2092                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2093                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2094                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2095                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2096                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2097                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2098                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2099                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2100                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2101                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2102                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2103                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2104                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2105                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2106                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2107                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2108                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2109                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2110                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2111                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2112                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2113                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2114                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2115                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2116                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2117                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2118                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2119                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2120                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2121                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2122                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2123                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2124                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2125                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2126                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2127                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2128                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2129                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2130                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2131                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2132                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2133                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2134                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2135                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2136                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2137                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2138                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2139                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2140                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2141                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2142                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2143                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2144                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2145                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2146                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2147                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2148                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2149                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2150                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2151                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2152                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2153                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2154                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2155                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2156                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2157                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2158                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2159                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2160                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2161                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2162                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2163                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2164                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2165                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2166                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2167                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2168                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2169                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2170                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2171                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2172                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2173                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2174                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2175                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2176                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2177                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2178                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2179                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2180                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2181                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2182                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2183                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2184                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2185                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2186                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2187                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2188                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2189                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2190                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2191                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2192                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2193                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2194                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2195                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2196                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2197                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2198                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2199                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2200                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2201                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2202                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2203                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2204                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2205                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2206                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2207                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2208                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2209                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2210                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2211                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2212                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2213                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2214                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2215                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2216                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2217                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2218                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2219                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2220                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2221                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2222                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2223                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2224                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2225                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2226                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2227                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2228                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2229                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2230                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2231                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2232                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2233                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2234                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2235                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2236                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2237                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2238                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2239                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2240                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2241                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2242                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2243                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2244                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2245                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2246                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2247                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2248                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2249                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2250                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2251                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2252                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2253                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2254                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2255                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2256                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2257                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2258                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2259                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2260                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2261                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2262                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2263                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2264                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2265                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2266                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2267                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2268                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2269                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2270                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2271                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2272                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2273                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2274                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2275                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2276                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2277                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2278                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2279                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2280                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2281                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2282                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2283                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2284                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2285                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2286                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2287                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2288                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2289                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2290                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2291                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2292                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2293                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2294                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2295                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2296                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2297                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2298                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2299                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2300                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2301                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2302                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2303                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2304                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2305                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2306                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2307                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2308                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2309                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2310                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2311                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2312                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2313                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2314                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2315                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2316                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2317                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2318                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2319                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2320                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2321                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2322                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2323                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2324                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2325                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2326                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2327                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2328                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2329                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2330                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2331                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2332                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2333                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2334                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2335                     inv_x2_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2336                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2337                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2338                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2339                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2340                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2341                     inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  
+U2342                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2343                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2344                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2345                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2346                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2347                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2348                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2349                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2350                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2351                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2352                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2353                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2354                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2355                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2356                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2357                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2358                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2359                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2360                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2361                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2362                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2363                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2364                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2365                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2366                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2367                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2368                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2369                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2370                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2371                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2372                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2373                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2374                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2375                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2376                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2377                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2378                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2379                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2380                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2381                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2382                     nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U2383                     nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+dma_axi64_dual_core/C131  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C132  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C133  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C134  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C135  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C136  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C137  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C138  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C139  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C140  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C141  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C142  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C143  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C144  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C145  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C146  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C147  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C148  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C149  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C150  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C151  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C152  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C153  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C154  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C155  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C156  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C157  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C158  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C159  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C160  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C161  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C162  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C163  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C164  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C165  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C166  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C167  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C168  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C169  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C170  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C171  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C172  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C173  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C174  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C175  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C176  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C177  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C178  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C179  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C180  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C181  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C182  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C183  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C184  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C185  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C186  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C187  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C188  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C189  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C190  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C191  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/C192  nand_x1_sg      14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/delay_pslverr1
+                          prgen_delay                     0.000000  b, p
+dma_axi64_dual_core/dma_axi64_apb_mux/U6
+                          inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  so
+dma_axi64_dual_core/dma_axi64_apb_mux/U9
+                          nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  so
+dma_axi64_dual_core/dma_axi64_apb_mux/pready_reg
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_core0_top
+                          dma_axi64_core0_top             0.000000  b
+dma_axi64_dual_core/dma_axi64_reg/U1137
+                          inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  so
+dma_axi64_dual_core/dma_axi64_reg/U1138
+                          inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  so
+dma_axi64_dual_core/dma_axi64_reg/U1139
+                          inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  so
+dma_axi64_dual_core/dma_axi64_reg/U1140
+                          inv_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.074088  so
+dma_axi64_dual_core/dma_axi64_reg/dma_axi64_reg_core0
+                          dma_axi64_reg_core0             0.000000  b
+dma_axi64_dual_core/dma_axi64_reg/int_all_proc_reg[0]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[1]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[2]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[3]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[4]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[5]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[6]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[7]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[8]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[9]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[10]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[11]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[12]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[13]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[14]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[15]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[16]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[17]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[18]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[19]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[20]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[21]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[22]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[23]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[24]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[25]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[26]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[27]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[28]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[29]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[30]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_rx_req_reg_reg[31]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[1]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[2]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[3]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[4]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[5]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[6]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[7]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[8]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[9]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[10]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[11]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[12]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[13]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[14]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[15]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[16]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[17]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[18]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[19]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[20]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[21]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[22]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[23]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[24]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[25]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[26]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[27]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[28]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[29]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[30]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/periph_tx_req_reg_reg[31]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[0]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[1]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[2]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[3]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[4]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[5]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[6]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[7]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[8]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[9]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[10]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[11]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[12]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[13]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[14]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[15]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[16]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[17]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[18]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[19]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[20]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[21]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[22]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[23]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[24]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[25]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[26]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[27]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[28]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[29]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[30]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/prdata_reg[31]
+                          **FFGEN**                       0.000000  n, u
+dma_axi64_dual_core/dma_axi64_reg/pslverr_reg
+                          **FFGEN**                       0.000000  n, u
+--------------------------------------------------------------------------------
+Total 1235 cells                                          144.636242
+1

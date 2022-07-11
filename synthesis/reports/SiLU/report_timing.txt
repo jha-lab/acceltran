@@ -1,0 +1,111 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : SiLU
+Version: I-2013.12-SP4
+Date   : Tue Sep 21 22:15:34 2021
+****************************************
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+  Startpoint: i[2] (input port)
+  Endpoint: f[19] (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  SiLU               1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  input external delay                     0.00       0.00 f
+  i[2] (in)                                0.00       0.00 f
+  U7728/X (inv_x16_sg)                     2.57       2.57 r
+  U7658/X (nand_x16_sg)                    6.22       8.78 f
+  U7057/X (inv_x4_sg)                      4.87      13.66 r
+  U7168/X (inv_x1_sg)                     11.29      24.95 f
+  U12205/X (nand_x1_sg)                    9.73      34.68 r
+  U11228/X (nand_x1_sg)                    7.21      41.89 f
+  U8486/X (nand_x1_sg)                    23.95      65.84 r
+  U10514/X (nor_x1_sg)                    14.50      80.34 f
+  U9318/X (inv_x1_sg)                      5.54      85.88 r
+  U9190/X (nand_x1_sg)                    26.48     112.36 f
+  U10041/X (inv_x1_sg)                    16.14     128.50 r
+  U10026/X (nor_x1_sg)                    15.94     144.43 f
+  U8788/X (nor_x1_sg)                     12.47     156.91 r
+  U8488/X (inv_x1_sg)                     13.19     170.10 f
+  U10032/X (nand_x1_sg)                   10.06     180.16 r
+  U6656/X (nand_x1_sg)                    21.85     202.02 f
+  U6784/X (nand_x1_sg)                    21.41     223.43 r
+  U9760/X (inv_x1_sg)                     11.52     234.95 f
+  U9758/X (nor_x1_sg)                     14.55     249.50 r
+  U6779/X (nand_x1_sg)                    17.68     267.18 f
+  U10024/X (inv_x1_sg)                    11.79     278.98 r
+  U8779/X (nor_x1_sg)                     17.51     296.48 f
+  U9766/X (inv_x1_sg)                      5.94     302.42 r
+  U9764/X (nand_x1_sg)                     6.94     309.36 f
+  U6248/X (nand_x1_sg)                    24.22     333.58 r
+  U6953/X (nand_x1_sg)                    17.50     351.09 f
+  U9634/X (inv_x1_sg)                     11.98     363.06 r
+  U9632/X (nor_x1_sg)                     15.17     378.23 f
+  U9765/X (nand_x1_sg)                    10.23     388.46 r
+  U9069/X (nand_x1_sg)                    26.19     414.65 f
+  U9629/X (nand_x1_sg)                    10.42     425.07 r
+  U9072/X (nand_x1_sg)                    21.92     447.00 f
+  U6991/X (nand_x1_sg)                    21.51     468.51 r
+  U9075/X (nand_x1_sg)                    23.44     491.95 f
+  U6994/X (nand_x1_sg)                    21.59     513.54 r
+  U9078/X (nand_x1_sg)                    23.45     536.99 f
+  U6995/X (nand_x1_sg)                    21.59     558.58 r
+  U9082/X (nand_x1_sg)                    23.45     582.03 f
+  U6998/X (nand_x1_sg)                    21.59     603.62 r
+  U9086/X (nand_x1_sg)                    27.70     631.32 f
+  U9627/X (nand_x1_sg)                    10.48     641.80 r
+  U9089/X (nand_x1_sg)                    26.19     667.99 f
+  U9585/X (nand_x1_sg)                    10.42     678.41 r
+  U9091/X (nand_x1_sg)                    26.19     704.60 f
+  U9570/X (nand_x1_sg)                    10.42     715.02 r
+  U9092/X (nand_x1_sg)                    26.19     741.20 f
+  U9588/X (nand_x1_sg)                    10.42     751.62 r
+  U9094/X (nand_x1_sg)                    26.19     777.81 f
+  U9589/X (nand_x1_sg)                    10.42     788.23 r
+  U8588/X (nand_x1_sg)                    16.79     805.02 f
+  U9571/X (inv_x1_sg)                      6.13     811.16 r
+  U6710/X (nand_x1_sg)                     6.95     818.11 f
+  U6210/X (nand_x1_sg)                    16.85     834.96 r
+  U6708/X (inv_x1_sg)                      5.20     840.15 f
+  U8854/X (nand_x1_sg)                     6.41     846.56 r
+  U8853/X (nand_x1_sg)                    16.84     863.40 f
+  U9635/X (inv_x1_sg)                      6.06     869.46 r
+  U6913/X (nand_x1_sg)                     6.79     876.25 f
+  U6262/X (nand_x1_sg)                    22.07     898.32 r
+  U10031/X (nor_x1_sg)                     9.69     908.01 f
+  U9273/X (inv_x1_sg)                      5.34     913.35 r
+  U9179/X (nand_x1_sg)                    21.49     934.83 f
+  U10040/X (nor_x1_sg)                    11.98     946.81 r
+  U9274/X (inv_x1_sg)                      4.78     951.59 f
+  U9098/X (nand_x1_sg)                    21.59     973.18 r
+  U9768/X (nor_x1_sg)                      9.70     982.88 f
+  U9248/X (inv_x1_sg)                      5.34     988.22 r
+  U9247/X (nand_x1_sg)                     6.71     994.93 f
+  U12208/X (nand_x1_sg)                    8.99    1003.92 r
+  U9506/X (nand_x1_sg)                     4.69    1008.61 f
+  f[19] (out)                              0.00    1008.61 f
+  data arrival time                                1008.61
+
+  max_delay                             1429.00    1429.00
+  output external delay                    0.00    1429.00
+  data required time                               1429.00
+  -----------------------------------------------------------
+  data required time                               1429.00
+  data arrival time                               -1008.61
+  -----------------------------------------------------------
+  slack (MET)                                       420.39
+
+
+1

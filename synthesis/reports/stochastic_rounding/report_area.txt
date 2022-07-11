@@ -1,0 +1,31 @@
+ 
+****************************************
+Report : area
+Design : stochastic_rounding
+Version: I-2013.12-SP4
+Date   : Wed May 12 16:28:45 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                           66
+Number of nets:                           553
+Number of cells:                          507
+Number of combinational cells:            491
+Number of sequential cells:                16
+Number of macros/black boxes:               0
+Number of buf/inv:                        115
+Number of references:                      14
+
+Combinational area:                 68.770129
+Buf/Inv area:                       15.970080
+Noncombinational area:              10.273536
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                    79.043665
+Total area:                 undefined
+1

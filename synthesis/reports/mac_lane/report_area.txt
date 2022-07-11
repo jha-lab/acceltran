@@ -1,0 +1,32 @@
+ 
+****************************************
+Report : area
+Design : mac_lane
+Version: I-2013.12-SP4
+Date   : Sat Jan  8 01:58:40 2022
+****************************************
+
+Information: Updating design information... (UID-85)
+Warning: Design 'mac_lane' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                          663
+Number of nets:                         83890
+Number of cells:                        83247
+Number of combinational cells:          81867
+Number of sequential cells:              1380
+Number of macros/black boxes:               0
+Number of buf/inv:                      23406
+Number of references:                      11
+
+Combinational area:               8532.575135
+Buf/Inv area:                     1783.866164
+Noncombinational area:             886.092457
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                  9418.667591
+Total area:                 undefined
+1

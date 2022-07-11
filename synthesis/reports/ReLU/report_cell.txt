@@ -1,0 +1,96 @@
+ 
+****************************************
+Report : cell
+Design : ReLU
+Version: I-2013.12-SP4
+Date   : Tue Sep 21 21:52:07 2021
+****************************************
+
+Attributes:
+    b - black box (unknown)
+    h - hierarchical
+    n - noncombinational
+    r - removable
+    u - contains unmapped logic
+
+Cell                      Reference       Library             Area  Attributes
+--------------------------------------------------------------------------------
+U79                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U80                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U81                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U82                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U83                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U84                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U85                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U86                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U87                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U88                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U89                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U90                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U91                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U92                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U93                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U94                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U95                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U96                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U97                       inv_x8_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.197568  
+U98                       nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U99                       nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U100                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U101                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U102                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U103                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U104                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U105                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U106                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U107                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U108                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U109                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U110                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U111                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U112                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U113                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U114                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U115                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+U116                      nor_x1_sg       14nm_sg_345K_maxfan4_wire
+                                                          0.115248  
+--------------------------------------------------------------------------------
+Total 38 cells                                            5.943504
+1

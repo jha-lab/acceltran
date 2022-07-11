@@ -1,0 +1,34 @@
+ 
+****************************************
+Report : area
+Design : sparsity
+Version: I-2013.12-SP4
+Date   : Wed May 26 11:19:30 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Warning: Design 'sparsity' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                         1383
+Number of nets:                         41720
+Number of cells:                        35840
+Number of combinational cells:          29705
+Number of sequential cells:              6135
+Number of macros/black boxes:               0
+Number of buf/inv:                       7698
+Number of references:                      11
+
+Combinational area:               3107.868165
+Buf/Inv area:                      571.193782
+Noncombinational area:            3109.028750
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                  6216.896914
+Total area:                 undefined
+
+Information: This design contains unmapped logic. (RPT-7)
+1

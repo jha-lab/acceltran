@@ -1,0 +1,106 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : post_sparsity
+Version: I-2013.12-SP4
+Date   : Tue May 25 14:38:48 2021
+****************************************
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+  Startpoint: update_output_0/i_pointer_reg[0]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: update_output_0/o_im_reg[6][17]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  post_sparsity      1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clk (rise edge)                                   0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  update_output_0/i_pointer_reg[0]/CP (dff_sg)            0.00       0.00 r
+  update_output_0/i_pointer_reg[0]/Q (dff_sg)            30.32      30.32 f
+  U7655/X (inv_x1_sg)                                     9.86      40.19 r
+  U7656/X (inv_x1_sg)                                    17.36      57.55 f
+  U8355/X (nand_x1_sg)                                   37.52      95.07 r
+  U8356/X (inv_x1_sg)                                    26.94     122.01 f
+  U8358/X (inv_x1_sg)                                    32.39     154.40 r
+  U8361/X (inv_x1_sg)                                    25.78     180.18 f
+  U8364/X (inv_x1_sg)                                    34.73     214.91 r
+  U11538/X (nor_x1_sg)                                   15.89     230.80 f
+  U9811/X (inv_x1_sg)                                     5.68     236.48 r
+  U9288/X (nand_x1_sg)                                   16.75     253.23 f
+  U8765/X (nor_x1_sg)                                    12.12     265.36 r
+  U7190/X (nand_x4_sg)                                    7.03     272.38 f
+  U7198/X (nand_x4_sg)                                    7.51     279.90 r
+  U8030/X (inv_x1_sg)                                    22.16     302.06 f
+  U8031/X (inv_x1_sg)                                    24.54     326.59 r
+  U7222/X (inv_x1_sg)                                    16.95     343.55 f
+  U10585/X (nand_x1_sg)                                  18.64     362.18 r
+  U10584/X (nor_x1_sg)                                    5.99     368.18 f
+  U9429/X (nand_x1_sg)                                   17.61     385.79 r
+  U9428/X (nor_x1_sg)                                    12.48     398.27 f
+  U7184/X (nand_x2_sg)                                   17.73     416.00 r
+  U10250/X (inv_x1_sg)                                   19.61     435.61 f
+  U9442/X (nor_x1_sg)                                    19.45     455.06 r
+  U8688/X (inv_x1_sg)                                    35.23     490.29 f
+  U10579/X (nor_x1_sg)                                   13.39     503.68 r
+  U9356/X (nand_x1_sg)                                    7.49     511.17 f
+  U8732/X (nand_x1_sg)                                   40.20     551.37 r
+  U7835/X (inv_x1_sg)                                    27.60     578.97 f
+  U7837/X (inv_x1_sg)                                    15.28     594.25 r
+  U11372/X (nand_x1_sg)                                   7.99     602.24 f
+  U9741/X (nand_x1_sg)                                    9.63     611.87 r
+  update_output_0/o_im_reg[6][17]/D (dff_sg)              0.00     611.87 r
+  data arrival time                                                611.87
+
+  clock clk (rise edge)                                1429.00    1429.00
+  clock network delay (ideal)                             0.00    1429.00
+  clock uncertainty                                     -50.00    1379.00
+  update_output_0/o_im_reg[6][17]/CP (dff_sg)             0.00    1379.00 r
+  library setup time                                     -0.48    1378.52
+  data required time                                              1378.52
+  --------------------------------------------------------------------------
+  data required time                                              1378.52
+  data arrival time                                               -611.87
+  --------------------------------------------------------------------------
+  slack (MET)                                                      766.65
+
+
+  Startpoint: state_reg[0]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: state[0] (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  post_sparsity      1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  state_reg[0]/CP (dff_sg)                 0.00       0.00 r
+  state_reg[0]/Q (dff_sg)                 32.05      32.05 f
+  state[0] (out)                           0.00      32.06 f
+  data arrival time                                  32.06
+
+  max_delay                             1429.00    1429.00
+  output external delay                    0.00    1429.00
+  data required time                               1429.00
+  -----------------------------------------------------------
+  data required time                               1429.00
+  data arrival time                                 -32.06
+  -----------------------------------------------------------
+  slack (MET)                                      1396.94
+
+
+1

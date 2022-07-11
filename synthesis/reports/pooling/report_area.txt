@@ -1,0 +1,34 @@
+ 
+****************************************
+Report : area
+Design : pooling
+Version: I-2013.12-SP4
+Date   : Mon Nov 15 18:19:24 2021
+****************************************
+
+Information: Updating design information... (UID-85)
+Warning: Design 'pooling' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/chli/tools/Fisher/accelerator/Synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                          528
+Number of nets:                         24383
+Number of cells:                        23777
+Number of combinational cells:          22190
+Number of sequential cells:              1587
+Number of macros/black boxes:               0
+Number of buf/inv:                       6844
+Number of references:                      16
+
+Combinational area:               2388.885270
+Buf/Inv area:                      580.858151
+Noncombinational area:            1006.164405
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                  3395.049675
+Total area:                 undefined
+
+Information: This design contains unmapped logic. (RPT-7)
+1
