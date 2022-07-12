@@ -18,19 +18,19 @@ lane:
       area: 597.964253 # in um^2
       dynamic: 0.2756146 # in mW
       leakage: 0.0223711 # in mW
-    gelu:
-      area: null
-      dynamic: null
-      leakage: null
+    silu:
+      area: 1209.955838
+      dynamic: 0.6705926
+      leakage: 0.0419121
   mac_per_lane_16:
     relu:
       area: 8819.484999
       dynamic: 4.8926
       leakage: 0.3003
-    gelu:
-      area: null
-      dynamic: null
-      leakage: null
+    silu:
+      area: 9418.667591
+      dynamic: 5.1955
+      leakage: 0.3189685
 
 dataflow:
   area: 75946.982008
