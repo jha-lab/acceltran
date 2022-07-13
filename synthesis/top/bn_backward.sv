@@ -1,4 +1,4 @@
-module backward
+module bn_backward
 (
 	clk,
 	reset,

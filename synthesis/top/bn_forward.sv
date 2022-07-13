@@ -1,4 +1,4 @@
-module forward
+module bn_forward
 (
 	clk,
 	reset,
