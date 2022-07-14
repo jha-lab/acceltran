@@ -1,0 +1,30 @@
+# Configuration for an instance accelerator in the AccelTran design space
+
+tile:
+  tile_b: 1
+  tile_x: 16
+  tile_y: 16
+
+pe: 64
+
+lanes_per_pe: 72
+
+mac_per_lane: 16
+
+il: 4
+
+fl: 16
+
+batch_size: 4
+
+activation_buffer_size: 12
+
+weight_buffer_size: 24
+
+mask_buffer_size: 4
+
+main_memory_config:
+  rram:
+    banks: 16
+    ranks: 2
+    channels: 2
