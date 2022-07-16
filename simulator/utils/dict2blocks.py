@@ -37,6 +37,8 @@ def main(model_dict: dict, config: dict, debug=False):
 
 			if debug: print(f'Added block with name: {block_name}')
 
+		blocks.append(LayerNormBlock(f'ln_{layer}_1', input_size=(batch_size, SEQ_LENGTH, layer_hidden_size)))
+
 		last_hidden_size = layer_hidden_size
 		for i, hidden in enumerate(model_dict['f'][layer]):
 			block_name = 'ff' + '_' + str(layer) + '_' + str(i + 1)
@@ -52,6 +54,8 @@ def main(model_dict: dict, config: dict, debug=False):
 				blocks.append(FeedForwardBlock(block_name, input_size, hidden_size=layer_hidden_size))
 
 				if debug: print(f'Added block with name: {block_name}')
+
+		blocks.append(LayerNormBlock(f'ln_{layer}_2', input_size=(batch_size, SEQ_LENGTH, layer_hidden_size)))
 
 		projection_head = True
 
