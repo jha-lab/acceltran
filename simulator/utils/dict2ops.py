@@ -1,64 +1,64 @@
 # Convert a Transformer dictionary in FlexiBERT 2.0 framework to 
-# software compute blocks
+# software compute operations
 
 import os
 import sys
 import json
 import argparse
 import yaml
-from blocks import *
+from ops import *
 
 
 SEQ_LENGTH = 512
 
 
 def main(model_dict: dict, config: dict, debug=False):
-	"""Convert model dictionary to software compute blocks"""
+	"""Convert model dictionary to software compute operations"""
 	assert 'p' not in model_dict.keys(), 'Only model dictionaries in FlexiBERT 2.0 are supported'
 
 	batch_size = config['batch_size']
 
-	blocks = []
+	ops = []
 
 	for layer in range(model_dict['l']):
 		layer_hidden_size = model_dict['h'][layer]
 		for i, attention_head in enumerate(model_dict['o'][layer]):
 			type, param, hidden = attention_head.split('_')
 
-			block_name = attention_head + '_' + str(layer) + '_' + str(i + 1)
+			op_name = attention_head + '_' + str(layer) + '_' + str(i + 1)
 			input_size = (batch_size, SEQ_LENGTH, layer_hidden_size)
 			
 			if type == 'sa':
-				blocks.append(SelfAttentionBlock(block_name, input_size, hidden_size=hidden, type=param))
-				blocks.append(SoftmaxBlock(f'sftm_{layer}_{(i+1)}', input_size))
+				ops.append(SelfAttentionOp(op_name, input_size, hidden_size=hidden, type=param))
+				ops.append(SoftmaxOp(f'sftm_{layer}_{(i+1)}', input_size))
 			elif type == 'c':
-				blocks.append(ConvBlock(block_name, input_size, hidden_size=hidden, kernel_size=int(param)))
+				ops.append(ConvOp(op_name, input_size, hidden_size=hidden, kernel_size=int(param)))
 			elif type == 'l':
-				blocks.append(LinearTransformBlock(block_name, input_size, hidden_size=hidden, type=param))
+				ops.append(LinearTransformOp(op_name, input_size, hidden_size=hidden, type=param))
 
-			if debug: print(f'Added block with name: {block_name}')
+			if debug: print(f'Added operation with name: {op_name}')
 
-		blocks.append(LayerNormBlock(f'ln_{layer}_1', input_size=(batch_size, SEQ_LENGTH, layer_hidden_size)))
+		ops.append(LayerNormOp(f'ln_{layer}_1', input_size=(batch_size, SEQ_LENGTH, layer_hidden_size)))
 
 		last_hidden_size = layer_hidden_size
 		for i, hidden in enumerate(model_dict['f'][layer]):
-			block_name = 'ff' + '_' + str(layer) + '_' + str(i + 1)
+			op_name = 'ff' + '_' + str(layer) + '_' + str(i + 1)
 			input_size = (batch_size, SEQ_LENGTH, last_hidden_size)
-			blocks.append(FeedForwardBlock(block_name, input_size, hidden_size=hidden))
-			blocks.append(NonLinearityBlock(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
+			ops.append(FeedForwardOp(op_name, input_size, hidden_size=hidden))
+			ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
 			last_hidden_size = hidden
 
-			if debug: print(f'Added block with name: {block_name}')
+			if debug: print(f'Added operation with name: {op_name}')
 
 			if i == len(model_dict['f'][layer]) - 1:
-				block_name = 'ff' + '_' + str(layer) + '_' + str(i + 2)
+				op_name = 'ff' + '_' + str(layer) + '_' + str(i + 2)
 				input_size = (batch_size, SEQ_LENGTH, last_hidden_size)
-				blocks.append(FeedForwardBlock(block_name, input_size, hidden_size=layer_hidden_size))
-				blocks.append(NonLinearityBlock(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
+				ops.append(FeedForwardOp(op_name, input_size, hidden_size=layer_hidden_size))
+				ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
 
-				if debug: print(f'Added block with name: {block_name}')
+				if debug: print(f'Added operation with name: {op_name}')
 
-		blocks.append(LayerNormBlock(f'ln_{layer}_2', input_size=(batch_size, SEQ_LENGTH, layer_hidden_size)))
+		ops.append(LayerNormOp(f'ln_{layer}_2', input_size=(batch_size, SEQ_LENGTH, layer_hidden_size)))
 
 		projection_head = True
 
@@ -68,12 +68,12 @@ def main(model_dict: dict, config: dict, debug=False):
 			projection_head = False
 
 		if projection_head:
-			block_name = 'ff' + '_' + str(layer) + '_' + 'proj'
+			op_name = 'ff' + '_' + str(layer) + '_' + 'proj'
 			input_size = (batch_size, SEQ_LENGTH, layer_hidden_size)
-			blocks.append(FeedForwardBlock(block_name, input_size, hidden_size=model_dict['h'][layer + 1]))
-			blocks.append(NonLinearityBlock(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
+			ops.append(FeedForwardOp(op_name, input_size, hidden_size=model_dict['h'][layer + 1]))
+			ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
 
-			if debug: print(f'Added block with name: {block_name}')
+			if debug: print(f'Added operation with name: {op_name}')
 
 
 if __name__ == '__main__':
