@@ -30,6 +30,7 @@ def main(model_dict: dict, config: dict, debug=False):
 			
 			if type == 'sa':
 				blocks.append(SelfAttentionBlock(block_name, input_size, hidden_size=hidden, type=param))
+				blocks.append(SoftmaxBlock(f'sftm_{layer}_{(i+1)}', input_size))
 			elif type == 'c':
 				blocks.append(ConvBlock(block_name, input_size, hidden_size=hidden, kernel_size=int(param)))
 			elif type == 'l':
@@ -44,6 +45,7 @@ def main(model_dict: dict, config: dict, debug=False):
 			block_name = 'ff' + '_' + str(layer) + '_' + str(i + 1)
 			input_size = (batch_size, SEQ_LENGTH, last_hidden_size)
 			blocks.append(FeedForwardBlock(block_name, input_size, hidden_size=hidden))
+			blocks.append(NonLinearityBlock(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
 			last_hidden_size = hidden
 
 			if debug: print(f'Added block with name: {block_name}')
@@ -52,6 +54,7 @@ def main(model_dict: dict, config: dict, debug=False):
 				block_name = 'ff' + '_' + str(layer) + '_' + str(i + 2)
 				input_size = (batch_size, SEQ_LENGTH, last_hidden_size)
 				blocks.append(FeedForwardBlock(block_name, input_size, hidden_size=layer_hidden_size))
+				blocks.append(NonLinearityBlock(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
 
 				if debug: print(f'Added block with name: {block_name}')
 
@@ -68,6 +71,7 @@ def main(model_dict: dict, config: dict, debug=False):
 			block_name = 'ff' + '_' + str(layer) + '_' + 'proj'
 			input_size = (batch_size, SEQ_LENGTH, layer_hidden_size)
 			blocks.append(FeedForwardBlock(block_name, input_size, hidden_size=model_dict['h'][layer + 1]))
+			blocks.append(NonLinearityBlock(f'nl_{layer}_{(i+1)}', input_size, type='gelu'))
 
 			if debug: print(f'Added block with name: {block_name}')
 
