@@ -7,7 +7,7 @@ from tiled_ops import *
 class Op(object):
 	"""Class for a generic Transformer operation"""
 	def __init__(self, op_name, config):
-		self.name = op_name
+		self.op_name = op_name
 		self.config = config
 		self.base_op = False
 		self.done = False
@@ -33,22 +33,22 @@ class MemoryLoadOp(Op):
 		"""Tile a memory load operation
 		
 		Returns:
-		    self.tiled_ops (list): list of MemoryLoadTiledOps
+			self.tiled_ops (list): list of MemoryLoadTiledOps
 		"""
-		self.tiled_ops = [MemoryLoadTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile_x'], self.config['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile_y']))]
+		self.tiled_ops = [MemoryLoadTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
 
 		return self.tiled_ops
 
 
 class MatrixMultOp(Op):
-    """Matrix multiplication base operation
+	"""Matrix multiplication base operation
 
 	Attributes:
 		input_1_size (tuple): size of the input_1 matrix
 		input_2_size (tuple): size of the input_2 matrix
-    """
-    def __init__(self, op_name, input_1_size, input_2_size):
-		Op.__init__(self, op_name)
+	"""
+	def __init__(self, op_name, config, input_1_size, input_2_size):
+		Op.__init__(self, op_name, config)
 		self.input_1_size = input_1_size
 		self.input_2_size = input_2_size
 		self.base_op = True
@@ -59,7 +59,7 @@ class MatrixMultOp(Op):
 		"""Check if input matrices can be multiplied
 		
 		Raises:
-		    ValueError: if input matrices can't be multiplied
+			ValueError: if input matrices can't be multiplied
 		"""
 		if self.input_1_size[0] != self.input_2_size[0] or self.input_1_size[2] != self.input_2_size[1]:
 			raise ValueError(f'Input matrices of sizes: {self.input_1_size} and {self.input_2_size} can\'t be multiplied')
@@ -68,7 +68,7 @@ class MatrixMultOp(Op):
 		"""Get the size of the output matrix
 		
 		Returns:
-		    output_size (tuple): size of the output matrix
+			output_size (tuple): size of the output matrix
 		"""
 		return (self.input_1_size[0], self.input_1_size[1], self.input_2_size[2])
 
@@ -78,15 +78,15 @@ class MatrixMultOp(Op):
 		Returns:
 			self.tiled_ops (list): list of MatrixMultTiledOps
 		"""
-		num_tiles_b = math.ceil(self.input_1_size[0] * 1.0 / self.config['tile_b'])
-		num_tiles_1_x = math.ceil(self.input_1_size[1] * 1.0 / self.config['tile_x'])
-		num_tiles_1_y = math.ceil(self.input_1_size[2] * 1.0 / self.config['tile_y'])
-		num_tiles_2_x = math.ceil(self.input_2_size[1] * 1.0 / self.config['tile_x'])
-		num_tiles_2_y = math.ceil(self.input_2_size[2] * 1.0 / self.config['tile_y'])
+		num_tiles_b = math.ceil(self.input_1_size[0] * 1.0 / self.config['tile']['tile_b'])
+		num_tiles_1_x = math.ceil(self.input_1_size[1] * 1.0 / self.config['tile']['tile_x'])
+		num_tiles_1_y = math.ceil(self.input_1_size[2] * 1.0 / self.config['tile']['tile_y'])
+		num_tiles_2_x = math.ceil(self.input_2_size[1] * 1.0 / self.config['tile']['tile_x'])
+		num_tiles_2_y = math.ceil(self.input_2_size[2] * 1.0 / self.config['tile']['tile_y'])
 
-		assert num_tiled_1_y == num_tiles_2_x
+		assert num_tiles_1_y == num_tiles_2_x
 
-		tile_size = (self.config['tile_b'], self.config['tile_x'], self.config['tile_y'])
+		tile_size = (self.config['tile']['tile_b'], self.config['tile']['tile_x'], self.config['tile']['tile_y'])
 
 		self.tiled_ops = []
 		for b in range(num_tiles_b):
@@ -100,14 +100,14 @@ class MatrixMultOp(Op):
 
 
 class Conv1DOp(Op):
-    """1D convolution base operation
+	"""1D convolution base operation
 
 	Attributes:
 		input_size (tuple): size of the input matrix
 		kernel_size (tuple): size of the convolutional kernel
-    """
-    def __init__(self, op_name, input_size, kernel_size):
-		Op.__init__(self, op_name)
+	"""
+	def __init__(self, op_name, config, input_size, kernel_size):
+		Op.__init__(self, op_name, config)
 		self.input_size = input_size
 		self.kernel_size = kernel_size
 		self.base_op = True
@@ -118,12 +118,12 @@ class Conv1DOp(Op):
 		Returns:
 			self.tiled_ops (list): list of Conv1DTiledOps
 		"""
-		num_tiles_b = math.ceil(self.input_size[0] * 1.0 / self.config['tile_b'])
-		num_tiles_x = math.ceil(self.input_size[1] * 1.0 / self.config['tile_x'])
-		num_tiles_y = math.ceil(self.input_size[2] * 1.0 / self.config['tile_y'])
+		num_tiles_b = math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])
+		num_tiles_x = math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])
+		num_tiles_y = math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y'])
 
-		tile_size = (self.config['tile_b'], self.config['tile_x'], self.config['tile_y'])
-		kernel_size = (self.config['tile_b'], self.kernel_size, self.config['tile_y'])
+		tile_size = (self.config['tile']['tile_b'], self.config['tile']['tile_x'], self.config['tile']['tile_y'])
+		kernel_size = (self.config['tile']['tile_b'], self.kernel_size, self.config['tile']['tile_y'])
 
 		self.tiled_ops = []
 		for b in range(num_tiles_b):
@@ -152,7 +152,7 @@ class LayerNormOp(Op):
 		Returns:
 			self.tiled_ops (list): list of LayerNormTiledOps
 		"""
-		self.tiled_ops = [LayerNormTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile_x'], self.config['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile_y']))]
+		self.tiled_ops = [LayerNormTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
 
 		return self.tiled_ops
 
@@ -176,7 +176,7 @@ class NonLinearityOp(Op):
 		Returns:
 			self.tiled_ops (list): list of NonLinearityTiledOps
 		"""
-		self.tiled_ops = [NonLinearityTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile_x'], self.config['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile_y']))]
+		self.tiled_ops = [NonLinearityTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y']), self.type) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
 
 		return self.tiled_ops
 
@@ -198,7 +198,7 @@ class SoftmaxOp(Op):
 		Returns:
 			self.tiled_ops (list): list of SoftmaxTiledOps
 		"""
-		self.tiled_ops = [SoftmaxTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile_x'], self.config['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile_y']))]
+		self.tiled_ops = [SoftmaxTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
 
 		return self.tiled_ops
 
@@ -216,19 +216,20 @@ class SelfAttentionOp(Op):
 		self.input_size = input_size
 		self.hidden_size = hidden_size
 		self.type = type
+		self.base_ops = []
 
 	def convert_to_base_ops(self):
 		"""Convert operation to base operations"""
 		self.base_ops = []
 
 		# Load input activation
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...'), self.config, self.input_size, 'activation')
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load weight matrices
-		weight_size = (self.input_size[0], self.input_size[2], hidden_size)
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_q...'), self.config, weight_size, 'weight')
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_k...'), self.config, weight_size, 'weight')
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_v...'), self.config, weight_size, 'weight')
+		weight_size = (self.input_size[0], self.input_size[2], self.hidden_size)
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_q...', self.config, weight_size, 'weight'))
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_k...', self.config, weight_size, 'weight'))
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_v...', self.config, weight_size, 'weight'))
 
 		# Get query, key, and value matrices
 		query_op = MatrixMultOp(f'{self.op_name}_q', self.config, self.input_size, weight_size)
@@ -244,7 +245,7 @@ class SelfAttentionOp(Op):
 		# Implement weighted multiplicative attention
 		if self.type == 'wma':
 			wma_size = (key_transposed_size[0], key_transposed_size[1], key_transposed_size[1])
-			self.blocks.append(MemoryLoadOp(f'{self.op_name}_wma...'), self.config, wma_size, 'weight')
+			self.base_ops.append(MemoryLoadOp(f'{self.op_name}_wma...', self.config, wma_size, 'weight'))
 
 			mult_key_op = MatrixMultOp(f'{self.op_name}_wma', self.config, wma_size, key_transposed_size)
 			self.base_ops.append(mult_key_op)
@@ -262,7 +263,7 @@ class SelfAttentionOp(Op):
 		sdp_1_size = sdp_1_op.output_size()
 
 		# Implement softmax function
-		self.base_ops.append(SoftmaxOp()f'{self.op_name}_sftm', self.config, sdp_1_size)
+		self.base_ops.append(SoftmaxOp(f'{self.op_name}_sftm', self.config, sdp_1_size))
 
 		# Multiply with value matrix
 		sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v', self.config, sdp_1_size, value_size)
@@ -271,7 +272,7 @@ class SelfAttentionOp(Op):
 		sdp_2_size = sdp_2_op.output_size()
 
 		# Multiply with output matrix
-		out_weight_size = (self.input_size[0], self.input_size[2], hidden_size)
+		out_weight_size = (self.input_size[0], self.hidden_size, self.input_size[2])
 		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_o...', self.config, out_weight_size, 'weight'))
 
 		out_op = MatrixMultOp(f'{self.op_name}_o', self.config, sdp_2_size, out_weight_size)
@@ -292,9 +293,11 @@ class SelfAttentionOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, MemoryLoadOp):
-				if tiled_memory_load: self.tiled_ops.extend(op.tile_ops())
+				if tile_memory_load: self.tiled_ops.extend(op.tile_op())
 			else:
-				self.tiled_ops.extend(op.tile_ops())
+				self.tiled_ops.extend(op.tile_op())
+
+		return self.tiled_ops
 
 
 class ConvOp(Op):
@@ -310,24 +313,21 @@ class ConvOp(Op):
 		self.input_size = input_size
 		self.hidden_size = hidden_size
 		self.kernel_size = kernel_size
-		self.base_op = True
+		self.base_ops = []
 
 	def convert_to_base_ops(self):
 		"""Convert operation to base operations"""
 		self.base_ops = []
 
 		# Load input activation
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...'), self.config, self.input_size, 'activation')
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load convolution matrix
 		conv_matrix_size = (self.input_size[0], self.kernel_size, self.input_size[2])
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_c...'), self.config, conv_matrix_size, 'weight')
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_c...', self.config, conv_matrix_size, 'weight'))
 
 		conv_op = Conv1DOp(f'{self.op_name}_c', self.config, self.input_size, self.kernel_size)
 		self.base_ops.append(conv_op)
-
-		output_size = conv_op.output_size()
-		assert output_size == self.input_size
 
 	def tile_op(self, tile_memory_load=False):
 		"""Implement tiled operations
@@ -340,9 +340,11 @@ class ConvOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, MemoryLoadOp):
-				if tiled_memory_load: self.tiled_ops.extend(op.tile_ops())
+				if tile_memory_load: self.tiled_ops.extend(op.tile_op())
 			else:
-				self.tiled_ops.extend(op.tile_ops())
+				self.tiled_ops.extend(op.tile_op())
+
+		return self.tiled_ops
 
 
 class LinearTransformOp(Op):
@@ -358,17 +360,18 @@ class LinearTransformOp(Op):
 		self.input_size = input_size
 		self.hidden_size = hidden_size
 		self.type = type
+		self.base_ops = []
 
 	def convert_to_base_ops(self):
 		"""Convert operation to base operations"""
 		self.base_ops = []
 
 		# Load input activation
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...'), self.config, self.input_size, 'activation')
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load Vandermonde matrix
 		vandermonde_size = (self.input_size[0], self.input_size[1], self.input_size[1])
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_l...'), self.config, vandermonde_size, 'weight')
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_l...', self.config, vandermonde_size, 'weight'))
 
 		lt_op = MatrixMultOp(f'{self.op_name}_l', self.config, vandermonde_size, self.input_size)
 		self.base_ops.append(lt_op)
@@ -387,9 +390,11 @@ class LinearTransformOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, MemoryLoadOp):
-				if tiled_memory_load: self.tiled_ops.extend(op.tile_ops())
+				if tile_memory_load: self.tiled_ops.extend(op.tile_op())
 			else:
-				self.tiled_ops.extend(op.tile_ops())
+				self.tiled_ops.extend(op.tile_op())
+
+		return self.tiled_ops
 
 
 class FeedForwardOp(Op):
@@ -403,17 +408,18 @@ class FeedForwardOp(Op):
 		Op.__init__(self, op_name, config)
 		self.input_size = input_size
 		self.hidden_size = hidden_size
+		self.base_ops = []
 
 	def convert_to_base_ops(self):
 		"""Convert operation to base operations"""
 		self.base_ops = []
 
 		# Load input activation
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...'), self.config, self.input_size, 'activation')
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load linear matrix
 		ff_size = (self.input_size[0], self.input_size[2], self.hidden_size)
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_f...'), self.config, ff_size, 'weight')
+		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_f...', self.config, ff_size, 'weight'))
 
 		ff_op = MatrixMultOp(f'{self.op_name}_l', self.config, self.input_size, ff_size)
 		self.base_ops.append(ff_op)
@@ -429,7 +435,9 @@ class FeedForwardOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, MemoryLoadOp):
-				if tiled_memory_load: self.tiled_ops.extend(op.tile_ops())
+				if tile_memory_load: self.tiled_ops.extend(op.tile_op())
 			else:
-				self.tiled_ops.extend(op.tile_ops())
+				self.tiled_ops.extend(op.tile_op())
+
+		return self.tiled_ops
 
