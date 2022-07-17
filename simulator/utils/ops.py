@@ -48,7 +48,7 @@ class MatrixMultOp(Op):
 		input_2_size (tuple): size of the input_2 matrix
     """
     def __init__(self, op_name, input_1_size, input_2_size):
-		TiledOp.__init__(self, op_name)
+		Op.__init__(self, op_name)
 		self.input_1_size = input_1_size
 		self.input_2_size = input_2_size
 		self.base_op = True
@@ -95,6 +95,44 @@ class MatrixMultOp(Op):
 					for k in range(num_tiles_2_x):
 						op_name = f'{self.op_name}_b{b}_i{i}_j{j}_k{k}'
 						self.tiled_ops.append(MatrixMultTiledOp(op_name, tile_size, tile_size))
+
+		return self.tiled_ops
+
+
+class Conv1DOp(Op):
+    """1D convolution base operation
+
+	Attributes:
+		input_size (tuple): size of the input matrix
+		kernel_size (tuple): size of the convolutional kernel
+    """
+    def __init__(self, op_name, input_size, kernel_size):
+		Op.__init__(self, op_name)
+		self.input_size = input_size
+		self.kernel_size = kernel_size
+		self.base_op = True
+
+	def tile_op(self):
+		"""Implement tiled convolution operation (neglect halos)
+
+		Returns:
+			self.tiled_ops (list): list of Conv1DTiledOps
+		"""
+		num_tiles_b = math.ceil(self.input_size[0] * 1.0 / self.config['tile_b'])
+		num_tiles_x = math.ceil(self.input_size[1] * 1.0 / self.config['tile_x'])
+		num_tiles_y = math.ceil(self.input_size[2] * 1.0 / self.config['tile_y'])
+
+		tile_size = (self.config['tile_b'], self.config['tile_x'], self.config['tile_y'])
+		kernel_size = (self.config['tile_b'], self.kernel_size, self.config['tile_y'])
+
+		self.tiled_ops = []
+		for b in range(num_tiles_b):
+			for i in range(num_tiles_x):
+				for j in range(num_tiles_y):
+					op_name = f'{self.op_name}_b{b}_i{i}_j{j}'
+					self.tiled_ops.append(Conv1DTiledOp(op_name, tile_size, kernel_size))
+
+		return self.tiled_ops
 
 
 class LayerNormOp(Op):
@@ -260,7 +298,7 @@ class SelfAttentionOp(Op):
 
 
 class ConvOp(Op):
-	"""1D convolution operation
+	"""Convolution operation
 	
 	Attributes:
 		input_size (tuple): size of the input matrix
@@ -272,6 +310,7 @@ class ConvOp(Op):
 		self.input_size = input_size
 		self.hidden_size = hidden_size
 		self.kernel_size = kernel_size
+		self.base_op = True
 
 	def convert_to_base_ops(self):
 		"""Convert operation to base operations"""
@@ -281,13 +320,10 @@ class ConvOp(Op):
 		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...'), self.config, self.input_size, 'activation')
 
 		# Load convolution matrix
-		conv_matrix_size = (self.input_size[0], self.kernel_size, self.kernel_size)
-
-		rearranged_conv_size = (self.input_size[0], self.input_size[1], self.input_size[1]) # very sparse matrix
+		conv_matrix_size = (self.input_size[0], self.kernel_size, self.input_size[2])
 		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_c...'), self.config, conv_matrix_size, 'weight')
 
-		# TODO: implement a tiled 1D convolution module
-		conv_op = MatrixMultOp(f'{self.op_name}_c', self.config, rearranged_conv_size, self.input_size)
+		conv_op = Conv1DOp(f'{self.op_name}_c', self.config, self.input_size, self.kernel_size)
 		self.base_ops.append(conv_op)
 
 		output_size = conv_op.output_size()

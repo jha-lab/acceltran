@@ -1,7 +1,7 @@
 # Hardware-implementable tiled operations (only for base operations) in the Transformer architecture
 
 
-# TODO: Add ConvTiledOp
+# TODO: Module assignment
 class TiledOp(object):
 	"""Class for a tiled operation"""
 	def __init__(self, op_name):
@@ -52,6 +52,19 @@ class MatrixMultTiledOp(TiledOp):
 		    output_size (tuple): size of the output matrix
 		"""
 		return (self.input_1_size[0], self.input_1_size[1], self.input_2_size[2])
+
+
+class Conv1DTiledOp(TiledOp):
+	"""1D convolution tiled operation
+	
+	Attributes:
+		input_size (tuple): size of the input matrix
+		kernel_size (tuple): size of the convolutional kernel
+	"""
+	def __init__(self, op_name, input_size, kernel_size):
+		TiledOp.__init__(self, op_name)
+		self.input_size = input_size
+		self.kernel_size = kernel_size
 
 
 class LayerNormTiledOp(TiledOp):
