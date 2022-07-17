@@ -30,7 +30,6 @@ def main(model_dict: dict, config: dict, debug=False):
 			
 			if type == 'sa':
 				ops.append(SelfAttentionOp(op_name, input_size, hidden_size=hidden, type=param))
-				ops.append(SoftmaxOp(f'sftm_{layer}_{(i+1)}', input_size))
 			elif type == 'c':
 				ops.append(ConvOp(op_name, input_size, hidden_size=hidden, kernel_size=int(param)))
 			elif type == 'l':
