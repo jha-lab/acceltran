@@ -5,7 +5,7 @@
 class TiledOp(object):
 	"""Class for a tiled operation"""
 	def __init__(self, op_name):
-		self.name = op_name
+		self.op_name = op_name
 		self.done = False
 
 
@@ -90,7 +90,7 @@ class NonLinearityTiledOp(TiledOp):
 		self.input_size = input_size
 		self.type = type
 
-class SoftmaxTiledOp(Op):
+class SoftmaxTiledOp(TiledOp):
 	"""Softmax tiled operation
 
 	Attributes:
