@@ -13,9 +13,9 @@ lanes_per_pe: 72
 
 mac_per_lane: 16
 
-il: 4
-
-fl: 16
+bits:
+  IL: 4
+  FL: 16
 
 batch_size: 4
 
@@ -25,8 +25,8 @@ weight_buffer_size: 24
 
 mask_buffer_size: 4
 
-main_memory_config:
-  rram:
-    banks: 16
-    ranks: 2
-    channels: 2
+main_memory:
+  type: 'rram'
+  banks: 16
+  ranks: 2
+  channels: 2
