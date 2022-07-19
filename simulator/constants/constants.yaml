@@ -1,9 +1,5 @@
 # Area, power, and other constants from AccelTran synthesis
 
-bits:
-  IL: 4
-  FL: 16
-
 sparsity:
   activation: 0.5
   weight: 0.5
