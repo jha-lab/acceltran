@@ -35,6 +35,7 @@ class MacLane(Module):
 
 	def process(self, op):
 		# TODO: add activation and weight sparsity
+		# TODO: add num_muls in corresponding tiled op
 		self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs)
 		self.ready = False
 
@@ -148,33 +149,32 @@ class Buffer(object):
 		elif self.buffer_type == 'weight':
 			self.weight_factor = (1.0 - self.weight_sparsity)
 
-	def data_in_buffer(self, op):
-		# TODO: change op to data class
-		if op.op_name in [data.op_name for data in self.data]:
+	def data_in_buffer(self, data):
+		if data.data_name in [d.data_name for d in self.data]:
 			return True
 		else:
 			return False
 
-	def remove_data(self, op):
-		self.data = [data for data in self.data if data.op_name != op.op_name]
+	def remove_data(self, data):
+		self.data = [d for d in self.data if d.data_name != data.data_name]
 
-	def load(self, op):
-		if self.data_in_buffer(op):
+	def load(self, data):
+		if self.data_in_buffer(data):
 			while self.used > self.buffer_size:
 				# Remove oldest used data
-				self.used -= self.data[0].input_size * (self.IL + self.FL) * self.weight_factor
+				self.used -= self.data[0].data_size * (self.IL + self.FL) * self.weight_factor
 				self.data.remove(self.data[0])
-			self.data.append(op)
-			self.used += op.input_size * (self.IL + self.FL) * self.weight_factor
-			self.process_cycles = op.input_size * (self.IL + self.FL) * self.weight_factor / self.ddr_bandwidth
+			self.data.append(data)
+			self.used += data.data_size * (self.IL + self.FL) * self.weight_factor
+			self.process_cycles = data.data_size * (self.IL + self.FL) * self.weight_factor / self.ddr_bandwidth
 		else:
 			# Latest used data in the end of the list
-			self.data.remove(op); self.data.append(op)
+			self.data.remove(data); self.data.append(data)
 			self.process_cycles = 0
 
-	def store(self, op):
-		assert self.data_in_buffer(op)
-		self.data.used -= op.input_size * (self.IL + self.FL) * self.weight_factor
-		self.data.remove(op)
-		self.process_cycles = op.input_size * (self.IL + self.FL) * self.weight_factor / self.ddr_bandwidth
+	def store(self, data):
+		assert self.data_in_buffer(data)
+		self.data.used -= data.data_size * (self.IL + self.FL) * self.weight_factor
+		self.data.remove(data)
+		self.process_cycles = data.data_size * (self.IL + self.FL) * self.weight_factor / self.ddr_bandwidth
 
