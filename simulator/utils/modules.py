@@ -25,24 +25,9 @@ class Module(object):
 		self.ready = True
 
 
-class MacLane(Module):
-	def __init__(self, module_name, dynamic_power, leakage_power, area, num_macs, activation_sparsity, weight_sparsity, overlap_factor):
-		Module.__init__(self, module_name, dynamic_power, leakage_power, area)
-		self.num_macs = num_macs
-		self.activation_sparsity = activation_sparsity
-		self.weight_sparsity = weight_sparsity
-		self.overlap_factor = overlap_factor
-
-	def process(self, op):
-		# TODO: add activation and weight sparsity
-		# TODO: add num_muls in corresponding tiled op
-		self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs)
-		self.ready = False
-
-
 class DataFlow(Module):
-	def __init__(self, module_name, dynamic_power, leakage_power, area):
-		Module.__init__(self, module_name, dynamic_power, leakage_power, area)
+	def __init__(self, module_name, constants):
+		Module.__init__(self, module_name, constants['dataflow']['dynamic'], constants['dataflow']['leakage'], constants['dataflow']['area'])
 
 	def process(self, op):
 		self.process_cycles = 1
@@ -50,19 +35,8 @@ class DataFlow(Module):
 
 
 class DMA(Module):
-	def __init__(self, module_name, dynamic_power, leakage_power, area, bandwidth):
-		Module.__init__(self, module_name, dynamic_power, leakage_power, area)
-		self.bandwidth = bandwidth
-
-	def process(self, op):
-		self.process_cycles = 1
-		self.ready = False
-
-
-class FIFO(Module):
-	def __init__(self, module_name, dynamic_power, leakage_power, area, depth):
-		Module.__init__(self, module_name, dynamic_power, leakage_power, area)
-		self.depth = depth
+	def __init__(self, module_name, constants):
+		Module.__init__(self, module_name, constants['dma']['dynamic'], constants['dma']['leakage'], constants['dma']['area'])
 
 	def process(self, op):
 		self.process_cycles = 1
@@ -70,8 +44,8 @@ class FIFO(Module):
 
 
 class LayerNorm(Module):
-	def __init__(self, module_name, dynamic_power, leakage_power, area, width):
-		Module.__init__(self, module_name, dynamic_power, leakage_power, area)
+	def __init__(self, module_name, constants, width):
+		Module.__init__(self, module_name, constants['layer_norm']['dynamic'], constants['layer_norm']['leakage'], constants['layer_norm']['area'])
 		self.width = width
 
 	def process(self, op):
@@ -81,8 +55,8 @@ class LayerNorm(Module):
 
 
 class Softmax(Module):
-	def __init__(self, module_name, dynamic_power, leakage_power, area, width):
-		Module.__init__(self, module_name, dynamic_power, leakage_power, area)
+	def __init__(self, module_name, constants, width):
+		Module.__init__(self, module_name, constants['softmax']['dynamic'], constants['softmax']['leakage'], constants['softmax']['area'])
 		self.width = width
 
 	def process(self, op):
@@ -91,9 +65,19 @@ class Softmax(Module):
 		self.ready = False
 
 
+class Register(Module):
+	def __init__(self, module_name, constants, depth):
+		Module.__init__(self, module_name, constants['register']['dynamic'], constants['register']['leakage'], constants['register']['area'])
+		self.depth = depth
+
+	def process(self, op):
+		self.process_cycles = 1
+		self.ready = False
+
+
 class PreSparsity(Module):
-	def __init__(self, module_name, dynamic_power, leakage_power, area):
-		Module.__init__(self, module_name, dynamic_power, leakage_power, area)
+	def __init__(self, module_name, constants):
+		Module.__init__(self, module_name, constants['pre_sparsity']['dynamic_power'], constants['pre_sparsity']['leakage_power'], constants['pre_sparsity']['area'])
 
 	def process(op):
 		self.process_cycles = 1
@@ -101,80 +85,28 @@ class PreSparsity(Module):
 
 
 class PostSparsity(Module):
-	def __init__(self, module_name, dynamic_power, leakage_power, area):
-		Module.__init__(self, module_name, dynamic_power, leakage_power, area)
+	def __init__(self, module_name, constants):
+		Module.__init__(self, module_name, constants['post_sparsity']['dynamic_power'], constants['post_sparsity']['leakage_power'], constants['post_sparsity']['area'])
 
 	def process(self, op):
 		self.process_cycles = 1
 		self.ready = False
 
+class MACLane(Module):
+	def __init__(self, module_name, config, constants):
+		Module.__init__(self, module_name, constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['dynamic'], constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['leakage'], constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['area'])
+		self.num_macs = config['mac_per_lane']
+		self.activation_sparsity = constants['sparsity']['activation']
+		self.weight_sparsity = constants['sparsity']['weight']
+		self.overlap_factor = constants['overlap_factor']
 
-class Buffer(object):
-	"""Buffer class
-	
-	Attributes:
-		buffer_type (str): type of buffer in ['activation', 'weight', 'mask']
-		buffer_size (float): size of buffer in MBs
-	    access_energy (float): energy per access from the main memory in nJ
-	    leakage_power (float): leakage power consumption
-	    area (float): buffer areat in um^2
-	    activation_sparsity (float): sparsity in activations
-	    weight_sparsity (float): sparsity in weights
-	    IL (int): number of bits for the integer part
-	    FL (int): number of bits for the fractional part
-	    ddr_bandwidth (int): bandwidth of main memory in MB/s
-	    process_cycles (int): Description
-	    ready (bool): if the buffer is ready to take more input
-	    used (int): amount of buffer currently in use
-	    data (list): names of data elements currently in buffer
-	"""
-	def __init__(self, buffer_type, buffer_size, access_energy, leakage_power, area, activation_sparsity, weight_sparsity, IL, FL, ddr_bandwidth):
-		self.buffer_type = buffer_type
-		self.buffer_size = buffer_size * 1024 * 8
-		self.access_energy = access_energy
-		self.leakage_power = leakage_power
-		self.area = area
-		self.activation_sparsity = activation_sparsity
-		self.weight_sparsity = weight_sparsity
-		self.IL = IL
-		self.FL = FL
-		self.ddr_bandwidth = ddr_bandwidth
-		self.process_cycles = 0
-		self.ready = True
-		self.used = 0
-		self.data = []
+		self.register = Register(f'{self.module_name}_reg', constants, 32)
+		self.pre_sparsity = PreSparsity(f'{self.module_name}_pre-s', constants)
+		self.post_sparsity = PostSparsity(f'{self.module_name}_post-s', constants)
 
-		if self.buffer_type == 'activation':
-			self.weight_factor = (1.0 - self.activation_sparsity)
-		elif self.buffer_type == 'weight':
-			self.weight_factor = (1.0 - self.weight_sparsity)
-
-	def data_in_buffer(self, data):
-		if data.data_name in [d.data_name for d in self.data]:
-			return True
-		else:
-			return False
-
-	def remove_data(self, data):
-		self.data = [d for d in self.data if d.data_name != data.data_name]
-
-	def load(self, data):
-		if self.data_in_buffer(data):
-			while self.used > self.buffer_size:
-				# Remove oldest used data
-				self.used -= self.data[0].data_size * (self.IL + self.FL) * self.weight_factor
-				self.data.remove(self.data[0])
-			self.data.append(data)
-			self.used += data.data_size * (self.IL + self.FL) * self.weight_factor
-			self.process_cycles = data.data_size * (self.IL + self.FL) * self.weight_factor / self.ddr_bandwidth
-		else:
-			# Latest used data in the end of the list
-			self.data.remove(data); self.data.append(data)
-			self.process_cycles = 0
-
-	def store(self, data):
-		assert self.data_in_buffer(data)
-		self.data.used -= data.data_size * (self.IL + self.FL) * self.weight_factor
-		self.data.remove(data)
-		self.process_cycles = data.data_size * (self.IL + self.FL) * self.weight_factor / self.ddr_bandwidth
+	def process(self, op):
+		# TODO: add activation and weight sparsity
+		# TODO: add num_muls in corresponding tiled op
+		self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs)
+		self.ready = False
 
