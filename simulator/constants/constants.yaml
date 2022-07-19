@@ -18,7 +18,7 @@ lane:
       area: 597.964253 # in um^2
       dynamic: 0.2756146 # in mW
       leakage: 0.0223711 # in mW
-    silu:
+    gelu:
       area: 1209.955838
       dynamic: 0.6705926
       leakage: 0.0419121
@@ -27,7 +27,7 @@ lane:
       area: 8819.484999
       dynamic: 4.8926
       leakage: 0.3003
-    silu:
+    gelu:
       area: 9418.667591
       dynamic: 5.1955
       leakage: 0.3189685
