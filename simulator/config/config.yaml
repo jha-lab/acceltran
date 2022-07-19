@@ -5,6 +5,8 @@ tile:
   tile_x: 16
   tile_y: 16
 
+non_linearity: 'gelu'
+
 pe: 64
 
 lanes_per_pe: 72
