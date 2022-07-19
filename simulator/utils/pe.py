@@ -8,6 +8,14 @@ from modules import *
 
 class ProcessingElement(object):
     """Processing Element class
+    
+    Attributes:
+    	pe_name (str): name of the given PE
+    	mac_lanes (list): list of MACLane objects
+        dataflow (Dataflow): Dataflow module object
+        dma (DMA): DMA module object
+        layer_norm (LayerNorm): LayerNorm module object
+        softmax (Softmax): Softmax module object
     """
     def __init__(self, pe_name, config, constants):
     	self.pe_name = pe_name
