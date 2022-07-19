@@ -15,6 +15,14 @@ class Op(object):
 	def transpose_size(self, matrix_size):
 		return (matrix_size[0], matrix_size[2], matrix_size[1])
 
+
+class Data(object):
+	"""Class for a generic data block"""
+	def __init__(self, data_name, data_size, data_type):
+		self.data_name = data_name
+		self.data_size = data_size
+		self.data_type = data_type
+
 # TODO: check if we need a MemoryStoreOp
 class MemoryLoadOp(Op):
 	"""Memory load base operation
@@ -28,6 +36,9 @@ class MemoryLoadOp(Op):
 		self.input_size = input_size
 		self.data_type = data_type
 		self.base_op = True
+
+	def convert_to_data(self):
+		return Data(data_name=self.op_name, data_size=self.input_size, data_type=self.data_type)
 
 	def tile_op(self):
 		"""Tile a memory load operation
