@@ -45,7 +45,7 @@ def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
 			op_name = 'ff' + '_' + str(layer + 1) + '_' + str(i + 1)
 			input_size = (batch_size, SEQ_LENGTH, last_hidden_size)
 			ops.append(FeedForwardOp(op_name, config, input_size, hidden_size=hidden))
-			ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', config, input_size, type='gelu'))
+			ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', config, input_size, type=config['non_linearity']))
 			last_hidden_size = hidden
 
 			if debug: print(f'Added operation with name: {op_name}')
@@ -54,7 +54,7 @@ def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
 				op_name = 'ff' + '_' + str(layer + 1) + '_' + str(i + 2)
 				input_size = (batch_size, SEQ_LENGTH, last_hidden_size)
 				ops.append(FeedForwardOp(op_name, config, input_size, hidden_size=layer_hidden_size))
-				ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', config, input_size, type='gelu'))
+				ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', config, input_size, type=config['non_linearity']))
 
 				if debug: print(f'Added operation with name: {op_name}')
 
@@ -71,7 +71,7 @@ def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
 			op_name = 'ff' + '_' + str(layer + 1) + '_' + 'proj'
 			input_size = (batch_size, SEQ_LENGTH, layer_hidden_size)
 			ops.append(FeedForwardOp(op_name, config, input_size, hidden_size=model_dict['h'][layer + 1]))
-			ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', config, input_size, type='gelu'))
+			ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', config, input_size, type=config['non_linearity']))
 
 			if debug: print(f'Added operation with name: {op_name}')
 
