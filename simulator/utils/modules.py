@@ -129,7 +129,7 @@ class Buffer(object):
 	"""
 	def __init__(self, buffer_type, buffer_size, access_energy, leakage_power, area, activation_sparsity, weight_sparsity, IL, FL, ddr_bandwidth):
 		self.buffer_type = buffer_type
-		self.buffer_size = buffer_size
+		self.buffer_size = buffer_size * 1024 * 8
 		self.access_energy = access_energy
 		self.leakage_power = leakage_power
 		self.area = area
@@ -177,4 +177,4 @@ class Buffer(object):
 		self.data.used -= op.input_size * (self.IL + self.FL) * self.weight_factor
 		self.data.remove(op)
 		self.process_cycles = op.input_size * (self.IL + self.FL) * self.weight_factor / self.ddr_bandwidth
-		
+
