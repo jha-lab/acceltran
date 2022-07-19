@@ -25,17 +25,18 @@ class Buffer(object):
 	    used (int): amount of buffer currently in use
 	    data (list): names of data elements currently in buffer
 	"""
-	def __init__(self, buffer_type, buffer_size, access_energy, leakage_power, area, activation_sparsity, weight_sparsity, IL, FL, bandwidth):
+	def __init__(self, buffer_type, config, constants):
 		self.buffer_type = buffer_type
-		self.buffer_size = buffer_size * 1024 * 1024 * 8
-		self.access_energy = access_energy
-		self.leakage_power = leakage_power
-		self.area = area
-		self.activation_sparsity = activation_sparsity
-		self.weight_sparsity = weight_sparsity
-		self.IL = IL
-		self.FL = FL
-		self.bandwidth = bandwidth
+		self.buffer_size = config[f'{buffer_type}_buffer_size'] * 1024 * 1024 * 8
+		self.main_memory_energy = constants['main_memory']['energy'][f'{config["main_memory"]["type"]}_{config["main_memory"]["banks"]}_{config["main_memory"]["ranks"]}_{config["main_memory"]["channels"]}']
+		self.access_energy = constants[f'{buffer_type}_buffer']['energy']
+		self.leakage_power = constants[f'{buffer_type}_buffer']['leakage']
+		self.area = onstants[f'{buffer_type}_buffer']['area']
+		self.activation_sparsity = constants['sparsity']['activation']
+		self.weight_sparsity = constants['sparsity']['weight']
+		self.IL = config['bits']['IL']
+		self.FL = config['bits']['FL']
+		self.bandwidth = constants['main_memory']['bandwidth']
 		self.process_cycles = 0
 		self.ready = True
 		self.used = 0
