@@ -9,6 +9,14 @@ class TiledOp(object):
 		self.done = False
 
 
+class TiledData(object):
+	"""Class for a tiled data block"""
+	def __init__(self, data_name, data_size, data_type):
+		self.data_name = data_name
+		self.data_size = data_size
+		self.data_type = data_type
+
+
 class MemoryLoadTiledOp(TiledOp):
 	"""Memory load tiled operation
 	
@@ -20,6 +28,9 @@ class MemoryLoadTiledOp(TiledOp):
 		TiledOp.__init__(self, op_name)
 		self.input_size = input_size
 		self.data_type = data_type
+
+	def convert_to_data(self):
+		return TiledData(self, data_name=self.op_name, data_size=self.input_size, data_type=self.data_type)
 
 
 class MatrixMultTiledOp(TiledOp):
