@@ -38,7 +38,7 @@ class MemoryLoadOp(Op):
 		self.base_op = True
 
 	def convert_to_data(self):
-		return Data(data_name=self.op_name, data_size=self.input_size, data_type=self.data_type)
+		return Data(data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type)
 
 	def tile_op(self):
 		"""Tile a memory load operation
@@ -46,7 +46,7 @@ class MemoryLoadOp(Op):
 		Returns:
 			self.tiled_ops (list): list of MemoryLoadTiledOps
 		"""
-		self.tiled_ops = [MemoryLoadTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
+		self.tiled_ops = [MemoryLoadTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y']), self.data_type) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
 
 		return self.tiled_ops
 
@@ -304,7 +304,10 @@ class SelfAttentionOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, MemoryLoadOp):
-				if tile_memory_load: self.tiled_ops.extend(op.tile_op())
+				if tile_memory_load: 
+					self.tiled_ops.extend(op.tile_op())
+				else:
+					self.tiled_ops.append(op)
 			else:
 				self.tiled_ops.extend(op.tile_op())
 
@@ -351,7 +354,10 @@ class ConvOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, MemoryLoadOp):
-				if tile_memory_load: self.tiled_ops.extend(op.tile_op())
+				if tile_memory_load: 
+					self.tiled_ops.extend(op.tile_op())
+				else:
+					self.tiled_ops.append(op)
 			else:
 				self.tiled_ops.extend(op.tile_op())
 
@@ -401,7 +407,10 @@ class LinearTransformOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, MemoryLoadOp):
-				if tile_memory_load: self.tiled_ops.extend(op.tile_op())
+				if tile_memory_load: 
+					self.tiled_ops.extend(op.tile_op())
+				else:
+					self.tiled_ops.append(op)
 			else:
 				self.tiled_ops.extend(op.tile_op())
 
@@ -446,7 +455,10 @@ class FeedForwardOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, MemoryLoadOp):
-				if tile_memory_load: self.tiled_ops.extend(op.tile_op())
+				if tile_memory_load: 
+					self.tiled_ops.extend(op.tile_op())
+				else:
+					self.tiled_ops.append(op)
 			else:
 				self.tiled_ops.extend(op.tile_op())
 

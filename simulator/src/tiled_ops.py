@@ -30,7 +30,7 @@ class MemoryLoadTiledOp(TiledOp):
 		self.data_type = data_type
 
 	def convert_to_data(self):
-		return TiledData(self, data_name=self.op_name, data_size=self.input_size, data_type=self.data_type)
+		return TiledData(self, data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type)
 
 
 class MatrixMultTiledOp(TiledOp):
