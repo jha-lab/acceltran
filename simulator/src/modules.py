@@ -24,7 +24,7 @@ class Module(object):
 		self.ready = True
 
 
-class DataFlow(Module):
+class Dataflow(Module):
 	def __init__(self, module_name, constants):
 		Module.__init__(self, module_name, constants['dataflow']['dynamic'], constants['dataflow']['leakage'], constants['dataflow']['area'])
 
@@ -43,7 +43,7 @@ class DMA(Module):
 
 
 class LayerNorm(Module):
-	def __init__(self, module_name, constants, width):
+	def __init__(self, module_name, constants, width=16):
 		Module.__init__(self, module_name, constants['layer_norm']['dynamic'], constants['layer_norm']['leakage'], constants['layer_norm']['area'])
 		self.width = width
 
@@ -54,7 +54,7 @@ class LayerNorm(Module):
 
 
 class Softmax(Module):
-	def __init__(self, module_name, constants, width):
+	def __init__(self, module_name, constants, width=16):
 		Module.__init__(self, module_name, constants['softmax']['dynamic'], constants['softmax']['leakage'], constants['softmax']['area'])
 		self.width = width
 
@@ -76,7 +76,7 @@ class Register(Module):
 
 class PreSparsity(Module):
 	def __init__(self, module_name, constants):
-		Module.__init__(self, module_name, constants['pre_sparsity']['dynamic_power'], constants['pre_sparsity']['leakage_power'], constants['pre_sparsity']['area'])
+		Module.__init__(self, module_name, constants['pre_sparsity']['dynamic'], constants['pre_sparsity']['leakage'], constants['pre_sparsity']['area'])
 
 	def process(op):
 		self.process_cycles = 1
@@ -85,7 +85,7 @@ class PreSparsity(Module):
 
 class PostSparsity(Module):
 	def __init__(self, module_name, constants):
-		Module.__init__(self, module_name, constants['post_sparsity']['dynamic_power'], constants['post_sparsity']['leakage_power'], constants['post_sparsity']['area'])
+		Module.__init__(self, module_name, constants['post_sparsity']['dynamic'], constants['post_sparsity']['leakage'], constants['post_sparsity']['area'])
 
 	def process(self, op):
 		self.process_cycles = 1
