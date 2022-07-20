@@ -83,6 +83,8 @@ def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
 	if debug:
 		print(f'Number of tiled operations: {len(tiled_ops)}')
 
+	return ops, tiled_ops
+
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(
