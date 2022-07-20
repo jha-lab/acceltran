@@ -15,19 +15,40 @@ class TiledData(object):
 		self.data_name = data_name
 		self.data_size = data_size
 		self.data_type = data_type
+		self.required_in_buffer = False
 
 
 class MemoryLoadTiledOp(TiledOp):
-	"""Memory load tiled operation
+	"""Memory load (from main memory to buffer) tiled operation
 	
 	Attributes:
 		input_size (tuple): size of the input matrix to be loaded
 		data_type (str): type of data to fetch in ['activation', 'weight']
+		compute_op (bool): if the operation is a compute operation
 	"""
 	def __init__(self, op_name, input_size, data_type):
 		TiledOp.__init__(self, op_name)
 		self.input_size = input_size
 		self.data_type = data_type
+		self.compute_op = False
+
+	def convert_to_data(self):
+		return TiledData(self, data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type)
+
+
+class MemoryStoreTiledOp(TiledOp):
+	"""Memory store (from PEs to buffer) tiled operation
+	
+	Attributes:
+		input_size (tuple): size of the input matrix to be loaded
+		data_type (str): type of data to fetch in ['activation', 'weight']
+		compute_op (bool): if the operation is a compute operation
+	"""
+	def __init__(self, op_name, input_size, data_type):
+		TiledOp.__init__(self, op_name)
+		self.input_size = input_size
+		self.data_type = data_type
+		self.compute_op = False
 
 	def convert_to_data(self):
 		return TiledData(self, data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type)
@@ -39,13 +60,17 @@ class MatrixMultTiledOp(TiledOp):
 	Attributes:
 		input_1_size (tuple): size of the input_1 matrix
 		input_2_size (tuple): size of the input_2 matrix
+		compute_op (bool): if the operation is a compute operation
+		required_in_buffer (list): list of data object names required in buffer
 	"""
-	def __init__(self, op_name, input_1_size, input_2_size):
+	def __init__(self, op_name, required_in_buffer, input_1_size, input_2_size):
 		TiledOp.__init__(self, op_name)
+		self.required_in_buffer = required_in_buffer
 		self.input_1_size = input_1_size
 		self.input_2_size = input_2_size
-
 		self.check_input_sizes()
+
+		self.compute_op = True
 
 	def check_input_sizes(self):
 		"""Check if input matrices can be multiplied
@@ -71,11 +96,15 @@ class Conv1DTiledOp(TiledOp):
 	Attributes:
 		input_size (tuple): size of the input matrix
 		kernel_size (tuple): size of the convolutional kernel
+		compute_op (bool): if the operation is a compute operation
+		required_in_buffer (list): list of data object names required in buffer 
 	"""
-	def __init__(self, op_name, input_size, kernel_size):
+	def __init__(self, op_name, required_in_buffer, input_size, kernel_size):
 		TiledOp.__init__(self, op_name)
+		self.required_in_buffer = required_in_buffer
 		self.input_size = input_size
 		self.kernel_size = kernel_size
+		self.compute_op = True
 
 
 class LayerNormTiledOp(TiledOp):
@@ -83,10 +112,14 @@ class LayerNormTiledOp(TiledOp):
 	
 	Attributes:
 		input_size (tuple): size of the input matrix
+		compute_op (bool): if the operation is a compute operation 
+		required_in_buffer (list): list of data object names required in buffer 
 	"""
-	def __init__(self, op_name, input_size):
+	def __init__(self, op_name, required_in_buffer, input_size):
 		TiledOp.__init__(self, op_name)
+		self.required_in_buffer = required_in_buffer
 		self.input_size = input_size
+		self.compute_op = True
 
 
 class NonLinearityTiledOp(TiledOp):
@@ -95,19 +128,27 @@ class NonLinearityTiledOp(TiledOp):
 	Attributes:
 		input_size (tuple): size of the input matrix
 		type (str): type of non-linearity in ['relu', 'gelu']
+		compute_op (bool): if the operation is a compute operation 
+		required_in_buffer (list): list of data object names required in buffer 
 	"""
-	def __init__(self, op_name, input_size, type):
+	def __init__(self, op_name, required_in_buffer, input_size, type):
 		TiledOp.__init__(self, op_name)
+		self.required_in_buffer = required_in_buffer
 		self.input_size = input_size
 		self.type = type
+		self.compute_op = True
 
 class SoftmaxTiledOp(TiledOp):
 	"""Softmax tiled operation
 
 	Attributes:
 		input_size (tuple): size of the input matrix
+		compute_op (bool): if the operation is a compute operation 
+		required_in_buffer (list): list of data object names required in buffer 
 	"""
-	def __init__(self, op_name, input_size):
+	def __init__(self, op_name, required_in_buffer, input_size):
 		TiledOp.__init__(self, op_name)
+		self.required_in_buffer = required_in_buffer
 		self.input_size = input_size
+		self.compute_op = True
 
