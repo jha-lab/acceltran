@@ -143,7 +143,7 @@ class MatrixMultOp(Op):
 				for j in range(num_tiles_2_y):
 					for k in range(num_tiles_2_x):
 						op_name = f'{self.op_name}_b{b}_i{i}_j{j}_k{k}'
-						self.tiled_ops.append(MatrixMultTiledOp(op_name, tile_size, tile_size))
+						self.tiled_ops.append(MatrixMultTiledOp(op_name, self.required_in_buffer, tile_size, tile_size))
 
 		return self.tiled_ops
 
@@ -183,7 +183,7 @@ class Conv1DOp(Op):
 			for i in range(num_tiles_x):
 				for j in range(num_tiles_y):
 					op_name = f'{self.op_name}_b{b}_i{i}_j{j}'
-					self.tiled_ops.append(Conv1DTiledOp(op_name, tile_size, kernel_size))
+					self.tiled_ops.append(Conv1DTiledOp(op_name, self.required_in_buffer, tile_size, kernel_size))
 
 		return self.tiled_ops
 
@@ -209,7 +209,7 @@ class LayerNormOp(Op):
 		Returns:
 			self.tiled_ops (list): list of LayerNormTiledOps
 		"""
-		self.tiled_ops = [LayerNormTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
+		self.tiled_ops = [LayerNormTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', self.required_in_buffer, (self.config['tile']['tile_x'], self.config['tile']['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
 
 		return self.tiled_ops
 
@@ -236,7 +236,7 @@ class NonLinearityOp(Op):
 		Returns:
 			self.tiled_ops (list): list of NonLinearityTiledOps
 		"""
-		self.tiled_ops = [NonLinearityTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y']), self.type) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
+		self.tiled_ops = [NonLinearityTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', self.required_in_buffer, (self.config['tile']['tile_x'], self.config['tile']['tile_y']), self.type) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
 
 		return self.tiled_ops
 
@@ -262,7 +262,7 @@ class SoftmaxOp(Op):
 		Returns:
 			self.tiled_ops (list): list of SoftmaxTiledOps
 		"""
-		self.tiled_ops = [SoftmaxTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', (self.config['tile']['tile_x'], self.config['tile']['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
+		self.tiled_ops = [SoftmaxTiledOp(f'{self.op_name}_b{b}_x{x}_y{y}', self.required_in_buffer, (self.config['tile']['tile_x'], self.config['tile']['tile_y'])) for b in range(math.ceil(self.input_size[0] * 1.0 / self.config['tile']['tile_b'])) for x in range(math.ceil(self.input_size[1] * 1.0 / self.config['tile']['tile_x'])) for y in range(math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y']))]
 
 		return self.tiled_ops
 
