@@ -4,7 +4,6 @@ import math
 from ops import *
 from tiled_ops import *
 
-# TODO: make an Accelerator class that takes in a config and instantiates a bunch of modules
 class Module(object):
 	"""Parent module class
 	
