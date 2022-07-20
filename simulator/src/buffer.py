@@ -1,4 +1,4 @@
-# Run tiled operations on corresponding hardware modules
+# Buffer class for the Accelerator
 
 import math
 from ops import *
@@ -31,7 +31,7 @@ class Buffer(object):
 		self.main_memory_energy = constants['main_memory']['energy'][f'{config["main_memory"]["type"]}_{config["main_memory"]["banks"]}_{config["main_memory"]["ranks"]}_{config["main_memory"]["channels"]}']
 		self.access_energy = constants[f'{buffer_type}_buffer']['energy']
 		self.leakage_power = constants[f'{buffer_type}_buffer']['leakage']
-		self.area = onstants[f'{buffer_type}_buffer']['area']
+		self.area = constants[f'{buffer_type}_buffer']['area']
 		self.activation_sparsity = constants['sparsity']['activation']
 		self.weight_sparsity = constants['sparsity']['weight']
 		self.IL = config['bits']['IL']
@@ -43,9 +43,11 @@ class Buffer(object):
 		self.data = []
 
 		if self.buffer_type == 'activation':
-			self.weight_factor = (1.0 - self.activation_sparsity)
+			self.weight_factor = (self.IL + self.FL) * (1.0 - self.activation_sparsity)
 		elif self.buffer_type == 'weight':
-			self.weight_factor = (1.0 - self.weight_sparsity)
+			self.weight_factor = (self.IL + self.FL) * (1.0 - self.weight_sparsity)
+		elif self.buffer_type == 'mask':
+			self.weight_factor = 1.0
 
 	def data_in_buffer(self, data):
 		if data.data_name in [d.data_name for d in self.data]:
@@ -57,22 +59,26 @@ class Buffer(object):
 		self.data = [d for d in self.data if d.data_name != data.data_name]
 
 	def load(self, data):
+		removed_old_data = False
 		if self.data_in_buffer(data):
-			while self.used > self.buffer_size:
-				# Remove oldest used data
-				self.used -= self.data[0].data_size * (self.IL + self.FL) * self.weight_factor
-				self.data.remove(self.data[0])
-			self.data.append(data)
-			self.used += data.data_size * (self.IL + self.FL) * self.weight_factor
-			self.process_cycles = data.data_size * (self.IL + self.FL) * self.weight_factor / self.bandwidth
-		else:
 			# Latest used data in the end of the list
 			self.data.remove(data); self.data.append(data)
 			self.process_cycles = 0
+		else:
+			while self.used > self.buffer_size:
+				# Remove oldest used data
+				self.used -= self.data[0].data_size * self.weight_factor
+				self.data.remove(self.data[0])
+				removed_old_data = True
+			self.data.append(data)
+			self.used += data.data_size *  self.weight_factor
+			self.process_cycles = data.data_size * self.weight_factor / self.bandwidth
+
+		return removed_old_data
 
 	def store(self, data):
 		assert self.data_in_buffer(data)
-		self.data.used -= data.data_size * (self.IL + self.FL) * self.weight_factor
+		self.data.used -= data.data_size * self.weight_factor
 		self.data.remove(data)
-		self.process_cycles = data.data_size * (self.IL + self.FL) * self.weight_factor / self.bandwidth
+		self.process_cycles = data.data_size * self.weight_factor / self.bandwidth
 
