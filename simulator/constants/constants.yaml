@@ -38,7 +38,7 @@ dma:
   dynamic: 0.0335287
   leakage: 0.0063819
 
-fifo:
+register:
   area: 484.379110
   dynamic: 0.0563909
   leakage: 0.0140774
