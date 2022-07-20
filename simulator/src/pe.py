@@ -1,4 +1,4 @@
-# Run tiled operations on corresponding hardware modules
+# Processing Element class for the Accelerator
 
 import math
 from ops import *
