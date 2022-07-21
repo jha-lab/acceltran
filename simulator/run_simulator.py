@@ -18,6 +18,7 @@ from dict2ops import main as dict2ops
 
 
 SEQ_LENGTH = 512
+DEBUG = True
 
 
 def main(model_dict: dict, config: dict, constants: dict, debug=False):
@@ -37,7 +38,7 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 	# Run operations on the accelerator in a cycle-accurate manner
 	while memory_op is not None or compute_op is not None:
 
-		memory_stall, compute_stall = False, False
+		memory_stall, compute_stall, required_in_buffer_stall = False, False, False
 		
 		if memory_op:
 			assert isinstance(memory_op, (MemoryLoadOp, MemoryLoadTiledOp, MemoryStoreOp, MemoryStoreTiledOp))
@@ -50,7 +51,7 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 			data = memory_op.convert_to_data()
 
 			last_compute_done, store_op = True, False
-			if instance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp)): 
+			if isinstance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp)): 
 				last_compute_done = get_last_compute_op(memory_op, compute_ops).done
 				store_op = True
 
@@ -86,12 +87,15 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 			for data_name in compute_op.required_in_buffer:
 				if not accelerator.activation_buffer.data_in_buffer(data_name) and not accelerator.weight_buffer.data_in_buffer(data_name):
 					compute_stall = True
+					required_in_buffer_stall = True
 					if debug: print(f'Compute stall: {data_name} required in buffer')
 					break
 
 			if not compute_stall:
 				assigned_op = accelerator.assign_op(compute_op)
-				if not assigned_op:
+				if assigned_op:
+					accelerator.set_required(compute_op)
+				else:
 					compute_stall = True 
 					if debug: print(f'Compute stall: no MAC lanes are ready')
 
@@ -99,10 +103,23 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 		accelerator.process_cycle(memory_ops, compute_ops)
 		cycle += 1
 
+		if debug: print(f'Cycle: {cycle}')
+
+		if memory_stall and required_in_buffer_stall:
+			min_cycles = min([process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]])
+
+			if min_cycles > 1:
+				accelerator.activation_buffer.process_cycle(min_cycles)
+				accelerator.weight_buffer.process_cycle(min_cycles)
+				accelerator.mask_buffer.process_cycle(min_cycles)
+
+				cycle += min_cycles
+				continue
+
 		if memory_stall:
 			# memory_op remains the same
 			pass
-		elif memory_ops_idx < len(memory_ops) - 1:
+		elif memory_op_idx < len(memory_ops) - 1:
 			memory_op_idx += 1
 			memory_op = memory_ops[memory_op_idx]
 		else:
@@ -125,20 +142,23 @@ if __name__ == '__main__':
 	parser.add_argument('--model_dict_path',
 		metavar='',
 		type=str,
+		default='model_dict.json',
 		help='path where the model dictionary file is stored')
 	parser.add_argument('--config_path',
 		metavar='',
 		type=str,
+		default='./config/config.yaml',
 		help='path to the accelerator configuration file')
 	parser.add_argument('--constants_path',
 		metavar='',
 		type=str,
+		default='./constants/constants.yaml',
 		help='path to the accelerator constants file')
 	parser.add_argument('--debug',
 		dest='debug',
 		help='print debugging statements',
 		action='store_true')
-	parser.set_defaults(debug=False)
+	parser.set_defaults(debug=DEBUG)
 
 	args = parser.parse_args()
 
