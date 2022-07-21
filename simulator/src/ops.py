@@ -303,7 +303,7 @@ class SelfAttentionOp(Op):
 		# Get query, key, and value matrices
 		query_op = MatrixMultOp(f'{self.op_name}_q', self.config, [f'{self.op_name}_q-l'], self.input_size, weight_size)
 		key_op = MatrixMultOp(f'{self.op_name}_k', self.config, [f'{self.op_name}_k-l'], self.input_size, weight_size)
-		value_op = MatrixMultOp(f'{self.op_name}_v', [f'{self.op_name}_v-l'], self.config, self.input_size, weight_size)
+		value_op = MatrixMultOp(f'{self.op_name}_v', self.config, [f'{self.op_name}_v-l'], self.input_size, weight_size)
 
 		self.base_ops.extend([query_op, key_op, value_op])
 
