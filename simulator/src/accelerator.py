@@ -27,3 +27,37 @@ class Accelerator(object):
 		self.mask_buffer = Buffer('mask', config, constants)
 
 		# TODO: add main memory object with its leakage energy
+
+	def process_cycle(self, memory_ops, compute_ops):
+		for pe in self.pes:
+			pe.process_cycle()
+
+		self.activation_buffer.process_cycle()
+		self.weight_buffer.process_cycle()
+		self.mask_buffer.process_cycle()
+
+		# Mark operations as done if their corresponding modules are ready
+		activation_memory_ops = [op for op in memory_ops if op.data_type == 'activation']
+		weight_memory_ops = [op for op in memory_ops if op.data_type == 'weight']
+		if self.activation_buffer.ready:
+			for memory_op in activation_memory_ops:
+				if memory_op.done == False:
+					memory_op.done = True
+					break
+		if self.weight_buffer.ready:
+			for memory_op in weight_memory_ops:
+				if memory_op.done == False:
+					memory_op.done = True
+					break
+
+	def assign_op(self, op):
+        assert op.compute_op is True
+        assigned_op = False
+
+        for pe in self.pes:
+        	assigned_op = pe.assign_op(op)
+        	if assigned_op = True: break
+
+        return assigned_op
+
+
