@@ -41,6 +41,7 @@ class Buffer(object):
 		self.ready = True
 		self.used = 0
 		self.data = []
+		self.data_being_added = None
 
 		if self.buffer_type == 'activation':
 			self.weight_factor = (self.IL + self.FL) * (1.0 - self.activation_sparsity)
@@ -56,23 +57,29 @@ class Buffer(object):
 			data_name = data
 		else:
 			raise ValueError(f'Input data is not of correct type: {type(data)}')
-			
-		if data_name in [d.data_name for d in self.data]:
+
+		if data_name in [d.data_name for d in self.data] and data_name != self.data_being_added.data_name:
 			return True
 		else:
 			return False
+
+	def get_data(self, data_name):
+		for data in self.data:
+			if data.data_name == data_name: return data
+			
+		return None
 
 	def remove_data(self, data):
 		self.data = [d for d in self.data if d.data_name != data.data_name]
 
 	def can_store(self, data):
-		if self.buffer_size - self.used > self.data_size:
+		if self.buffer_size - self.used > data.data_size:
 			return True
 		else:
 			required_data_size = 0
 			for data in self.data:
 				if data.required_in_buffer: required_data_size += data.data_size
-			if self.buffer_size - self.required_data_size > self.data_size:
+			if self.buffer_size - self.required_data_size > data.data_size:
 				return True
 		return False
 
@@ -90,8 +97,9 @@ class Buffer(object):
 					self.data.remove(self.data[0])
 					removed_old_data = True
 			self.data.append(data)
+			self.data_being_added = data
 			self.used += data.data_size * self.weight_factor
-			self.process_cycles = data.data_size * self.weight_factor / self.bandwidth
+			self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.bandwidth)
 			self.ready = False
 
 		return removed_old_data
@@ -108,6 +116,7 @@ class Buffer(object):
 				self.data.remove(self.data[0])
 				removed_old_data = True
 			self.data.append(data)
+			self.data_being_added = data
 			self.used += data.data_size * self.weight_factor
 			
 		self.process_cycles = 0
@@ -119,12 +128,16 @@ class Buffer(object):
 		assert self.data_in_buffer(data)
 		self.data.used -= data.data_size * self.weight_factor
 		self.data.remove(data)
-		self.process_cycles = data.data_size * self.weight_factor / self.bandwidth
+		self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.bandwidth)
 
-	def process_cycle(self):
-		if self.process_cycles == 0:
+	def process_cycle(self, num_cycles=1):
+		if self.process_cycles is None or self.process_cycles == 0:
+			self.data_being_added = None
 			self.ready = True
 		else:
-			self.process_cycles -= 1
-			self.ready = False
+			self.process_cycles -= num_cycles
+			if self.process_cycles == 0:
+				self.ready = True
+			else:
+				self.ready = False
 
