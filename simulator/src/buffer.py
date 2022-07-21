@@ -50,13 +50,31 @@ class Buffer(object):
 			self.weight_factor = 1.0
 
 	def data_in_buffer(self, data):
-		if data.data_name in [d.data_name for d in self.data]:
+		if isinstance(data, (Data, TiledData)):
+			data_name = data.data_name
+		elif type(data) == str:
+			data_name = data
+		else:
+			raise ValueError(f'Input data is not of correct type: {type(data)}')
+			
+		if data_name in [d.data_name for d in self.data]:
 			return True
 		else:
 			return False
 
 	def remove_data(self, data):
 		self.data = [d for d in self.data if d.data_name != data.data_name]
+
+	def can_store(self, data):
+		if self.buffer_size - self.used > self.data_size:
+			return True
+		else:
+			required_data_size = 0
+			for data in self.data:
+				if data.required_in_buffer: required_data_size += data.data_size
+			if self.buffer_size - self.required_data_size > self.data_size:
+				return True
+		return False
 
 	def load(self, data):
 		removed_old_data = False
@@ -65,20 +83,48 @@ class Buffer(object):
 			self.data.remove(data); self.data.append(data)
 			self.process_cycles = 0
 		else:
+			while self.used + data.data_size > self.buffer_size:
+				# Remove oldest used data if is is not required
+				if not data.required_in_buffer:
+					self.used -= self.data[0].data_size * self.weight_factor
+					self.data.remove(self.data[0])
+					removed_old_data = True
+			self.data.append(data)
+			self.used += data.data_size * self.weight_factor
+			self.process_cycles = data.data_size * self.weight_factor / self.bandwidth
+			self.ready = False
+
+		return removed_old_data
+
+	def store(self, data):
+		removed_old_data = False
+		if self.data_in_buffer(data):
+			# Latest used data in the end of the list
+			self.data.remove(data); self.data.append(data)
+		else:
 			while self.used > self.buffer_size:
 				# Remove oldest used data
 				self.used -= self.data[0].data_size * self.weight_factor
 				self.data.remove(self.data[0])
 				removed_old_data = True
 			self.data.append(data)
-			self.used += data.data_size *  self.weight_factor
-			self.process_cycles = data.data_size * self.weight_factor / self.bandwidth
+			self.used += data.data_size * self.weight_factor
+			
+		self.process_cycles = 0
+		self.ready = True
 
 		return removed_old_data
 
-	def store(self, data):
+	def store_in_main_memory(self, data):
 		assert self.data_in_buffer(data)
 		self.data.used -= data.data_size * self.weight_factor
 		self.data.remove(data)
 		self.process_cycles = data.data_size * self.weight_factor / self.bandwidth
+
+	def process_cycle(self):
+		if self.process_cycles == 0:
+			self.ready = True
+		else:
+			self.process_cycles -= 1
+			self.ready = False
 
