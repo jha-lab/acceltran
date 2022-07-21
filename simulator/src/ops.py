@@ -27,6 +27,7 @@ class Data(object):
 		self.data_type = data_type
 		self.required_in_buffer = False
 
+
 class MemoryLoadOp(Op):
 	"""Memory load (from main memory to buffer) base operation
 	
@@ -103,6 +104,7 @@ class MatrixMultOp(Op):
 		self.base_op = True
 
 		self.check_input_sizes()
+		self.num_muls = input_1_size[0] * input_1_size[1] * input_1_size[2] * input_2_size[2]
 
 	def check_input_sizes(self):
 		"""Check if input matrices can be multiplied
@@ -157,13 +159,16 @@ class Conv1DOp(Op):
 		compute_op (bool): if the operation is a compute operation (only for base operation)
 		required_in_buffer (list): list of data object names required in buffer (only for base operation which is also a compute operation)
 	"""
-	def __init__(self, op_name, config, required_in_buffer, input_size, kernel_size):
+	def __init__(self, op_name, config, required_in_buffer, input_size, kernel_size, stride=1):
 		Op.__init__(self, op_name, config)
 		self.required_in_buffer = required_in_buffer
 		self.input_size = input_size
 		self.kernel_size = kernel_size
+		self.stride = stride
 		self.compute_op = True
 		self.base_op = True
+
+		self.num_muls = input_size[0] * input_size[1] * math.floor((input_size[2] - kernel_size) * 1.0 / stride)
 
 	def tile_op(self):
 		"""Implement tiled convolution operation (neglect halos)
@@ -176,14 +181,14 @@ class Conv1DOp(Op):
 		num_tiles_y = math.ceil(self.input_size[2] * 1.0 / self.config['tile']['tile_y'])
 
 		tile_size = (self.config['tile']['tile_b'], self.config['tile']['tile_x'], self.config['tile']['tile_y'])
-		kernel_size = (self.config['tile']['tile_b'], self.kernel_size, self.config['tile']['tile_y'])
+		# kernel_size = (self.config['tile']['tile_b'], self.kernel_size, self.config['tile']['tile_y'])
 
 		self.tiled_ops = []
 		for b in range(num_tiles_b):
 			for i in range(num_tiles_x):
 				for j in range(num_tiles_y):
 					op_name = f'{self.op_name}_b{b}_i{i}_j{j}'
-					self.tiled_ops.append(Conv1DTiledOp(op_name, self.required_in_buffer, tile_size, kernel_size))
+					self.tiled_ops.append(Conv1DTiledOp(op_name, self.required_in_buffer, tile_size, self.kernel_size, self.stride))
 
 		return self.tiled_ops
 
