@@ -1,7 +1,8 @@
 # Hardware-implementable tiled operations (only for base operations) in the Transformer architecture
 
+import math
 
-# TODO: Module assignment
+
 class TiledOp(object):
 	"""Class for a tiled operation"""
 	def __init__(self, op_name):
@@ -100,11 +101,12 @@ class Conv1DTiledOp(TiledOp):
 		compute_op (bool): if the operation is a compute operation
 		required_in_buffer (list): list of data object names required in buffer 
 	"""
-	def __init__(self, op_name, required_in_buffer, input_size, kernel_size):
+	def __init__(self, op_name, required_in_buffer, input_size, kernel_size, stride):
 		TiledOp.__init__(self, op_name)
 		self.required_in_buffer = required_in_buffer
 		self.input_size = input_size
 		self.kernel_size = kernel_size
+		self.stride = stride
 		self.compute_op = True
 
 		self.num_muls = input_size[0] * input_size[1] * math.floor((input_size[2] - kernel_size) * 1.0 / stride)
