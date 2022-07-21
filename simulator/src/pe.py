@@ -30,3 +30,35 @@ class ProcessingElement(object):
     	self.layer_norm = LayerNorm(f'{self.pe_name}_ln', constants)
     	self.softmax = Softmax(f'{self.pe_name}_sftm', constants)
 
+    def process_cycle(self):
+        for mac_lane in self.mac_lanes:
+            mac_lane.process_cycle()
+
+        self.dataflow.process_cycle()
+        self.dma.process_cycle()
+        self.layer_norm.process_cycle()
+        self.softmax.process_cycle()
+
+    def assign_op(self, op):
+        assert op.compute_op is True
+        assigned_op = False
+
+        if isinstance(op, (MatrixMultTiledOp, Conv1DTiledOp)):
+            for mac_lane in self.mac_lanes:
+                if mac_lane.ready:
+                    mac_lane.assign_op(op)
+                    assigned_op = True
+                    break
+        elif isinstance(op, LayerNormOp):
+            if self.layer_norm.ready:
+                self.layer_norm.assign_op(op)
+                assigned_op = True
+        elif isinstance(op, SoftmaxOp):
+            if self.softmax.ready:
+                self.softmax.assign_op(op)
+                assigned_op = True
+        else:
+            raise ValueError(f'Invalid operation: {op.op_name}')
+
+        return assigned_op
+
