@@ -68,9 +68,10 @@ class MatrixMultTiledOp(TiledOp):
 		self.required_in_buffer = required_in_buffer
 		self.input_1_size = input_1_size
 		self.input_2_size = input_2_size
-		self.check_input_sizes()
-
 		self.compute_op = True
+		
+		self.check_input_sizes()
+		self.num_muls = input_1_size[0] * input_1_size[1] * input_1_size[2] * input_2_size[2]
 
 	def check_input_sizes(self):
 		"""Check if input matrices can be multiplied
@@ -106,6 +107,8 @@ class Conv1DTiledOp(TiledOp):
 		self.kernel_size = kernel_size
 		self.compute_op = True
 
+		self.num_muls = input_size[0] * input_size[1] * math.floor((input_size[2] - kernel_size) * 1.0 / stride)
+
 
 class LayerNormTiledOp(TiledOp):
 	"""Layer normalization tiled operation
@@ -137,6 +140,7 @@ class NonLinearityTiledOp(TiledOp):
 		self.input_size = input_size
 		self.type = type
 		self.compute_op = True
+
 
 class SoftmaxTiledOp(TiledOp):
 	"""Softmax tiled operation
