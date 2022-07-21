@@ -25,7 +25,7 @@ class Module(object):
 		self.ready = True
 
 	def process_cycle(self):
-		if self.process_cycles == 0:
+		if self.process_cycles is None or self.process_cycles == 0:
 			self.ready = True
 		else:
 			self.process_cycles -= 1
@@ -110,7 +110,7 @@ class PreSparsity(Module):
 		Module.__init__(self, module_name, constants['pre_sparsity']['dynamic'], constants['pre_sparsity']['leakage'], constants['pre_sparsity']['area'])
 		self.assigned_op = None
 
-	def assign_op(op):
+	def assign_op(self, op):
 		self.process_cycles = 1
 		self.ready = False
 
