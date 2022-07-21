@@ -28,6 +28,26 @@ class Accelerator(object):
 
 		# TODO: add main memory object with its leakage energy
 
+	def set_required(self, compute_op):
+		for data_name in compute_op.required_in_buffer:
+			if self.activation_buffer.data_in_buffer(data_name):
+				self.activation_buffer.get_data(data_name).required_in_buffer = True
+			if self.weight_buffer.data_in_buffer(data_name):
+				self.weight_buffer.get_data(data_name).required_in_buffer = True
+			if self.mask_buffer.data_in_buffer(data_name):
+				self.mask_buffer.get_data(data_name).required_in_buffer = True
+
+	def set_not_required(self, compute_op):
+		assert compute_op.done is True
+		for data_name in compute_op.required_in_buffer:
+			if self.activation_buffer.data_in_buffer(data_name):
+				self.activation_buffer.get_data(data_name).required_in_buffer = False
+			if self.weight_buffer.data_in_buffer(data_name):
+				self.weight_buffer.get_data(data_name).required_in_buffer = False
+			if self.mask_buffer.data_in_buffer(data_name):
+				self.mask_buffer.get_data(data_name).required_in_buffer = False
+
+
 	def process_cycle(self, memory_ops, compute_ops):
 		for pe in self.pes:
 			pe.process_cycle()
@@ -50,14 +70,21 @@ class Accelerator(object):
 					memory_op.done = True
 					break
 
+		# If a compute_op is done, its corresponding data is not required in buffer anymore
+		for compute_op in compute_ops:
+			if compute_op.done == True:
+				self.set_not_required(compute_op)
+			else:
+				break
+
 	def assign_op(self, op):
-        assert op.compute_op is True
-        assigned_op = False
+		assert op.compute_op is True
+		assigned_op = False
 
-        for pe in self.pes:
-        	assigned_op = pe.assign_op(op)
-        	if assigned_op = True: break
+		for pe in self.pes:
+			assigned_op = pe.assign_op(op)
+			if assigned_op == True: break
 
-        return assigned_op
+		return assigned_op
 
 
