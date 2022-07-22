@@ -47,6 +47,11 @@ class Accelerator(object):
 			if self.mask_buffer.data_in_buffer(data_name):
 				self.mask_buffer.get_data(data_name).required_in_buffer = False
 
+	def all_macs_free(self):
+		for pe in self.pes:
+			for mac_lane in pe.mac_lanes:
+				if not mac_lane.ready: return False
+		return True
 
 	def process_cycle(self, memory_ops, compute_ops):
 		for pe in self.pes:
@@ -86,5 +91,4 @@ class Accelerator(object):
 			if assigned_op == True: break
 
 		return assigned_op
-
 

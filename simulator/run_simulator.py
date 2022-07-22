@@ -38,7 +38,7 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 	# Run operations on the accelerator in a cycle-accurate manner
 	while memory_op is not None or compute_op is not None:
 
-		memory_stall, compute_stall, required_in_buffer_stall = False, False, False
+		memory_stall, compute_stall = False, False
 		
 		if memory_op:
 			assert isinstance(memory_op, (MemoryLoadOp, MemoryLoadTiledOp, MemoryStoreOp, MemoryStoreTiledOp))
@@ -87,7 +87,6 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 			for data_name in compute_op.required_in_buffer:
 				if not accelerator.activation_buffer.data_in_buffer(data_name) and not accelerator.weight_buffer.data_in_buffer(data_name):
 					compute_stall = True
-					required_in_buffer_stall = True
 					if debug: print(f'Compute stall: {data_name} required in buffer')
 					break
 
@@ -105,7 +104,7 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 
 		if debug: print(f'Cycle: {cycle}')
 
-		if memory_stall and required_in_buffer_stall:
+		if memory_stall and compute_stall and accelerator.all_macs_free():
 			min_cycles = min([process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]])
 
 			if min_cycles > 1:
