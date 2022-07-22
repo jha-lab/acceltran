@@ -66,7 +66,7 @@ class Buffer(object):
 	def get_data(self, data_name):
 		for data in self.data:
 			if data.data_name == data_name: return data
-			
+
 		return None
 
 	def remove_data(self, data):
@@ -135,7 +135,7 @@ class Buffer(object):
 			self.data_being_added = None
 			self.ready = True
 		else:
-			self.process_cycles -= num_cycles
+			self.process_cycles = max(self.process_syscles - num_cycles, 0)
 			if self.process_cycles == 0:
 				self.ready = True
 			else:
