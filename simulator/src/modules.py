@@ -41,7 +41,7 @@ class Module(object):
 
 
 class Dataflow(Module):
-	def __init__(self, module_name, constants):
+	def __init__(self, module_name, config, constants):
 		Module.__init__(self, module_name, constants['dataflow']['dynamic'], constants['dataflow']['leakage'], constants['dataflow']['area'])
 		self.assigned_op = None
 
@@ -53,7 +53,7 @@ class Dataflow(Module):
 
 
 class DMA(Module):
-	def __init__(self, module_name, constants):
+	def __init__(self, module_name, config, constants):
 		Module.__init__(self, module_name, constants['dma']['dynamic'], constants['dma']['leakage'], constants['dma']['area'])
 		self.assigned_op = None
 
@@ -65,35 +65,35 @@ class DMA(Module):
 
 
 class LayerNorm(Module):
-	def __init__(self, module_name, constants, width=16):
-		Module.__init__(self, module_name, constants['layer_norm']['dynamic'], constants['layer_norm']['leakage'], constants['layer_norm']['area'])
-		self.width = width
+	def __init__(self, module_name, config, constants):
+		Module.__init__(self, module_name, constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['dynamic'], constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['leakage'], constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['area'])
+		self.activation_sparsity = constants['sparsity']['activation']
+		self.weight_sparsity = constants['sparsity']['weight']
 		self.assigned_op = None
 
 	def assign_op(self, op):
-		# TODO: check cycles based on RTL
-		self.process_cycles = math.ceil(sum(op.input_size) * 1.0 / self.width)
+		self.process_cycles = math.ceil(op.input_size[0] * (op.input_size[1] + op.input_size[2]) * (1 - self.activation_sparsity))
 		self.ready = False
 
 		self.assigned_op = op
 
 
 class Softmax(Module):
-	def __init__(self, module_name, constants, width=16):
-		Module.__init__(self, module_name, constants['softmax']['dynamic'], constants['softmax']['leakage'], constants['softmax']['area'])
-		self.width = width
+	def __init__(self, module_name, config, constants):
+		Module.__init__(self, module_name, constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['dynamic'], constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['leakage'], constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['area'])
+		self.activation_sparsity = constants['sparsity']['activation']
+		self.weight_sparsity = constants['sparsity']['weight']
 		self.assigned_op = None
 
 	def assign_op(self, op):
-		# TODO: check cycles based on RTL
-		self.process_cycles = math.ceil(sum(op.input_size) * 1.0 / self.width)
+		self.process_cycles = math.ceil(op.input_size[0] * (op.input_size[2]) * (1 - self.activation_sparsity))
 		self.ready = False
 
 		self.assigned_op = op
 
 
 class Register(Module):
-	def __init__(self, module_name, constants, depth):
+	def __init__(self, module_name, config, constants, depth):
 		Module.__init__(self, module_name, constants['register']['dynamic'], constants['register']['leakage'], constants['register']['area'])
 		self.depth = depth
 		self.assigned_op = None
@@ -106,7 +106,7 @@ class Register(Module):
 
 
 class PreSparsity(Module):
-	def __init__(self, module_name, constants):
+	def __init__(self, module_name, config, constants):
 		Module.__init__(self, module_name, constants['pre_sparsity']['dynamic'], constants['pre_sparsity']['leakage'], constants['pre_sparsity']['area'])
 		self.assigned_op = None
 
@@ -118,7 +118,7 @@ class PreSparsity(Module):
 
 
 class PostSparsity(Module):
-	def __init__(self, module_name, constants):
+	def __init__(self, module_name, config, constants):
 		Module.__init__(self, module_name, constants['post_sparsity']['dynamic'], constants['post_sparsity']['leakage'], constants['post_sparsity']['area'])
 		self.assigned_op = None
 
@@ -143,9 +143,7 @@ class MACLane(Module):
 		self.post_sparsity = PostSparsity(f'{self.module_name}_post-s', constants)
 
 	def assign_op(self, op):
-		# TODO: add activation and weight sparsity
-		# TODO: add num_muls in corresponding tiled op
-		self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs)
+		self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs * (1 - self.activation_sparsity))
 		self.ready = False
 
 		self.assigned_op = op
