@@ -1,3 +1,12 @@
+# Repo-spcific directories
+synthesis/14nm_sg/
+synthesis/DMA/
+synthesis/ddc/
+synthesis/sdc/
+synthesis/netlists/
+synthesis/syn/
+synthesis/work_sg/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
