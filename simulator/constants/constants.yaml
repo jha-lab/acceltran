@@ -44,14 +44,32 @@ register:
   leakage: 0.0140774
 
 layer_norm:
-  area: null
-  dynamic: null
-  leakage: null
+  tile_8:
+    area: 20631.005754
+    dynamic: 12.6646
+    leakage: 6.3819
+  tile_16:
+    area: null
+    dynamic: null
+    leakage: null
+  tile_32:
+    area: null
+    dynamic: null
+    leakage: null
 
 softmax:
-  area: null
-  dynamic: null
-  leakage: null
+  tile_8:
+    area: 22008.079435
+    dynamic: 9.1386
+    leakage: 0.6824872
+  tile_16:
+    area: null
+    dynamic: null
+    leakage: null
+  tile_32:
+    area: null
+    dynamic: null
+    leakage: null
 
 pre_sparsity:
   area: 6216.896914
