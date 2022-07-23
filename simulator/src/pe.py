@@ -24,11 +24,16 @@ class ProcessingElement(object):
     	for n in range(config['lanes_per_pe']):
     		self.mac_lanes.append(MACLane(f'{self.pe_name}_maclane{(n + 1)}', config, constants))
 
-    	self.dataflow = Dataflow(f'{self.pe_name}_df', constants)
-    	self.dma = DMA(f'{self.pe_name}_dma', constants)
+    	self.dataflow = Dataflow(f'{self.pe_name}_df', config, constants)
+    	self.dma = DMA(f'{self.pe_name}_dma', config, constants)
 
-    	self.layer_norm = LayerNorm(f'{self.pe_name}_ln', constants)
-    	self.softmax = Softmax(f'{self.pe_name}_sftm', constants)
+    	self.layer_norm = LayerNorm(f'{self.pe_name}_ln', config, constants)
+    	self.softmax = Softmax(f'{self.pe_name}_sftm', config, constants)
+
+        self.area = 0
+        for mac_lane in self.mac_lanes:
+            self.area += mac_lane.area
+        self.area = self.area + self.dataflow.area + self.dma.area + self.layer_norm.area + self.softmax.area
 
     def process_cycle(self):
         for mac_lane in self.mac_lanes:

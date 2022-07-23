@@ -26,6 +26,11 @@ class Accelerator(object):
 		self.weight_buffer = Buffer('weight', config, constants)
 		self.mask_buffer = Buffer('mask', config, constants)
 
+		self.area = 0
+		for pe in self.pes:
+			self.area += pe.area
+		self.area = self.area + self.activation_buffer.area + self.weight_buffer.area + self.mask_buffer.area
+
 		# TODO: add main memory object with its leakage energy
 
 	def set_required(self, compute_op):

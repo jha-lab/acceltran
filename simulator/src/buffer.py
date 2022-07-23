@@ -29,9 +29,9 @@ class Buffer(object):
 		self.buffer_type = buffer_type
 		self.buffer_size = config[f'{buffer_type}_buffer_size'] * 1024 * 1024 * 8
 		self.main_memory_energy = constants['main_memory']['energy'][f'{config["main_memory"]["type"]}_{config["main_memory"]["banks"]}_{config["main_memory"]["ranks"]}_{config["main_memory"]["channels"]}']
-		self.access_energy = constants[f'{buffer_type}_buffer']['energy']
-		self.leakage_power = constants[f'{buffer_type}_buffer']['leakage']
-		self.area = constants[f'{buffer_type}_buffer']['area']
+		self.access_energy = constants[f'{buffer_type}_buffer']['energy'] * math.sqrt(config[f'{buffer_type}_buffer_size'])
+		self.leakage_power = constants[f'{buffer_type}_buffer']['leakage'] * config[f'{buffer_type}_buffer_size']
+		self.area = constants[f'{buffer_type}_buffer']['area'] * config[f'{buffer_type}_buffer_size']
 		self.activation_sparsity = constants['sparsity']['activation']
 		self.weight_sparsity = constants['sparsity']['weight']
 		self.IL = config['bits']['IL']
