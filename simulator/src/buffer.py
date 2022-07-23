@@ -34,8 +34,8 @@ class Buffer(object):
 		self.area = constants[f'{buffer_type}_buffer']['area'] * config[f'{buffer_type}_buffer_size']
 		self.activation_sparsity = constants['sparsity']['activation']
 		self.weight_sparsity = constants['sparsity']['weight']
-		self.IL = config['bits']['IL']
-		self.FL = config['bits']['FL']
+		self.IL = constants['bits']['IL']
+		self.FL = constants['bits']['FL']
 		self.bandwidth = constants['main_memory']['bandwidth']
 		self.process_cycles = 0
 		self.ready = True

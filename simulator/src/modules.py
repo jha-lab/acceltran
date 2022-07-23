@@ -138,9 +138,9 @@ class MACLane(Module):
 		self.overlap_factor = constants['overlap_factor']
 		self.assigned_op = None
 
-		self.register = Register(f'{self.module_name}_reg', constants, 32)
-		self.pre_sparsity = PreSparsity(f'{self.module_name}_pre-s', constants)
-		self.post_sparsity = PostSparsity(f'{self.module_name}_post-s', constants)
+		self.register = Register(f'{self.module_name}_reg', config, constants, 32)
+		self.pre_sparsity = PreSparsity(f'{self.module_name}_pre-s', config, constants)
+		self.post_sparsity = PostSparsity(f'{self.module_name}_post-s', config, constants)
 
 	def assign_op(self, op):
 		self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs * (1 - self.activation_sparsity))
