@@ -22,8 +22,11 @@ SEQ_LENGTH = 512
 DEBUG = True
 
 
-def main(model_dict: dict, config: dict, constants: dict, debug=False):
+def main(model_dict: dict, config: dict, constants: dict, design_space: dict, debug=False):
 	"""Run a model_dict on an Accelerator object"""
+
+	# TODO: create check_config()
+	check_config(config, design_space)
 
 	# Instantiate accelerator baesd on given configuration
 	accelerator = Accelerator(config, constants)
@@ -54,6 +57,7 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 
 			last_compute_done, store_op = True, False
 			if isinstance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp)): 
+				# TODO: create get_last_compute_op()
 				last_compute_done = get_last_compute_op(memory_op, compute_ops).done
 				store_op = True
 
@@ -101,8 +105,12 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 					if debug: print(f'Compute stall: no MAC lanes are ready')
 
 		# Process cycle for every module
-		accelerator.process_cycle(memory_ops, compute_ops)
+		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops)
 		cycle += 1
+
+		# Log energy values for each cycle 
+		# TODO: create log_energy()
+		log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle)
 
 		if debug: print(f'Cycle: {cycle}')
 
@@ -110,11 +118,13 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 			min_cycles = min([process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]])
 
 			if min_cycles > 1:
-				accelerator.activation_buffer.process_cycle(min_cycles)
-				accelerator.weight_buffer.process_cycle(min_cycles)
-				accelerator.mask_buffer.process_cycle(min_cycles)
+				activation_buffer_energy = accelerator.activation_buffer.process_cycle(min_cycles)
+				weight_buffer_energy = accelerator.weight_buffer.process_cycle(min_cycles)
+				mask_buffer_energy = accelerator.mask_buffer.process_cycle(min_cycles)
 
 				cycle += min_cycles
+
+				log_energy(None, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle)
 				continue
 
 		if memory_stall:
@@ -155,6 +165,11 @@ if __name__ == '__main__':
 		type=str,
 		default='./constants/constants.yaml',
 		help='path to the accelerator constants file')
+	parser.add_argument('--design_space_path',
+		metavar='',
+		type=str,
+		default='./design_space/design_space.yaml',
+		help='path to the design space file')
 	parser.add_argument('--debug',
 		dest='debug',
 		help='print debugging statements',
@@ -171,12 +186,17 @@ if __name__ == '__main__':
 	if os.path.exists(args.config_path):
 		config = yaml.safe_load(open(args.config_path, 'r'))
 	else:
-		raise FileNotFoundError(f'Couldn\'t find JSON file for given path: {args.config_path}')
+		raise FileNotFoundError(f'Couldn\'t find YAML file for given path: {args.config_path}')
 
 	if os.path.exists(args.constants_path):
 		constants = yaml.safe_load(open(args.constants_path, 'r'))
 	else:
-		raise FileNotFoundError(f'Couldn\'t find JSON file for given path: {args.constants_path}')
+		raise FileNotFoundError(f'Couldn\'t find YAML file for given path: {args.constants_path}')
 
-	main(model_dict, config, constants, args.debug)
+	if os.path.exists(args.design_space_path):
+		design_space = yaml.safe_load(open(args.design_space_path, 'r'))
+	else:
+		raise FileNotFoundError(f'Couldn\'t find YAML file for given path: {args.design_space_path}')
+
+	main(model_dict, config, constants, design_space, args.debug)
 
