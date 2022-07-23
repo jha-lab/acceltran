@@ -1,0 +1,116 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : softmax_8
+Version: I-2013.12-SP4
+Date   : Sat Jul 23 09:03:57 2022
+****************************************
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+  Startpoint: exp_sum_reg[3][2]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: exp_sum_reg[3][19]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  softmax_8          1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  clock clk (rise edge)                    0.00       0.00
+  clock network delay (ideal)              0.00       0.00
+  exp_sum_reg[3][2]/CP (dff_sg)            0.00       0.00 r
+  exp_sum_reg[3][2]/Q (dff_sg)            23.02      23.02 r
+  U232915/X (inv_x1_sg)                   24.91      47.93 f
+  U232916/X (inv_x1_sg)                   15.56      63.49 r
+  U404310/X (nor_x1_sg)                   19.69      83.18 f
+  U404586/X (nor_x1_sg)                    8.97      92.14 r
+  U231793/X (nand_x1_sg)                   7.26      99.40 f
+  U231792/X (nand_x1_sg)                  35.60     135.00 r
+  U400440/X (inv_x1_sg)                    6.65     141.65 f
+  U404558/X (nand_x1_sg)                   8.95     150.59 r
+  U199984/X (nand_x1_sg)                   7.14     157.74 f
+  U231903/X (nand_x1_sg)                  41.39     199.12 r
+  U260015/X (inv_x1_sg)                   23.39     222.52 f
+  U404496/X (nor_x1_sg)                   14.45     236.97 r
+  U273152/X (nor_x1_sg)                   21.07     258.04 f
+  U400397/X (inv_x1_sg)                   21.54     279.58 r
+  U404365/X (nor_x1_sg)                   16.84     296.42 f
+  U404364/X (nor_x1_sg)                   12.79     309.21 r
+  U273151/X (nor_x1_sg)                   11.00     320.21 f
+  U231791/X (inv_x1_sg)                   15.41     335.62 r
+  U404424/X (nand_x1_sg)                   8.09     343.71 f
+  U231789/X (nand_x1_sg)                  37.62     381.33 r
+  U400419/X (inv_x1_sg)                    6.65     387.98 f
+  U404570/X (nand_x1_sg)                   8.95     396.92 r
+  U199983/X (nand_x1_sg)                   7.14     404.07 f
+  U231894/X (nand_x1_sg)                  41.39     445.45 r
+  U260011/X (inv_x1_sg)                   23.39     468.84 f
+  U404514/X (nor_x1_sg)                   14.45     483.30 r
+  U273150/X (nor_x1_sg)                   21.07     504.37 f
+  U400396/X (inv_x1_sg)                   21.54     525.90 r
+  U404383/X (nor_x1_sg)                   16.84     542.75 f
+  U404382/X (nor_x1_sg)                   12.79     555.54 r
+  U273149/X (nor_x1_sg)                   11.00     566.53 f
+  U231788/X (inv_x1_sg)                   15.41     581.94 r
+  U404436/X (nand_x1_sg)                   8.09     590.04 f
+  U231786/X (nand_x1_sg)                  37.62     627.66 r
+  U400426/X (inv_x1_sg)                    6.65     634.30 f
+  U404467/X (nand_x1_sg)                   8.95     643.25 r
+  U199982/X (nand_x1_sg)                   7.14     650.39 f
+  U231886/X (nand_x1_sg)                  41.39     691.78 r
+  U260009/X (inv_x1_sg)                   23.39     715.17 f
+  U404321/X (nor_x1_sg)                   14.45     729.62 r
+  U273148/X (nor_x1_sg)                   21.07     750.69 f
+  U400395/X (inv_x1_sg)                   21.54     772.23 r
+  U404404/X (nor_x1_sg)                   16.84     789.08 f
+  U404403/X (nor_x1_sg)                   12.79     801.86 r
+  U273147/X (nor_x1_sg)                   11.00     812.86 f
+  U231785/X (inv_x1_sg)                   15.41     828.27 r
+  U404450/X (nand_x1_sg)                   8.09     836.36 f
+  U231783/X (nand_x1_sg)                  37.62     873.98 r
+  U400433/X (inv_x1_sg)                    6.65     880.63 f
+  U404481/X (nand_x1_sg)                   8.95     889.58 r
+  U199981/X (nand_x1_sg)                   7.14     896.72 f
+  U231879/X (nand_x1_sg)                  41.39     938.11 r
+  U258589/X (inv_x1_sg)                   23.39     961.50 f
+  U404342/X (nor_x1_sg)                   14.45     975.95 r
+  U273146/X (nor_x1_sg)                   21.07     997.02 f
+  U400384/X (inv_x1_sg)                   21.54    1018.56 r
+  U404295/X (nor_x1_sg)                   16.84    1035.40 f
+  U404294/X (nor_x1_sg)                   12.79    1048.19 r
+  U273763/X (nor_x1_sg)                   24.56    1072.75 f
+  U400412/X (inv_x1_sg)                   21.09    1093.84 r
+  U404540/X (nor_x1_sg)                   16.68    1110.52 f
+  U404539/X (nor_x1_sg)                   12.76    1123.28 r
+  U273762/X (nor_x1_sg)                   13.90    1137.18 f
+  U400448/X (nand_x1_sg)                  13.56    1150.74 r
+  U275057/X (inv_x1_sg)                   10.73    1161.47 f
+  U390500/X (nor_x1_sg)                    7.38    1168.85 r
+  U390499/X (nand_x1_sg)                   7.15    1176.00 f
+  U293456/X (nand_x1_sg)                   7.63    1183.63 r
+  exp_sum_reg[3][19]/D (dff_sg)            0.00    1183.63 r
+  data arrival time                                1183.63
+
+  clock clk (rise edge)                 1429.00    1429.00
+  clock network delay (ideal)              0.00    1429.00
+  clock uncertainty                      -50.00    1379.00
+  exp_sum_reg[3][19]/CP (dff_sg)           0.00    1379.00 r
+  library setup time                      -0.48    1378.52
+  data required time                               1378.52
+  -----------------------------------------------------------
+  data required time                               1378.52
+  data arrival time                               -1183.63
+  -----------------------------------------------------------
+  slack (MET)                                       194.89
+
+
+1
