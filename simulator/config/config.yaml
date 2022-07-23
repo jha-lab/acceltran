@@ -2,26 +2,22 @@
 
 tile:
   tile_b: 1
-  tile_x: 16
-  tile_y: 16
+  tile_x: 8
+  tile_y: 8
 
 non_linearity: 'gelu'
 
 pe: 64
 
-lanes_per_pe: 72
+lanes_per_pe: 64
 
 mac_per_lane: 16
 
-bits:
-  IL: 4
-  FL: 16
-
 batch_size: 4
 
-activation_buffer_size: 12
+activation_buffer_size: 16
 
-weight_buffer_size: 24
+weight_buffer_size: 32
 
 mask_buffer_size: 4
 
