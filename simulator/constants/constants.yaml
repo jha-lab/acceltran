@@ -6,7 +6,7 @@ sparsity:
 
 overlap_factor: 0.8
 
-clock_frequency: 400 # in MHz
+clock_frequency: 700 # in MHz
 
 lane:
   mac_per_lane_1:
@@ -65,7 +65,7 @@ post_sparsity:
 
 # Buffer parameters
 weight_buffer:
-  area: 294100.83 # um^2 per MB
+  area: 0.29410083 # um^2 per MB
   energy: 0.0856588 # (0.42123 + 0.418051) / 2 * math.sqrt(<weight_buffer_size in MB> / 24) in nJ
   leakage: 210.40467 # mW per MB
 
