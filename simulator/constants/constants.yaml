@@ -8,6 +8,10 @@ overlap_factor: 0.8
 
 clock_frequency: 700 # in MHz
 
+bits:
+  IL: 4
+  FL: 16
+
 lane:
   mac_per_lane_1:
     relu:
