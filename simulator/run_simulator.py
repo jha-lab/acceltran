@@ -11,6 +11,7 @@ sys.path.append('./src/')
 
 from pe import *
 from ops import *
+from utils import *
 from buffer import *
 from tiled_ops import *
 from accelerator import *
@@ -26,6 +27,7 @@ def main(model_dict: dict, config: dict, constants: dict, debug=False):
 
 	# Instantiate accelerator baesd on given configuration
 	accelerator = Accelerator(config, constants)
+	print(f'{color.GREEN}Accelerator area: {accelerator.area / 1e6 : 0.03f} mm\u00b2{color.ENDC}')
 	
 	# Get tiled ops from model dictionary
 	ops, tiled_ops = dict2ops(model_dict, config, tile_ops=True, debug=debug)
