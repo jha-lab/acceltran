@@ -5,42 +5,29 @@ tile:
     - 1
     - 4
   tile_x:
+    - 8
     - 16
     - 32
-    - 64
   tile_y:
+    - 8
     - 16
     - 32
-    - 64
 
 pe:
-  - 4
-  - 16
   - 64
   - 128
   - 512
   - 1024
 
 lanes_per_pe:
-  - 4
   - 16
   - 64
   - 128
+  - 256
 
 mac_per_lane:
   - 1
   - 16
-
-il:
-  - 2
-  - 4
-  - 8
-
-fl:
-  - 4
-  - 8
-  - 16
-  - 32
 
 batch_size:
   - 1
@@ -49,23 +36,26 @@ batch_size:
   - 32
 
 activation_buffer_size: # In MBs
-  - 1
-  - 6
-  - 12
-  - 18
-  - 24
+  - 8
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
 
 weight_buffer_size: # In MBs
-  - 1
-  - 6
-  - 12
-  - 18
-  - 24
+  - 8
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
 
 mask_buffer_size: # In MBs
-  - 1
-  - 2
   - 4
+  - 8
+  - 16
+  - 32
 
 main_memory_config:
   rram:
