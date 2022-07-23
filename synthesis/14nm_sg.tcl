@@ -4,8 +4,11 @@ remove_design -all
 #******************************************************************************
 set LIBS ./library
 
-# the module that's gonna run
-set top_module "mac_lane"
+# # the module that's gonna run
+# set top_module "mac_lane"
+
+# Multi-core run
+set_host_options -max_cores 8
 
 # Define the libraries and search path
 set search_path [concat $search_path ${LIBS}]
@@ -30,11 +33,12 @@ set netlist_file "${top_module}.v"
 set power_default_toggle_rate 0.1
 
 set rpt_path [concat $rpt_path/$top_module]
+file mkdir $rpt_path
 #******************************************************************************
 # Read RTL files
 #******************************************************************************
 
-analyze -library 14nm_sg -format sv {FIFO.sv ReLU.sv SiLU.sv filter.sv im2col_cpu_add_32dEe.v im2col_cpu_sdiv_3fYi.v max_pooling.sv pooling.sv sqrt_mul.sv update_output.sv L1.sv add.sv forward.sv im2col_cpu_add_32g8j.v im2col_cpu_sub_32eOg.v mean.sv post_sparsity.sv stochastic_rounding.sv L2.sv adder_tree.sv im2col_cpu.v im2col_cpu_data_col.v loss.sv mean_pooling.sv scalar.sv LFSR.sv backward.sv im2col_cpu_add_31hbi.v mac_lane.sv min_pooling.sv shifter.sv transposer.sv PE.sv dataflow.sv im2col_cpu_add_32bkb.v im2col_cpu_mul_32cud.v mask.sv mul.sv sparsity.sv update_mask.sv top.sv} 
+analyze -library 14nm_sg -format sv {FIFO.sv ReLU.sv SiLU.sv softmax.sv layer_mean.sv ln_forward.sv filter.sv im2col_cpu_add_32dEe.v im2col_cpu_sdiv_3fYi.v max_pooling.sv pooling.sv sqrt_mul.sv update_output.sv L1.sv add.sv bn_forward.sv bn_backward.sv im2col_cpu_add_32g8j.v im2col_cpu_sub_32eOg.v mean.sv post_sparsity.sv stochastic_rounding.sv L2.sv adder_tree.sv im2col_cpu.v im2col_cpu_data_col.v loss.sv mean_pooling.sv scalar.sv LFSR.sv im2col_cpu_add_31hbi.v mac_lane.sv min_pooling.sv shifter.sv transposer.sv dataflow.sv im2col_cpu_add_32bkb.v im2col_cpu_mul_32cud.v mask.sv mul.sv sparsity.sv update_mask.sv top.sv} 
 
 elaborate $top_module -library 14nm_sg
 
