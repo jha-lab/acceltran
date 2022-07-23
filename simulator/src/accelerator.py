@@ -59,12 +59,14 @@ class Accelerator(object):
 		return True
 
 	def process_cycle(self, memory_ops, compute_ops):
+		total_pe_energy = (0, 0)
 		for pe in self.pes:
-			pe.process_cycle()
+			pe_energy = pe.process_cycle()
+			total_pe_energy[0] += pe_energy[0]; total_pe_energy[1] += pe_energy[1]
 
-		self.activation_buffer.process_cycle()
-		self.weight_buffer.process_cycle()
-		self.mask_buffer.process_cycle()
+		activation_buffer_energy = self.activation_buffer.process_cycle()
+		weight_buffer_energy = self.weight_buffer.process_cycle()
+		mask_buffer_energy = self.mask_buffer.process_cycle()
 
 		# Mark operations as done if their corresponding modules are ready
 		activation_memory_ops = [op for op in memory_ops if op.data_type == 'activation']
@@ -86,6 +88,9 @@ class Accelerator(object):
 				self.set_not_required(compute_op)
 			else:
 				break
+
+		# All energy in nJ
+		return total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy
 
 	def assign_op(self, op):
 		assert op.compute_op is True

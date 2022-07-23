@@ -29,7 +29,9 @@ class Buffer(object):
 		self.buffer_type = buffer_type
 		self.buffer_size = config[f'{buffer_type}_buffer_size'] * 1024 * 1024 * 8
 		self.main_memory_energy = constants['main_memory']['energy'][f'{config["main_memory"]["type"]}_{config["main_memory"]["banks"]}_{config["main_memory"]["ranks"]}_{config["main_memory"]["channels"]}']
+		self.main_memory_block_size = constants['main_memory']['block_size']
 		self.access_energy = constants[f'{buffer_type}_buffer']['energy'] * math.sqrt(config[f'{buffer_type}_buffer_size'])
+		self.block_size = constants[f'{buffer_type}_buffer']['block_size']
 		self.leakage_power = constants[f'{buffer_type}_buffer']['leakage'] * config[f'{buffer_type}_buffer_size']
 		self.area = constants[f'{buffer_type}_buffer']['area'] * config[f'{buffer_type}_buffer_size']
 		self.activation_sparsity = constants['sparsity']['activation']
@@ -37,11 +39,13 @@ class Buffer(object):
 		self.IL = constants['bits']['IL']
 		self.FL = constants['bits']['FL']
 		self.bandwidth = constants['main_memory']['bandwidth']
+		self.clock_frequency = constants['clock_frequency']
 		self.process_cycles = 0
 		self.ready = True
 		self.used = 0
 		self.data = []
 		self.data_being_added = None
+		self.energy_per_cycle = None
 
 		if self.buffer_type == 'activation':
 			self.weight_factor = (self.IL + self.FL) * (1.0 - self.activation_sparsity)
@@ -58,7 +62,7 @@ class Buffer(object):
 		else:
 			raise ValueError(f'Input data is not of correct type: {type(data)}')
 
-		if data_name in [d.data_name for d in self.data] and data_name != self.data_being_added.data_name:
+		if data_name in [d.data_name for d in self.data] and data_name != self.data_being_added[0].data_name:
 			return True
 		else:
 			return False
@@ -97,9 +101,10 @@ class Buffer(object):
 					self.data.remove(self.data[0])
 					removed_old_data = True
 			self.data.append(data)
-			self.data_being_added = data
+			self.data_being_added = (data, 'load')
 			self.used += data.data_size * self.weight_factor
 			self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.bandwidth)
+			self.energy_per_cycle = self.main_memory_energy * data.data_size / self.main_memory_block_size / self.process_cycles
 			self.ready = False
 
 		return removed_old_data
@@ -116,11 +121,12 @@ class Buffer(object):
 				self.data.remove(self.data[0])
 				removed_old_data = True
 			self.data.append(data)
-			self.data_being_added = data
+			self.data_being_added = (data, 'store')
 			self.used += data.data_size * self.weight_factor
 			
-		self.process_cycles = 0
-		self.ready = True
+		self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.block_size)
+		self.energy_per_cycle = self.access_energy * data.data_size / self.block_size / self.process_cycles
+		self.ready = False
 
 		return removed_old_data
 
@@ -134,10 +140,13 @@ class Buffer(object):
 		if self.process_cycles is None or self.process_cycles == 0:
 			self.data_being_added = None
 			self.ready = True
+			return (0, 0) # if not used, the module is power-gated resulting in no leakage power
 		else:
-			self.process_cycles = max(self.process_syscles - num_cycles, 0)
-			if self.process_cycles == 0:
-				self.ready = True
-			else:
-				self.ready = False
+			cycles_done = min(self.process_cycles, num_cycles)
+			self.process_cycles = max(self.process_cycles - num_cycles, 0)
+			self.ready = True if self.process_cycles == 0 else False
+			
+			assert self.energy_per_cycle is not None
+			
+			return (cycles_done * self.energy_per_cycle, cycles_done * self.leakage_power / self.clock_frequency) # unit: nJ
 

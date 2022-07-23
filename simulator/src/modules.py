@@ -16,11 +16,12 @@ class Module(object):
 	    process_cycles (int): number of cycles to process an input tile
 	    ready (bool): if the module is ready for new input
 	"""
-	def __init__(self, module_name, dynamic_power, leakage_power, area):
+	def __init__(self, module_name, dynamic_power, leakage_power, area, clock_frequency):
 		self.module_name = module_name
 		self.dynamic_power = dynamic_power
 		self.leakage_power = leakage_power
 		self.area = area
+		self.clock_frequency = clock_frequency
 		self.process_cycles = None 
 		self.ready = True
 
@@ -39,10 +40,12 @@ class Module(object):
 		if self.ready and self.assigned_op is not None:
 			self.assigned_op.done = True
 
+		return (self.dynamic_power / self.clock_frequency, self.leakage_power / self.clock_frequency) # unit: nJ
+
 
 class Dataflow(Module):
 	def __init__(self, module_name, config, constants):
-		Module.__init__(self, module_name, constants['dataflow']['dynamic'], constants['dataflow']['leakage'], constants['dataflow']['area'])
+		Module.__init__(self, module_name, constants['dataflow']['dynamic'], constants['dataflow']['leakage'], constants['dataflow']['area'], constants['clock_frequency'])
 		self.assigned_op = None
 
 	def assign_op(self, op):
@@ -54,7 +57,7 @@ class Dataflow(Module):
 
 class DMA(Module):
 	def __init__(self, module_name, config, constants):
-		Module.__init__(self, module_name, constants['dma']['dynamic'], constants['dma']['leakage'], constants['dma']['area'])
+		Module.__init__(self, module_name, constants['dma']['dynamic'], constants['dma']['leakage'], constants['dma']['area'], constants['clock_frequency'])
 		self.assigned_op = None
 
 	def assign_op(self, op):
@@ -66,7 +69,7 @@ class DMA(Module):
 
 class LayerNorm(Module):
 	def __init__(self, module_name, config, constants):
-		Module.__init__(self, module_name, constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['dynamic'], constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['leakage'], constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['area'])
+		Module.__init__(self, module_name, constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['dynamic'], constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['leakage'], constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['area'], constants['clock_frequency'])
 		self.activation_sparsity = constants['sparsity']['activation']
 		self.weight_sparsity = constants['sparsity']['weight']
 		self.assigned_op = None
@@ -80,7 +83,7 @@ class LayerNorm(Module):
 
 class Softmax(Module):
 	def __init__(self, module_name, config, constants):
-		Module.__init__(self, module_name, constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['dynamic'], constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['leakage'], constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['area'])
+		Module.__init__(self, module_name, constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['dynamic'], constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['leakage'], constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['area'], constants['clock_frequency'])
 		self.activation_sparsity = constants['sparsity']['activation']
 		self.weight_sparsity = constants['sparsity']['weight']
 		self.assigned_op = None
@@ -94,7 +97,7 @@ class Softmax(Module):
 
 class Register(Module):
 	def __init__(self, module_name, config, constants, depth):
-		Module.__init__(self, module_name, constants['register']['dynamic'], constants['register']['leakage'], constants['register']['area'])
+		Module.__init__(self, module_name, constants['register']['dynamic'], constants['register']['leakage'], constants['register']['area'], constants['clock_frequency'])
 		self.depth = depth
 		self.assigned_op = None
 
@@ -107,7 +110,7 @@ class Register(Module):
 
 class PreSparsity(Module):
 	def __init__(self, module_name, config, constants):
-		Module.__init__(self, module_name, constants['pre_sparsity']['dynamic'], constants['pre_sparsity']['leakage'], constants['pre_sparsity']['area'])
+		Module.__init__(self, module_name, constants['pre_sparsity']['dynamic'], constants['pre_sparsity']['leakage'], constants['pre_sparsity']['area'], constants['clock_frequency'])
 		self.assigned_op = None
 
 	def assign_op(self, op):
@@ -119,7 +122,7 @@ class PreSparsity(Module):
 
 class PostSparsity(Module):
 	def __init__(self, module_name, config, constants):
-		Module.__init__(self, module_name, constants['post_sparsity']['dynamic'], constants['post_sparsity']['leakage'], constants['post_sparsity']['area'])
+		Module.__init__(self, module_name, constants['post_sparsity']['dynamic'], constants['post_sparsity']['leakage'], constants['post_sparsity']['area'], constants['clock_frequency'])
 		self.assigned_op = None
 
 	def assign_op(self, op):
@@ -131,7 +134,7 @@ class PostSparsity(Module):
 
 class MACLane(Module):
 	def __init__(self, module_name, config, constants):
-		Module.__init__(self, module_name, constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['dynamic'], constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['leakage'], constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['area'])
+		Module.__init__(self, module_name, constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['dynamic'], constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['leakage'], constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['area'], constants['clock_frequency'])
 		self.num_macs = config['mac_per_lane']
 		self.activation_sparsity = constants['sparsity']['activation']
 		self.weight_sparsity = constants['sparsity']['weight']

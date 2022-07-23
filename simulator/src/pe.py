@@ -36,13 +36,20 @@ class ProcessingElement(object):
 		self.area = self.area + self.dataflow.area + self.dma.area + self.layer_norm.area + self.softmax.area
 
 	def process_cycle(self):
+		total_energy = ()
 		for mac_lane in self.mac_lanes:
-			mac_lane.process_cycle()
+			mac_lane_energy = mac_lane.process_cycle()
+			total_energy[0] += mac_lane_energy[0]; total_energy[1] += mac_lane_energy[1]
 
-		self.dataflow.process_cycle()
-		self.dma.process_cycle()
-		self.layer_norm.process_cycle()
-		self.softmax.process_cycle()
+		dataflow_energy = self.dataflow.process_cycle()
+		dma_energy = self.dma.process_cycle()
+		layer_norm_energy = self.layer_norm.process_cycle()
+		softmax_energy = self.softmax.process_cycle()
+
+		for i in [0, 1]:
+			total_energy[i] = total_energy[i] + dataflow_energy[i] + dma_energy[i] + layer_norm_energy[i] + softmax_energy[i]
+
+		return total_energy # unit: nJ
 
 	def assign_op(self, op):
 		assert op.compute_op is True
