@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import yaml
+import shutil
 import argparse
 from tqdm import tqdm
 
@@ -35,7 +36,7 @@ def check_config(config: dict, design_space: dict):
 	assert config['lanes_per_pe'] in design_space['lanes_per_pe'], f'Configuration "lanes_per_pe" ({config["lanes_per_pe"]}) not in {design_space["lanes_per_pe"]}'
 	assert config['mac_per_lane'] in design_space['mac_per_lane'], f'Cofiguration "mac_per_lane" ({config["mac_per_lane"]}) not in {design_space["mac_per_lane"]}'
 
-	assert config['tile_b'] <= config['batch_size'], f'Configuraton "tile_b" ({config["tile"]["tile_b"]}) should be less than or equal to "batch_size" ({config["batch_size"]})'
+	assert config['tile']['tile_b'] <= config['batch_size'], f'Configuraton "tile_b" ({config["tile"]["tile_b"]}) should be less than or equal to "batch_size" ({config["batch_size"]})'
 	assert config['batch_size'] in design_space['batch_size'], f'Configuration "batch_size" not in {design_space["batch_size"]}'
 
 	assert config['activation_buffer_size'] in design_space['activation_buffer_size'], f'Configuration "activation_buffer_size" not in {design_space["activation_buffer_size"]}'
@@ -80,7 +81,7 @@ def log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, 
 		json.dump(logs, open(logs_path, 'w+'))
 
 
-def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_path: str, debug=False):
+def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_path: str, utilization_dir: str, debug=False):
 	"""Run a model_dict on an Accelerator object"""
 
 	# Check if configuration is valid
@@ -95,7 +96,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 	memory_ops, compute_ops = [op for op in tiled_ops if not op.compute_op], [op for op in tiled_ops if op.compute_op]
 
-	cycle, memory_op_idx, compute_op_idx = 0, 0, 0
+	memory_op_idx, compute_op_idx = 0, 0
 	memory_op, compute_op = memory_ops[0], compute_ops[0]
 
 	# Run operations on the accelerator in a cycle-accurate manner
@@ -163,12 +164,15 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 		# Process cycle for every module
 		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops)
-		cycle += 1
+		accelerator.cycle += 1
 
 		# Log energy values for each cycle 
-		log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle, logs_path)
+		log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, accelerator.cycle, logs_path)
 
-		if debug: print(f'Cycle: {cycle}')
+		# Plot utilization of the accelerator
+		accelerator.plot_utilization(utilization_dir)
+
+		if debug: print(f'Cycle: {accelerator.cycle}')
 
 		if memory_stall and compute_stall and accelerator.all_macs_free():
 			min_cycles = min([process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]])
@@ -178,9 +182,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 				weight_buffer_energy = accelerator.weight_buffer.process_cycle(min_cycles)
 				mask_buffer_energy = accelerator.mask_buffer.process_cycle(min_cycles)
 
-				cycle += min_cycles
+				accelerator.cycle += min_cycles
 
-				log_energy((0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle, logs_path)
+				log_energy((0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, accelerator.cycle, logs_path)
 				continue
 
 		if memory_stall:
@@ -231,6 +235,11 @@ if __name__ == '__main__':
 		type=str,
 		default='./logs/logs.json',
 		help='path to the logs file')
+	parser.add_argument('--utilization_dir',
+		metavar='',
+		type=str,
+		default='./logs/utilization/',
+		help='directory to store utlization plots')
 	parser.add_argument('--debug',
 		dest='debug',
 		help='print debugging statements',
@@ -260,6 +269,7 @@ if __name__ == '__main__':
 		raise FileNotFoundError(f'Couldn\'t find YAML file for given path: {args.design_space_path}')
 
 	if os.path.exists(args.logs_path) and OVERWRITE_LOGS: os.remove(args.logs_path)
+	if os.path.exists(args.utilization_dir) and OVERWRITE_LOGS: shutil.rmtree(args.utilization_dir)
 
-	main(model_dict, config, constants, design_space, args.logs_path, args.debug)
+	main(model_dict, config, constants, design_space, args.logs_path, args.utilization_dir, args.debug)
 
