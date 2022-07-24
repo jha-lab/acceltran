@@ -13,6 +13,10 @@ tile:
     - 16
     - 32
 
+non_linearity:
+  - 'relu'
+  - 'gelu'
+
 pe:
   - 64
   - 128
