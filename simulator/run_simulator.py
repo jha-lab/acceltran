@@ -20,6 +20,7 @@ from dict2ops import main as dict2ops
 
 SEQ_LENGTH = 512
 DEBUG = True
+OVERWRITE_LOGS = True
 
 
 def check_config(config: dict, design_space: dict):
@@ -46,9 +47,43 @@ def check_config(config: dict, design_space: dict):
 	assert memory_config in design_space['main_memory_config'][config['main_memory']['type']], f'Unsupported main memory configuration ({memory_config})'
 
 
-def main(model_dict: dict, config: dict, constants: dict, design_space: dict, debug=False):
+def get_last_compute_op(memory_op, compute_ops):
+	"""Get the last compute_op corresponding to the current storing memory_op"""
+	assert isinstance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp))
+
+	for compute_op in compute_ops:
+		if compute_op.op_name == memory_op.op_name[:-2]:
+			return compute_op
+
+
+def log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle, logs_path):
+	"""Log energy values for every cycle"""
+	if os.path.exists(logs_path):
+		logs = json.load(logs_path)
+
+		last_cycle = logs['cycle'][-1]
+		cycle_difference = cycle - last_cycle
+		assert cycle_difference > 0
+
+		for c in range(last_cycle + 1, cycle + 1):
+			logs['cycle'].append(c)
+			logs['total_pe_energy'].append((total_pe_energy[0] / cycle_difference, total_pe_energy[1] / cycle_difference))
+			logs['activation_buffer_energy'].append((activation_buffer_energy[0] / cycle_difference, activation_buffer_energy[1] / cycle_difference))
+			logs['weight_buffer_energy'].append((weight_buffer_energy[0] / cycle_difference, weight_buffer_energy[1] / cycle_difference))
+			logs['mask_buffer_energy'].append((mask_buffer_energy[0] / cycle_difference, mask_buffer_energy[1] / cycle_difference))
+
+		json.dump(logs, open(logs_path, 'w'))
+	else:
+		assert cycle == 1
+
+		logs = {'total_pe_energy': [total_pe_energy], 'activation_buffer_energy': [activation_buffer_energy], 'weight_buffer_energy': [weight_buffer_energy], 'mask_buffer_energy': [mask_buffer_energy], 'cycle': [cycle]}
+		json.dump(logs, open(logs_path, 'w+'))
+
+
+def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_path: str, debug=False):
 	"""Run a model_dict on an Accelerator object"""
 
+	# Check if configuration is valid
 	check_config(config, design_space)
 
 	# Instantiate accelerator baesd on given configuration
@@ -80,7 +115,6 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, de
 
 			last_compute_done, store_op = True, False
 			if isinstance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp)): 
-				# TODO: create get_last_compute_op()
 				last_compute_done = get_last_compute_op(memory_op, compute_ops).done
 				store_op = True
 
@@ -132,8 +166,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, de
 		cycle += 1
 
 		# Log energy values for each cycle 
-		# TODO: create log_energy()
-		log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle)
+		log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle, logs_path)
 
 		if debug: print(f'Cycle: {cycle}')
 
@@ -147,7 +180,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, de
 
 				cycle += min_cycles
 
-				log_energy(None, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle)
+				log_energy((0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle, logs_path)
 				continue
 
 		if memory_stall:
@@ -193,6 +226,11 @@ if __name__ == '__main__':
 		type=str,
 		default='./design_space/design_space.yaml',
 		help='path to the design space file')
+	parser.add_argument('--logs_path',
+		metavar='',
+		type=str,
+		default='./logs/logs.json',
+		help='path to the logs file')
 	parser.add_argument('--debug',
 		dest='debug',
 		help='print debugging statements',
@@ -221,5 +259,7 @@ if __name__ == '__main__':
 	else:
 		raise FileNotFoundError(f'Couldn\'t find YAML file for given path: {args.design_space_path}')
 
-	main(model_dict, config, constants, design_space, args.debug)
+	if os.path.exists(args.logs_path) and OVERWRITE_LOGS: os.remove(args.logs_path)
+
+	main(model_dict, config, constants, design_space, args.logs_path, args.debug)
 
