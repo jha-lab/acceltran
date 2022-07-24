@@ -40,7 +40,10 @@ class Module(object):
 		if self.ready and self.assigned_op is not None:
 			self.assigned_op.done = True
 
-		return (self.dynamic_power / self.clock_frequency, self.leakage_power / self.clock_frequency) # unit: nJ
+		if self.ready:
+			return (0, 0) # if not used, the module is power-gated resulting in no leakage power
+		else:
+			return (self.dynamic_power / self.clock_frequency, self.leakage_power / self.clock_frequency) # unit: nJ
 
 
 class Dataflow(Module):
