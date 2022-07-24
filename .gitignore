@@ -1,4 +1,5 @@
 # Repo-spcific directories
+simulator/logs/
 synthesis/14nm_sg/
 synthesis/DMA/
 synthesis/ddc/
