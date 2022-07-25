@@ -22,7 +22,7 @@ from dict2ops import main as dict2ops
 
 
 SEQ_LENGTH = 512
-DEBUG = True
+DEBUG = False
 OVERWRITE_PLOT_STEPS_WITH_DEBUG = False
 OVERWRITE_LOGS = True
 
@@ -55,9 +55,15 @@ def get_last_compute_op(memory_op, compute_ops):
 	"""Get the last compute_op corresponding to the current storing memory_op"""
 	assert isinstance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp))
 
-	for compute_op in compute_ops:
-		if compute_op.op_name == memory_op.op_name[:-2]:
-			return compute_op
+	last_compute_op = None
+	compute_op_found = False
+
+	for i, compute_op in enumerate(compute_ops):
+		if compute_op.op_name.startswith(memory_op.op_name[:-2]):
+			last_compute_op_idx = i
+			compute_op_found = True
+		elif compute_op_found:
+			return compute_ops[last_compute_op_idx]
 
 
 def get_utilization(accelerator):
@@ -69,11 +75,9 @@ def get_utilization(accelerator):
 	return mac_lanes_used * 1.0 / len(accelerator.pes) / len(accelerator.pes[0].mac_lanes), accelerator.activation_buffer.used * 1.0 / accelerator.activation_buffer.buffer_size, accelerator.weight_buffer.used * 1.0 / accelerator.weight_buffer.buffer_size, accelerator.mask_buffer.used * 1.0 / accelerator.mask_buffer.buffer_size
 
 
-def log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator):
+def log_energy(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps):
 	"""Log energy values for every cycle"""
-	if os.path.exists(os.path.join(logs_dir, 'logs.json')):
-		logs = json.load(open(os.path.join(logs_dir, 'logs.json'), 'r'))
-
+	if logs:
 		last_cycle = logs['cycle'][-1]
 		cycle_difference = accelerator.cycle - last_cycle
 		assert cycle_difference > 0
@@ -91,8 +95,6 @@ def log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, 
 			logs['weight_buffer_utilization'].append(weight_buffer_utilization)
 			logs['mask_buffer_utilization'].append(mask_buffer_utilization)
 			logs['mac_lane_utilization'].append(mac_lane_utilization)
-
-		json.dump(logs, open(os.path.join(logs_dir, 'logs.json'), 'w'))
 	else:
 		assert accelerator.cycle == 1
 
@@ -100,12 +102,13 @@ def log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, 
 
 		logs = {'cycle': [accelerator.cycle], 'total_pe_energy': [total_pe_energy], 'activation_buffer_energy': [activation_buffer_energy], 'weight_buffer_energy': [weight_buffer_energy], 'mask_buffer_energy': [mask_buffer_energy], 'activation_buffer_utilization': [activation_buffer_utilization], 'weight_buffer_utilization': [weight_buffer_utilization], 'mask_buffer_utilization': [mask_buffer_utilization], 'mac_lane_utilization': [mac_lane_utilization]}
 
+	if accelerator.cycle % plot_steps:
 		json.dump(logs, open(os.path.join(logs_dir, 'logs.json'), 'w+'))
 
+	return logs
 
-def plot_metrics(constants, logs_dir):
-	logs = json.load(open(os.path.join(logs_dir, 'logs.json'), 'r'))
 
+def plot_metrics(logs, logs_dir, constants):
 	fig, (ax_power, ax_utilization) = plt.subplots(2, 1)
 	ax_power.plot(logs['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs['total_pe_energy']], 'b-', label='PEs (dynamic)')
 	ax_power.plot(logs['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs['total_pe_energy']], 'b--', label='PEs (leakage)')
@@ -144,6 +147,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 	memory_op_idx, compute_op_idx = 0, 0
 	memory_op, compute_op = memory_ops[0], compute_ops[0]
 
+	# Create logs dictionary
+	logs = {}
+
 	pbar = tqdm(total=len(tiled_ops))
 	pbar.set_description('Simulating accelerator')
 
@@ -170,7 +176,8 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 			last_compute_done, store_op = True, False
 			if isinstance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp)): 
-				last_compute_done = get_last_compute_op(memory_op, compute_ops).done
+				last_compute_op = get_last_compute_op(memory_op, compute_ops)
+				last_compute_done = last_compute_op.done
 				store_op = True
 
 			buffer = getattr(accelerator, f'{data.data_type}_buffer')
@@ -221,7 +228,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		accelerator.cycle += 1
 
 		# Log energy values for each cycle 
-		log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator)
+		logs = log_energy(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
 
 		if debug:
 			mac_lane_utilization, activation_buffer_utilization, weight_buffer_utilization, mask_buffer_utilization = get_utilization(accelerator)
@@ -236,7 +243,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 			accelerator.plot_utilization(utilization_dir)
 
 			# Plot metrics
-			plot_metrics(constants, logs_dir)
+			plot_metrics(logs, logs_dir, constants)
 
 		if memory_stall and compute_stall and accelerator.all_macs_free():
 			min_cycles = min([process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]])
@@ -248,7 +255,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 				accelerator.cycle += min_cycles
 
-				log_energy((0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator)
+				logs = log_energy(logs, (0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
 				continue
 
 		if memory_stall:
