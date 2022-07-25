@@ -3,6 +3,7 @@
 import os
 import sys
 import math
+import json
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -82,6 +83,8 @@ class Accelerator(object):
 	def plot_utilization(self, utilization_dir, debug=False):
 		if not os.path.exists(utilization_dir): os.makedirs(utilization_dir)
 
+		accel_dict = {}
+
 		fig = plt.figure()
 		buff_grid, pe_grid_sup = gridspec.GridSpec(1, 2, hspace=0, wspace=0.05, width_ratios=[1, 4])
 		pe_grid = gridspec.GridSpecFromSubplotSpec(1, 4, subplot_spec=pe_grid_sup, hspace=0, wspace=0)
@@ -97,6 +100,8 @@ class Accelerator(object):
 		act_arr = np.zeros((activation_buffer_size, 16))
 		act_arr = self._fill_buffer(act_arr, num_ones)
 
+		accel_dict['activation_buffer_arr'] = act_arr.tolist()
+
 		if debug: print(f'Activation buffer used: {self.activation_buffer.used * 100.0 / self.activation_buffer.buffer_size : 0.03f}%')
 
 		act_ax = plt.Subplot(fig, act_buff)
@@ -110,6 +115,8 @@ class Accelerator(object):
 		weight_arr = np.zeros((weight_buffer_size, 16))
 		weight_arr = self._fill_buffer(weight_arr, num_ones)
 
+		accel_dict['weight_buffer'] = weight_arr.tolist()
+
 		if debug: print(f'Weight buffer used: {self.weight_buffer.used * 100.0 / self.weight_buffer.buffer_size : 0.03f}%')
 
 		weight_ax = plt.Subplot(fig, weight_buff)
@@ -122,6 +129,8 @@ class Accelerator(object):
 		num_ones = math.ceil(self.mask_buffer.used * 1.0 / self.mask_buffer.buffer_size * mask_buffer_size * 16)
 		mask_arr = np.zeros((mask_buffer_size, 16))
 		mask_arr = self._fill_buffer(mask_arr, num_ones)
+
+		accel_dict['mask_buffer'] = mask_arr.tolist()
 
 		if debug: print(f'Mask buffer used: {self.mask_buffer.used * 100.0 / self.mask_buffer.buffer_size : 0.03f}%')
 
@@ -153,8 +162,12 @@ class Accelerator(object):
 				ax = plt.Subplot(fig, mac_lanes_spec)
 				ax.imshow(mac_lane_arr, interpolation='none', aspect='auto', 
 						  rasterized=True, cmap='Blues', vmin=0, vmax=1.5)
-				ax.set_xticks([])
-				ax.set_yticks([])
+				ax.set_xticks(np.arange(-0.5, len(self.pes[pe_count].mac_lanes)//2, 1))
+				ax.set_yticks(np.arange(-0.5, 2, 1))
+				ax.set_xticklabels([])
+				ax.set_yticklabels([])
+				ax.tick_params(axis=u'both', which=u'both',length=0)
+				ax.grid(color='k', linewidth=0.5)
 				fig.add_subplot(ax)
 				
 				ln_arr = np.zeros((1, 1))
@@ -177,13 +190,17 @@ class Accelerator(object):
 				ax.set_yticks([])
 				fig.add_subplot(ax)
 
+				accel_dict[f'pe_{pe_count + 1}'] = {'mac_lanes': mac_lane_arr.tolist(), 'layer_norm': ln_arr.tolist(), 'softmax': sftm_arr.tolist()}
+
 				pe_count += 1
 
 		if debug: print(f'MAC Lanes used: {mac_lanes_used * 100.0 / len(self.pes) / len(self.pes[0].mac_lanes) : 0.03f}%')
 
+		json.dump(accel_dict, open(os.path.join(utilization_dir, f'cycle_{self.cycle}.json'), 'w+'))
+
 		fig.subplots_adjust(wspace=0, hspace=0)
 		fig.suptitle(f'Cycle: {self.cycle}')
-		plt.savefig(os.path.join(utilization_dir, f'cycle_{self.cycle}.pdf'), dpi=300)
+		plt.savefig(os.path.join(utilization_dir, f'cycle_{self.cycle}.pdf'), bbox_inches='tight', dpi=300)
 		plt.close()
 
 	def process_cycle(self, memory_ops, compute_ops):
