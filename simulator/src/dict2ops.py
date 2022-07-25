@@ -80,7 +80,7 @@ def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
 
 	tiled_ops = []
 	if tile_ops:
-		for op in tqdm(ops, ncols=80, desc='Tiling operations'):
+		for op in tqdm(ops, desc='Tiling operations'):
 			tiled_ops.extend(op.tile_op())
 
 	if debug:
