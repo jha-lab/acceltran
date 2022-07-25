@@ -1,6 +1,7 @@
 # Run tiled operations on corresponding hardware modules
 
 import os
+import sys
 import math
 import numpy as np
 from matplotlib import pyplot as plt
@@ -23,6 +24,9 @@ class Accelerator(object):
 		weight_buffer (Buffer): Buffer class object for weights
 	"""
 	def __init__(self, config, constants):
+		self.config = config
+		self.constants = constants
+
 		self.pes = []
 		for p in range(config['pe']):
 			self.pes.append(ProcessingElement(f'pe{p}', config, constants))
@@ -65,24 +69,35 @@ class Accelerator(object):
 				if not mac_lane.ready: return False
 		return True
 
-	def plot_utilization(self, utilization_dir):
+	def _fill_buffer(self, buffer_arr, num_ones):
+		count = 0
+		if num_ones > 0:
+			for i in range(buffer_arr.shape[0]):
+				for j in range(buffer_arr.shape[1]):
+					buffer_arr[i, j] = 1
+					count += 1
+					if count == num_ones: return buffer_arr
+		return buffer_arr
+
+	def plot_utilization(self, utilization_dir, debug=False):
 		if not os.path.exists(utilization_dir): os.makedirs(utilization_dir)
 
 		fig = plt.figure()
 		buff_grid, pe_grid_sup = gridspec.GridSpec(1, 2, hspace=0, wspace=0.05, width_ratios=[1, 4])
 		pe_grid = gridspec.GridSpecFromSubplotSpec(1, 4, subplot_spec=pe_grid_sup, hspace=0, wspace=0)
 
+		activation_buffer_size = self.config['activation_buffer_size']
+		weight_buffer_size = self.config['weight_buffer_size']
+		mask_buffer_size = self.config['mask_buffer_size']
+
 		act_buff, weight_buff, mask_buff = gridspec.GridSpecFromSubplotSpec(3, 1, 
 			subplot_spec=buff_grid, hspace=0, wspace=0, height_ratios=[self.activation_buffer.buffer_size, self.weight_buffer.buffer_size, self.mask_buffer.buffer_size])
 
-		num_ones = math.ceil(self.activation_buffer.used * 1.0 / self.activation_buffer.buffer_size * self.activation_buffer.buffer_size * 16)
-		act_arr = np.zeros((self.activation_buffer.buffer_size, 16))
-		count = 0
-		for i in range(act_arr.shape[0]):
-			for j in range(act_arr.shape[1]):
-				act_arr[i, j] = 1
-				count += 1
-				if count == num_ones: break
+		num_ones = math.ceil(self.activation_buffer.used * 1.0 / self.activation_buffer.buffer_size * activation_buffer_size * 16)
+		act_arr = np.zeros((activation_buffer_size, 16))
+		act_arr = self._fill_buffer(act_arr, num_ones)
+
+		if debug: print(f'Activation buffer used: {self.activation_buffer.used * 100.0 / self.activation_buffer.buffer_size : 0.03f}%')
 
 		act_ax = plt.Subplot(fig, act_buff)
 		act_ax.imshow(act_arr, interpolation='none', aspect='auto', 
@@ -91,14 +106,11 @@ class Accelerator(object):
 		act_ax.set_yticks([])
 		fig.add_subplot(act_ax)
 
-		num_ones = math.ceil(self.weight_buffer.used * 1.0 / self.weight_buffer.buffer_size * self.weight_buffer.buffer_size * 16)
-		weight_arr = np.zeros((self.weight_buffer.buffer_size, 16))
-		count = 0
-		for i in range(weight_arr.shape[0]):
-			for j in range(weight_arr.shape[1]):
-				weight_arr[i, j] = 1
-				count += 1
-				if count == num_ones: break
+		num_ones = math.ceil(self.weight_buffer.used * 1.0 / self.weight_buffer.buffer_size * weight_buffer_size * 16)
+		weight_arr = np.zeros((weight_buffer_size, 16))
+		weight_arr = self._fill_buffer(weight_arr, num_ones)
+
+		if debug: print(f'Weight buffer used: {self.weight_buffer.used * 100.0 / self.weight_buffer.buffer_size : 0.03f}%')
 
 		weight_ax = plt.Subplot(fig, weight_buff)
 		weight_ax.imshow(weight_arr, interpolation='none', aspect='auto', 
@@ -107,14 +119,11 @@ class Accelerator(object):
 		weight_ax.set_yticks([])
 		fig.add_subplot(weight_ax)
 
-		num_ones = math.ceil(self.mask_buffer.used * 1.0 / self.mask_buffer.buffer_size * self.mask_buffer.buffer_size * 16)
-		mask_arr = np.zeros((self.mask_buffer.buffer_size, 16))
-		count = 0
-		for i in range(mask_arr.shape[0]):
-			for j in range(mask_arr.shape[1]):
-				mask_arr[i, j] = 1
-				count += 1
-				if count == num_ones: break
+		num_ones = math.ceil(self.mask_buffer.used * 1.0 / self.mask_buffer.buffer_size * mask_buffer_size * 16)
+		mask_arr = np.zeros((mask_buffer_size, 16))
+		mask_arr = self._fill_buffer(mask_arr, num_ones)
+
+		if debug: print(f'Mask buffer used: {self.mask_buffer.used * 100.0 / self.mask_buffer.buffer_size : 0.03f}%')
 
 		mask_ax = plt.Subplot(fig, mask_buff)
 		mask_ax.imshow(mask_arr, interpolation='none', aspect='auto', 
@@ -123,24 +132,25 @@ class Accelerator(object):
 		mask_ax.set_yticks([])
 		fig.add_subplot(mask_ax)
 
+		mac_lanes_used, pe_count = 0, 0
 		for pe_col in pe_grid:
-			pes = gridspec.GridSpecFromSubplotSpec(len(self.pes)/4, 1, wspace=0, hspace=0,
+			pes = gridspec.GridSpecFromSubplotSpec(len(self.pes)//4, 1, wspace=0, hspace=0,
 				subplot_spec=pe_col)
-			pe_count = 0
 			for pe in pes:
-				mac_lanes, sp_modules = gridspec.GridSpecFromSubplotSpec(2, 1, wspace=0, hspace=0, 
+				mac_lanes_spec, sp_modules_spec = gridspec.GridSpecFromSubplotSpec(2, 1, wspace=0, hspace=0, 
 					height_ratios=[2, 1], subplot_spec=pe)
 				
-				ln, sftm = gridspec.GridSpecFromSubplotSpec(1, 2, wspace=0, hspace=0, subplot_spec=sp_modules)
+				ln, sftm = gridspec.GridSpecFromSubplotSpec(1, 2, wspace=0, hspace=0, subplot_spec=sp_modules_spec)
 
-				mac_lane_arr = np.zeros((2, len(self.pes[pe_count].mac_lanes)/2))
+				mac_lane_arr = np.zeros((2, len(self.pes[pe_count].mac_lanes)//2))
 				mac_lane_count = 0
 				for i in range(mac_lane_arr.shape[0]):
 					for j in range(mac_lane_arr.shape[1]):
 						mac_lane_arr[i, j] = 1 if not self.pes[pe_count].mac_lanes[mac_lane_count].ready else 0
+						mac_lanes_used += mac_lane_arr[i, j]
 						mac_lane_count += 1
 				
-				ax = plt.Subplot(fig, mac_lanes)
+				ax = plt.Subplot(fig, mac_lanes_spec)
 				ax.imshow(mac_lane_arr, interpolation='none', aspect='auto', 
 						  rasterized=True, cmap='Blues', vmin=0, vmax=1.5)
 				ax.set_xticks([])
@@ -167,9 +177,14 @@ class Accelerator(object):
 				ax.set_yticks([])
 				fig.add_subplot(ax)
 
+				pe_count += 1
+
+		if debug: print(f'MAC Lanes used: {mac_lanes_used * 100.0 / len(self.pes) / len(self.pes[0].mac_lanes) : 0.03f}%')
+
 		fig.subplots_adjust(wspace=0, hspace=0)
-		fig.sup_title(f'Cycle: {self.cycle}')
+		fig.suptitle(f'Cycle: {self.cycle}')
 		plt.savefig(os.path.join(utilization_dir, f'cycle_{self.cycle}.pdf'), dpi=300)
+		plt.close()
 
 	def process_cycle(self, memory_ops, compute_ops):
 		total_pe_energy = [0, 0]
