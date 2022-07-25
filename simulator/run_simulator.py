@@ -60,7 +60,7 @@ def get_last_compute_op(memory_op, compute_ops):
 def log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, cycle, logs_path):
 	"""Log energy values for every cycle"""
 	if os.path.exists(logs_path):
-		logs = json.load(logs_path)
+		logs = json.load(open(logs_path, 'r'))
 
 		last_cycle = logs['cycle'][-1]
 		cycle_difference = cycle - last_cycle
@@ -107,7 +107,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		if memory_op:
 			assert isinstance(memory_op, (MemoryLoadOp, MemoryLoadTiledOp, MemoryStoreOp, MemoryStoreTiledOp))
 
-		if debug: print(f'Running memory operation with name: {memory_op.op_name if memory_op else None}\nand compute operation with name: {compute_op.op_name if compute_op else None}')
+		if debug: print(f'{color.HEADER}Running memory operation with name: {memory_op.op_name if memory_op else None}\nand compute operation with name: {compute_op.op_name if compute_op else None}{color.ENDC}')
 
 		# Run memory operation
 		if memory_op:
@@ -133,9 +133,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 			else:
 				memory_stall = True
 				if debug:
-					if not buffer.ready: print(f'Memory stall: {buffer.buffer_type} buffer not ready')
-					if not buffer.can_store(data): print(f'Memory stall: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}')
-					if not last_compute_done: print(f'Memory stall: waiting for last compute operation "{get_last_compute_op(memory_op, compute_op).op_name}"')
+					if not buffer.ready: print(f'{color.WARNING}Memory stall: {buffer.buffer_type} buffer not ready{color.ENDC}')
+					if not buffer.can_store(data): print(f'{color.WARNING}Memory stall: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
+					if not last_compute_done: print(f'{color.WARNING}Memory stall: waiting for last compute operation "{get_last_compute_op(memory_op, compute_op).op_name}"{color.ENDC}')
 			
 			if not memory_stall:
 				if store_op:
@@ -151,7 +151,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 			for data_name in compute_op.required_in_buffer:
 				if not accelerator.activation_buffer.data_in_buffer(data_name) and not accelerator.weight_buffer.data_in_buffer(data_name):
 					compute_stall = True
-					if debug: print(f'Compute stall: {data_name} required in buffer')
+					if debug: print(f'{color.WARNING}Compute stall: {data_name} required in buffer{color.ENDC}')
 					break
 
 			if not compute_stall:
@@ -160,7 +160,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 					accelerator.set_required(compute_op)
 				else:
 					compute_stall = True 
-					if debug: print(f'Compute stall: no MAC lanes are ready')
+					if debug: print(f'{color.WARNING}Compute stall: no MAC lanes are ready{color.ENDC}')
 
 		# Process cycle for every module
 		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops)
@@ -170,9 +170,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		log_energy(total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, accelerator.cycle, logs_path)
 
 		# Plot utilization of the accelerator
-		accelerator.plot_utilization(utilization_dir)
+		accelerator.plot_utilization(utilization_dir, debug)
 
-		if debug: print(f'Cycle: {accelerator.cycle}')
+		if debug: print(f'{color.GREEN}Cycle: {accelerator.cycle}{color.GREEN}')
 
 		if memory_stall and compute_stall and accelerator.all_macs_free():
 			min_cycles = min([process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]])
@@ -213,7 +213,7 @@ if __name__ == '__main__':
 	parser.add_argument('--model_dict_path',
 		metavar='',
 		type=str,
-		default='model_dict.json',
+		default='./model_dicts/bert_tiny.json',
 		help='path where the model dictionary file is stored')
 	parser.add_argument('--config_path',
 		metavar='',
@@ -270,6 +270,7 @@ if __name__ == '__main__':
 
 	if os.path.exists(args.logs_path) and OVERWRITE_LOGS: os.remove(args.logs_path)
 	if os.path.exists(args.utilization_dir) and OVERWRITE_LOGS: shutil.rmtree(args.utilization_dir)
+	os.makedirs('./logs', exist_ok=True)
 
 	main(model_dict, config, constants, design_space, args.logs_path, args.utilization_dir, args.debug)
 
