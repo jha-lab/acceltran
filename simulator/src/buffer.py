@@ -62,7 +62,11 @@ class Buffer(object):
 		else:
 			raise ValueError(f'Input data is not of correct type: {type(data)}')
 
-		if data_name in [d.data_name for d in self.data] and data_name != self.data_being_added[0].data_name:
+		if self.data_being_added is not None: 
+			data_being_added_name = self.data_being_added[0].data_name
+		else:
+			data_being_added_name = ''
+		if data_name in [d.data_name for d in self.data] and data_name != data_being_added_name:
 			return True
 		else:
 			return False
