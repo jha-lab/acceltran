@@ -381,7 +381,7 @@ class SelfAttentionOp(Op):
 
 		self.tiled_ops = []
 		for op in self.base_ops:
-			if isinstance(op, MemoryLoadOp):
+			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_load: 
 					self.tiled_ops.extend(op.tile_op())
 					# TODO: implement tiled required_in_buffer for compute operations
@@ -435,7 +435,7 @@ class ConvOp(Op):
 
 		self.tiled_ops = []
 		for op in self.base_ops:
-			if isinstance(op, MemoryLoadOp):
+			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_load: 
 					self.tiled_ops.extend(op.tile_op())
 				else:
@@ -491,7 +491,7 @@ class LinearTransformOp(Op):
 
 		self.tiled_ops = []
 		for op in self.base_ops:
-			if isinstance(op, MemoryLoadOp):
+			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_load: 
 					self.tiled_ops.extend(op.tile_op())
 				else:
@@ -544,7 +544,7 @@ class FeedForwardOp(Op):
 
 		self.tiled_ops = []
 		for op in self.base_ops:
-			if isinstance(op, MemoryLoadOp):
+			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_load: 
 					self.tiled_ops.extend(op.tile_op())
 				else:
