@@ -13,7 +13,7 @@ from ops import *
 SEQ_LENGTH = 512
 
 
-def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
+def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops=False, debug=False):
 	"""Convert model dictionary to software compute operations"""
 	assert 'p' not in model_dict.keys(), 'Only model dictionaries in FlexiBERT 2.0 are supported'
 
@@ -23,6 +23,7 @@ def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
 
 	for layer in range(model_dict['l']):
 		layer_hidden_size = model_dict['h'][layer]
+		multihead_ops = []
 		for i, attention_head in enumerate(model_dict['o'][layer]):
 			type, param, hidden = attention_head.split('_')
 
@@ -30,13 +31,15 @@ def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
 			input_size = (batch_size, SEQ_LENGTH, layer_hidden_size)
 			
 			if type == 'sa':
-				ops.append(SelfAttentionOp(op_name, config, input_size, hidden_size=int(hidden), type=param))
+				multihead_ops.append(SelfAttentionOp(op_name, config, input_size, hidden_size=int(hidden), type=param))
 			elif type == 'c':
-				ops.append(ConvOp(op_name, config, input_size, hidden_size=int(hidden), kernel_size=int(param)))
+				multihead_ops.append(ConvOp(op_name, config, input_size, hidden_size=int(hidden), kernel_size=int(param)))
 			elif type == 'l':
-				ops.append(LinearTransformOp(op_name, config, input_size, hidden_size=int(hidden), type=param))
+				multihead_ops.append(LinearTransformOp(op_name, config, input_size, hidden_size=int(hidden), type=param))
 
 			if debug: print(f'Added operation with name: {op_name}')
+
+		ops.append(multihead_ops)
 
 		ops.append(LayerNormOp(f'ln_{layer}_1', config, [], input_size=(batch_size, SEQ_LENGTH, layer_hidden_size)))
 
@@ -78,15 +81,58 @@ def main(model_dict: dict, config: dict, tile_ops=False, debug=False):
 
 			if debug: print(f'Added operation with name: {op_name}')
 
-	tiled_ops = []
-	if tile_ops:
-		for op in tqdm(ops, desc='Tiling operations'):
-			tiled_ops.extend(op.tile_op())
+	memory_ops, compute_ops = [], []
+	num_ops = 0
+	for op in tqdm(ops, desc='Tiling operations'):
+		if isinstance(op, list):
+			memory_multihead_ops, compute_multihead_ops = [], []
+			for head_op in op:
+				memory_head_ops, compute_head_ops = [], []
+				if head_op.base_op:
+					if head_op.compute_op:
+						compute_head_ops.extend(head_op.tile_op() if tile_compute_ops else [head_op])
+					else:
+						memory_head_ops.extend(head_op.tile_op() if tile_memory_ops else [head_op])
+				else:
+					head_op.convert_to_base_ops()
+					for base_op in head_op.base_ops:
+						if base_op.compute_op:
+							compute_head_ops.extend(base_op.tile_op() if tile_compute_ops else [base_op])
+						else:
+							memory_head_ops.extend(base_op.tile_op() if tile_memory_ops else [base_op])
+				if memory_head_ops: 
+					num_ops += len(memory_head_ops)
+					memory_multihead_ops.append(memory_head_ops)
+				if compute_head_ops: 
+					num_ops += len(compute_head_ops)
+					compute_multihead_ops.append(compute_head_ops)
+			memory_ops.append(memory_multihead_ops); compute_ops.append(compute_multihead_ops)
+		else:
+			if op.base_op:
+				if op.compute_op:
+					new_ops = op.tile_op() if tile_compute_ops else [op]
+					num_ops += len(new_ops)
+					compute_ops.extend(new_ops)
+				else:
+					new_ops = op.tile_op() if tile_memory_ops else [op]
+					num_ops += len(new_ops)
+					memory_ops.extend(new_ops)
+			else:
+				op.convert_to_base_ops()
+				for base_op in op.base_ops:
+					if base_op.compute_op:
+						new_ops = base_op.tile_op() if tile_compute_ops else [base_op]
+						num_ops += len(new_ops)
+						compute_ops.extend(new_ops)
+					else:
+						new_ops = base_op.tile_op() if tile_memory_ops else [base_op]
+						num_ops += len(new_ops)
+						memory_ops.extend(new_ops)
 
 	if debug:
-		print(f'Number of tiled operations: {len(tiled_ops)}')
+		print(f'Number of operations: {num_ops}')
 
-	return ops, tiled_ops
+	return memory_ops, compute_ops, num_ops
 
 
 if __name__ == '__main__':
