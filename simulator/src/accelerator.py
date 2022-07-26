@@ -213,26 +213,20 @@ class Accelerator(object):
 		weight_buffer_energy = self.weight_buffer.process_cycle()
 		mask_buffer_energy = self.mask_buffer.process_cycle()
 
-		# Mark operations as done if their corresponding modules are ready
-		activation_memory_ops = [op for op in memory_ops if op.data_type == 'activation']
-		weight_memory_ops = [op for op in memory_ops if op.data_type == 'weight']
-		if self.activation_buffer.ready:
-			for memory_op in activation_memory_ops:
-				if memory_op.done == False:
-					memory_op.done = True
-					break
-		if self.weight_buffer.ready:
-			for memory_op in weight_memory_ops:
-				if memory_op.done == False:
-					memory_op.done = True
-					break
-
 		# If a compute_op is done, its corresponding data is not required in buffer anymore
 		for compute_op in compute_ops:
-			if compute_op.done == True:
-				self.set_not_required(compute_op)
+			if type(compute_op) == list:
+				for head_ops in compute_op:
+					for op in head_ops:
+						if op.done == True: 
+							self.set_not_required(op)
+						else:
+							break
 			else:
-				break
+				if compute_op.done == True:
+					self.set_not_required(compute_op)
+				else:
+					break
 
 		# All energy in nJ
 		return tuple(total_pe_energy), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy
