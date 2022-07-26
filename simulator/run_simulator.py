@@ -51,19 +51,91 @@ def check_config(config: dict, design_space: dict):
 	assert memory_config in design_space['main_memory_config'][config['main_memory']['type']], f'Unsupported main memory configuration ({memory_config})'
 
 
-def get_last_compute_op(memory_op, compute_ops):
+def get_op_list(ops, op_idx):
+	assert type(op_idx) == tuple
+
+	if op_idx is not None:
+		if type(ops[op_idx[0]]) == list:
+			assert len(op_idx[1]) != 0
+			op = []
+			for head_idx, head_op in enumerate(ops[op_idx[0]]):
+				op.append(head_op[op_idx[1][head_idx]])
+			return op
+		else:
+			return [ops[op_idx[0]]]
+	else:
+		return []
+
+
+def get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops):
 	"""Get the last compute_op corresponding to the current storing memory_op"""
-	assert isinstance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp))
 
 	last_compute_op = None
 	compute_op_found = False
 
-	for i, compute_op in enumerate(compute_ops):
-		if compute_op.op_name.startswith(memory_op.op_name[:-2]):
+	if memory_op_idx[1] != []:
+		head_ops = compute_ops[memory_op_idx[0]][head_idx]
+	else:
+		head_ops = compute_ops
+
+	for i, compute_op in enumerate(head_ops):
+		if type(compute_op) == list: continue
+		if compute_op.op_name.startswith(head_op.op_name[:-2]):
 			last_compute_op_idx = i
 			compute_op_found = True
 		elif compute_op_found:
-			return compute_ops[last_compute_op_idx]
+			return head_ops[last_compute_op_idx]
+
+
+def prev_memory_op_done(head_op, head_idx, memory_op_idx, memory_ops):
+	"""Mark previous memory_op as done"""
+
+	if memory_op_idx[1] != []:
+		curr_idx = memory_op_idx[1][head_idx]
+		head_ops = memory_ops[memory_op_idx[0]][head_idx]
+	else:
+		curr_idx = memory_op_idx[0]
+		head_ops = memory_ops
+
+	for prev_op_idx in range(curr_idx - 1, -1, -1):
+		if type(head_ops[prev_op_idx]) == list: continue
+		if head_ops[prev_op_idx].data_type == head_op.data_type:
+			head_ops[prev_op_idx].done = True
+			break
+
+
+def update_op_idx(ops, op_idx, stall_list, ops_done):
+	# Update op_idx based on stalls
+	for head_idx, stall in enumerate(stall_list):
+		if stall:
+			# corresponding memory_op remains the same
+			pass
+		else:
+			ops_done += 1
+			if len(stall_list) > 1:
+				if op_idx[1][head_idx] < len(ops[op_idx[0]][head_idx]) - 1:
+					op_idx[1][head_idx] += 1
+				else:
+					op_idx[1][head_idx] = None
+			else:
+				op_idx[0] += 1
+				if type(ops[op_idx[0]]) == list:
+					op_idx[1] = [0] * len(ops[op_idx[0]])
+				else:
+					op_idx[1] = []
+
+	# If all ops are done in a multi-head op, proceed to next op
+	if len(stall_list) > 1 and all([op_idx[1][head_idx] is None for head_idx in range(len(stall_list))]):
+		op_idx[0] += 1
+		if type(ops[op_idx[0]]) == list:
+			op_idx[1] = [0] * len(ops[op_idx[0]])
+		else:
+			op_idx[1] = []
+
+	if op_idx[0] > len(ops) - 1:
+		op_idx = None
+
+	return op_idx, ops_done
 
 
 def get_utilization(accelerator):
@@ -140,88 +212,109 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 	print(f'{color.GREEN}Accelerator area: {accelerator.area / 1e6 : 0.03f} mm\u00b2{color.ENDC}')
 	
 	# Get tiled ops from model dictionary
-	ops, tiled_ops = dict2ops(model_dict, config, tile_ops=True, debug=debug)
+	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, tile_compute_ops=True, tile_memory_ops=False, debug=debug)
 
-	memory_ops, compute_ops = [op for op in tiled_ops if not op.compute_op], [op for op in tiled_ops if op.compute_op]
-
-	memory_op_idx, compute_op_idx = 0, 0
-	memory_op, compute_op = memory_ops[0], compute_ops[0]
+	assert type(memory_ops[0]) == list and type(compute_ops[0]) == list
+	memory_op_idx, compute_op_idx, ops_done = (0, [0] * len(memory_ops[0])), (0, [0] * len(compute_ops[0])), 0
+	memory_op, compute_op = get_op_list(memory_ops, memory_op_idx), get_op_list(compute_ops, compute_op_idx)
 
 	# Create logs dictionary
 	logs = {}
 
-	pbar = tqdm(total=len(tiled_ops))
+	pbar = tqdm(total=num_ops)
 	pbar.set_description('Simulating accelerator')
 
+	sp_char = "\n\t"
+	reverse_memory_order = False
+
 	# Run operations on the accelerator in a cycle-accurate manner
-	while memory_op is not None or compute_op is not None:
+	while ops_done < num_ops:
 
 		# Update progress bar
-		pbar.update(memory_op_idx + compute_op_idx - pbar.n)
+		pbar.update(ops_done - pbar.n)
 
 		# Print cycle
 		if debug: tqdm.write(f'{color.GREEN}Cycle: {accelerator.cycle + 1}{color.ENDC}')
 
 		memory_stall, compute_stall = False, False
-		
-		if memory_op:
-			assert isinstance(memory_op, (MemoryLoadOp, MemoryLoadTiledOp, MemoryStoreOp, MemoryStoreTiledOp))
 
-		if debug: tqdm.write(f'{color.HEADER}Running memory operation with name: {memory_op.op_name if memory_op else None}\nand compute operation with name: {compute_op.op_name if compute_op else None}{color.ENDC}')
+		if debug: 
+			tqdm.write(f'{color.HEADER}Running memory operation(s) with name(s):\n\t{f"{sp_char}".join([f"- {op.op_name}" for op in memory_op])}\nand compute operation(s) with name(s):\n\t{f"{sp_char}".join([f"- {op.op_name}" for op in compute_op])}{color.ENDC}')
 
 		# Run memory operation
 		if memory_op:
-			# Get corresponding data object
-			data = memory_op.convert_to_data()
+			memory_stall = [False] * len(memory_op)
+			debug_output = []
 
-			last_compute_done, store_op = True, False
-			if isinstance(memory_op, (MemoryStoreOp, MemoryStoreTiledOp)): 
-				last_compute_op = get_last_compute_op(memory_op, compute_ops)
-				last_compute_done = last_compute_op.done
-				store_op = True
+			# Reverse operation order to give equal priority 
+			head_ids, head_ops = [], []
+			for head_idx, head_op in enumerate(memory_op):
+				head_ids.append(head_idx); head_ops.append(head_op)
+			if reverse_memory_order:
+				head_ids.reverse(); head_ops.reverse()
+			reverse_memory_order = not reverse_memory_order
 
-			buffer = getattr(accelerator, f'{data.data_type}_buffer')
+			for head_idx, head_op in zip(head_ids, head_ops):
+				# Get corresponding data object
+				data = head_op.convert_to_data()
 
-			if buffer.ready:
-				# Previous memory_op for this buffer is done
-				for memory_op_idx_prev in range(memory_op_idx, -1, -1):
-					if memory_ops[memory_op_idx_prev].data_type == memory_op.data_type:
-						memory_ops[memory_op_idx_prev].done = True
-						break
+				last_compute_done, store_op = True, False
+				if isinstance(head_op, (MemoryStoreOp, MemoryStoreTiledOp)): 
+					last_compute_op = get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops)
+					last_compute_done = last_compute_op.done
+					store_op = True
 
-				if buffer.can_store(data) and last_compute_done:
-					memory_stall = False
-			else:
-				memory_stall = True
-				if debug:
-					if not buffer.ready: tqdm.write(f'{color.WARNING}Memory stall: {buffer.buffer_type} buffer not ready{color.ENDC}')
-					if not buffer.can_store(data): tqdm.write(f'{color.WARNING}Memory stall: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
-					if not last_compute_done: tqdm.write(f'{color.WARNING}Memory stall: waiting for last compute operation "{get_last_compute_op(memory_op, compute_op).op_name}"{color.ENDC}')
-			
-			if not memory_stall:
-				if store_op:
-					removed_old_data = buffer.store(data)
-					removed_old_data_mask = accelerator.mask_buffer.store(data)
+				buffer = getattr(accelerator, f'{data.data_type}_buffer')
+
+				if buffer.ready:
+					# Previous memory_op for this buffer is done
+					prev_memory_op_done(head_op, head_idx, memory_op_idx, memory_ops)
+
+					if buffer.can_store(data) and last_compute_done:
+						memory_stall[head_idx] = False
 				else:
-					removed_old_data = buffer.load(data)
-					removed_old_data_mask = accelerator.mask_buffer.load(data)
+					memory_stall[head_idx] = True
+					if debug:
+						op_debug_output = []
+						if not buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer not ready{color.ENDC}')
+						if not buffer.can_store(data): op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
+						if not last_compute_done: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: waiting for last compute operation "{get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops).op_name}"{color.ENDC}')
+
+					debug_output.append("\n".join(op_debug_output))
+				
+				if not memory_stall[head_idx]:
+					if store_op:
+						removed_old_data = buffer.store(data)
+						removed_old_data_mask = accelerator.mask_buffer.store(data)
+					else:
+						removed_old_data = buffer.load(data)
+						removed_old_data_mask = accelerator.mask_buffer.load(data)
+
+			if debug: 
+				if len(debug_output) > 1:
+					if not reverse_memory_order: debug_output.reverse()
+					tqdm.write("\n".join(debug_output))
+				else:
+					tqdm.write(debug_output[0])
 
 		# Run compute operation
 		if compute_op:
-			# Check if required data is in memory
-			for data_name in compute_op.required_in_buffer:
-				if not accelerator.activation_buffer.data_in_buffer(data_name) and not accelerator.weight_buffer.data_in_buffer(data_name):
-					compute_stall = True
-					if debug: tqdm.write(f'{color.WARNING}Compute stall: {data_name} required in buffer{color.ENDC}')
-					break
+			compute_stall = [False] * len(compute_op)
+			for head_idx, head_op in enumerate(compute_op):
+				# Check if required data is in memory
+				for data_name in head_op.required_in_buffer:
+					if not accelerator.activation_buffer.data_in_buffer(data_name) and not accelerator.weight_buffer.data_in_buffer(data_name):
+						compute_stall[head_idx] = True
+						if debug: tqdm.write(f'{color.WARNING}Compute stall{f" for head {head_idx + 1}" if len(compute_op) > 1 else ""}: {data_name} required in buffer{color.ENDC}')
+						break
 
-			if not compute_stall:
-				assigned_op = accelerator.assign_op(compute_op)
-				if assigned_op:
-					accelerator.set_required(compute_op)
-				else:
-					compute_stall = True 
-					if debug: tqdm.write(f'{color.WARNING}Compute stall: no MAC lanes are ready{color.ENDC}')
+				if not compute_stall[head_idx]:
+					assigned_op = accelerator.assign_op(head_op)
+					if assigned_op:
+						accelerator.set_required(head_op)
+					else:
+						compute_stall[head_idx] = True 
+						if debug: tqdm.write(f'{color.WARNING}Compute stall{f" for head {head_idx + 1}" if len(compute_op) > 1 else ""}: no MAC lanes are ready{color.ENDC}')
 
 		# Process cycle for every module
 		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops)
@@ -245,7 +338,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 			# Plot metrics
 			plot_metrics(logs, logs_dir, constants)
 
-		if memory_stall and compute_stall and accelerator.all_macs_free():
+		if all(memory_stall) and all(compute_stall) and accelerator.all_macs_free():
 			min_cycles = min([process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]])
 
 			if min_cycles > 1:
@@ -258,23 +351,10 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 				logs = log_energy(logs, (0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
 				continue
 
-		if memory_stall:
-			# memory_op remains the same
-			pass
-		elif memory_op_idx < len(memory_ops) - 1:
-			memory_op_idx += 1
-			memory_op = memory_ops[memory_op_idx]
-		else:
-			memory_op = None
+		memory_op_idx, ops_done = update_op_idx(memory_ops, memory_op_idx, memory_stall, ops_done)
+		compute_op_idx, ops_done = update_op_idx(compute_ops, compute_op_idx, compute_stall, ops_done)
 
-		if compute_stall:
-			# compute_op remains the same
-			pass
-		elif compute_op_idx < len(compute_ops) - 1:
-			compute_op_idx += 1
-			compute_op = compute_ops[compute_op_idx]
-		else:
-			compute_op = None
+		memory_op, compute_op = get_op_list(memory_ops, memory_op_idx), get_op_list(compute_ops, compute_op_idx)
 
 	print(f'{color.GREEN}Finished simulation{color.ENDC}')
 	pbar.close()
