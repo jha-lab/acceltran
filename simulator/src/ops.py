@@ -371,7 +371,7 @@ class SelfAttentionOp(Op):
 		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_o-s', self.config, self.input_size, 'activation'))
 
 	# TODO: check if tiled loading would be better than loading full matrix
-	def tile_op(self, tile_memory_load=False):
+	def tile_op(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
@@ -382,7 +382,7 @@ class SelfAttentionOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_load: 
+				if tile_memory_ops: 
 					self.tiled_ops.extend(op.tile_op())
 					# TODO: implement tiled required_in_buffer for compute operations
 				else:
@@ -425,7 +425,7 @@ class ConvOp(Op):
 		# Store attenion-head output matrix
 		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_c-s', self.config, self.input_size, 'activation'))
 
-	def tile_op(self, tile_memory_load=False):
+	def tile_op(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
@@ -436,7 +436,7 @@ class ConvOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_load: 
+				if tile_memory_ops: 
 					self.tiled_ops.extend(op.tile_op())
 				else:
 					self.tiled_ops.append(op)
@@ -481,7 +481,7 @@ class LinearTransformOp(Op):
 		# Store attenion-head output matrix
 		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_l-s', self.config, self.input_size, 'activation'))
 
-	def tile_op(self, tile_memory_load=False):
+	def tile_op(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
@@ -492,7 +492,7 @@ class LinearTransformOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_load: 
+				if tile_memory_ops: 
 					self.tiled_ops.extend(op.tile_op())
 				else:
 					self.tiled_ops.append(op)
@@ -534,7 +534,7 @@ class FeedForwardOp(Op):
 		# Store attenion-head output matrix
 		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_f-s', self.config, ff_size, 'activation'))
 
-	def tile_op(self, tile_memory_load=False):
+	def tile_op(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
@@ -545,7 +545,7 @@ class FeedForwardOp(Op):
 		self.tiled_ops = []
 		for op in self.base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_load: 
+				if tile_memory_ops: 
 					self.tiled_ops.extend(op.tile_op())
 				else:
 					self.tiled_ops.append(op)
