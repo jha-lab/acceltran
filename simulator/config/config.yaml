@@ -2,14 +2,14 @@
 
 tile:
   tile_b: 1
-  tile_x: 8
-  tile_y: 8
+  tile_x: 16
+  tile_y: 16
 
 non_linearity: 'gelu'
 
-pe: 64
+pe: 128
 
-lanes_per_pe: 64
+lanes_per_pe: 8
 
 mac_per_lane: 16
 
@@ -26,3 +26,11 @@ main_memory:
   banks: 16
   ranks: 2
   channels: 2
+
+scheduler:
+  compute_ops:
+    tiled: True
+    batch_size: 4
+  memory_ops:
+    tiled: False
+    batch_size: 1
