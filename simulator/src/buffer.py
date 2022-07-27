@@ -119,16 +119,17 @@ class Buffer(object):
 			# Latest used data in the end of the list
 			self.data.remove(data); self.data.append(data)
 		else:
-			while self.used > self.buffer_size:
+			while self.used + data.data_size > self.buffer_size:
 				# Remove oldest used data
-				self.used -= self.data[0].data_size * self.weight_factor
-				self.data.remove(self.data[0])
-				removed_old_data = True
+				if not data.required_in_buffer:
+					self.used -= self.data[0].data_size * self.weight_factor
+					self.data.remove(self.data[0])
+					removed_old_data = True
 			self.data.append(data)
 			self.data_being_added = (data, 'store')
 			self.used += data.data_size * self.weight_factor
 			
-		self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.block_size)
+		self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.block_size / (self.IL + self.FL))
 		self.energy_per_cycle = self.access_energy * data.data_size / self.block_size / self.process_cycles
 		self.ready = False
 
