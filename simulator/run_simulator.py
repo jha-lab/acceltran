@@ -8,6 +8,7 @@ import yaml
 import time
 import shutil
 import argparse
+import numpy as np
 from tqdm import tqdm
 from matplotlib import pyplot as plt
 
@@ -65,7 +66,7 @@ def get_op_list(ops, op_idx, batch_size):
 			ops_list = []
 			for head_idx, head_ops in enumerate(ops[op_idx[0]]):
 				if op_idx[1][head_idx] is None: ops_list.append(None)
-				if batch_size == 1:
+				elif batch_size == 1:
 					ops_list.append(head_ops[op_idx[1][head_idx]])
 				else:
 					ops_list.append([head_ops[i] for i in range(op_idx[1][head_idx], 
@@ -201,8 +202,8 @@ def log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_e
 		del logs; gc.collect()
 		logs = {}
 
-	# logs_length = len(logs['cycle']) if logs else 0
-	# if logs_length > plot_steps: raise RuntimeError(f'Logs length exceeded plot steps')
+	## logs_length = len(logs['cycle']) if logs else 0
+	## if logs_length > plot_steps: raise RuntimeError(f'Logs length exceeded plot steps')
 
 	return logs
 
@@ -226,8 +227,8 @@ def plot_metrics(logs_dir, constants):
 		logs_metrics['sftm_utilization'].extend(logs_temp['sftm_utilization'])
 
 	fig, (ax_power, ax_utilization) = plt.subplots(2, 1)
-	ax_power.plot(logs_metrics['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs_metrics['total_pe_energy']], 'b-', label='PEs (dynamic)')
-	ax_power.plot(logs_metrics['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs_metrics['total_pe_energy']], 'b--', label='PEs (leakage)')
+	ax_power.plot(logs_metrics['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs_metrics['total_pe_energy']], color='tab:blue', linestyle='-', label='PEs (dynamic)')
+	ax_power.plot(logs_metrics['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs_metrics['total_pe_energy']], color='tab:blue', linestyle='--', label='PEs (leakage)')
 	ax_power.plot(logs_metrics['cycle'], [logs_metrics['activation_buffer_energy'][i][0] + logs_metrics['weight_buffer_energy'][i][0] + logs_metrics['mask_buffer_energy'][i][0] for i in range(len(logs_metrics['cycle']))], 'k-', label='Buffers (dynamic)')
 	ax_power.plot(logs_metrics['cycle'], [(logs_metrics['activation_buffer_energy'][i][1] + logs_metrics['weight_buffer_energy'][i][1] + logs_metrics['mask_buffer_energy'][i][1]) for i in range(len(logs_metrics['cycle']))], 'k--', label='Bufferd (leakage)')
 	ax_power.set_ylabel('Power (mW)')
@@ -235,7 +236,7 @@ def plot_metrics(logs_dir, constants):
 
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['mac_lane_utilization']], color='tab:blue', linestyle='-', label='MAC Lanes')
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['ln_utilization']], color='tab:purple', linestyle='-', label='Layer-norm')
-	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['sftm_utilization']], color='tab:gree', lineastyle='-', label='Softmax')
+	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['sftm_utilization']], color='tab:green', linestyle='-', label='Softmax')
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['activation_buffer_utilization']], 'k-', label='Activation Buffer')
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['weight_buffer_utilization']], 'k--', label='Weight Buffer')
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['mask_buffer_utilization']], color='grey', label='Mask Buffer')
@@ -304,15 +305,16 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 			memory_stall = [False] * len(memory_op)
 			debug_output = []
 
-			# Reverse operation order to give equal priority 
-			head_ids, head_ops = [], []
-			for head_idx, head_op in enumerate(memory_op):
-				head_ids.append(head_idx); head_ops.append(head_op)
-			if reverse_memory_order:
-				head_ids.reverse(); head_ops.reverse()
-			reverse_memory_order = not reverse_memory_order
+			# Sort operation order to give higher priority to tasks first
+			sorted_head_ids, head_ids = [0], [0]
+			if len(memory_op) > 1:
+				sorted_head_ids = np.argsort(np.array([idx for idx in memory_op_idx[1] if idx is not None]))
+				head_ids = np.arange(len(memory_op))
+				head_ids = list(head_ids[sorted_head_ids])
 
-			for head_idx, head_op in zip(head_ids, head_ops):
+			for head_idx in head_ids:
+				head_op = memory_op[head_idx]
+
 				if head_op is None: continue
 
 				# Get corresponding data object
@@ -336,14 +338,17 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 					if buffer.can_store(data) and last_compute_done:
 						memory_stall[head_idx] = False
+					else:
+						memory_stall[head_idx] = True
 				else:
 					memory_stall[head_idx] = True
-					if debug:
-						op_debug_output = []
-						if not buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer not ready{color.ENDC}')
-						if not buffer.can_store(data): op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
-						if not last_compute_done: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: waiting for last compute operation "{get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops).op_name}"{color.ENDC}')
-						debug_output.append("\n".join(op_debug_output))
+
+				if memory_stall[head_idx] and debug:
+					op_debug_output = []
+					if not buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer not ready{color.ENDC}')
+					if not buffer.can_store(data): op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
+					if not last_compute_done: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: waiting for last compute operation "{get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops).op_name}"{color.ENDC}')
+					debug_output.append("\n".join(op_debug_output))
 				
 				if not memory_stall[head_idx]:
 					if store_op:
@@ -353,15 +358,12 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 						removed_old_data = buffer.load(data)
 						removed_old_data_mask = accelerator.mask_buffer.load(data)
 
-			if debug: 
-				if len(debug_output) > 1:
-					if not reverse_memory_order: debug_output.reverse()
-					tqdm.write("\n".join(debug_output))
-				else:
-					tqdm.write(debug_output[0])
+			if debug and debug_output:
+				tqdm.write("\n".join([debug_output[i] for i in head_ids if i < len(debug_output)]))
 
 		# Run compute operation
 		if compute_op:
+			# We do not sort operations here for staggered implemention and better utilization
 			compute_stall = [False] * len(compute_op)
 			for head_idx, head_ops in enumerate(compute_op):
 				if head_op is None: continue
@@ -370,7 +372,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 				if type(head_ops) != list:
 					head_ops = [head_ops]
 
-				if accelerator.num_mac_lanes_free()[0] < len(head_ops) or accelerator.num_ln_free()[0] < len(head_ops) or accelerator.num_sftm_free()[0] < len(head_ops):
+				if not accelerator.can_assign(head_ops):
 					compute_stall[head_idx] = True
 					if debug: tqdm.write(f'{color.WARNING}Compute stall{f" for head {head_idx + 1}" if len(compute_op) > 1 else ""}: all resources are busy{color.ENDC}')
 
