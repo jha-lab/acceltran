@@ -64,11 +64,36 @@ class Accelerator(object):
 			if self.mask_buffer.data_in_buffer(data_name):
 				self.mask_buffer.get_data(data_name).required_in_buffer = False
 
-	def all_macs_free(self):
+	def all_resources_free(self):
 		for pe in self.pes:
 			for mac_lane in pe.mac_lanes:
 				if not mac_lane.ready: return False
+			if not pe.layer_norm.ready: return False
+			if not pe.softmax.ready: return False
+
 		return True
+
+	def num_mac_lanes_free(self):
+		num_mac_lanes, num_free = 0, 0
+		for pe in self.pes:
+			for mac_lane in pe.mac_lanes:
+				num_mac_lanes += 1
+				if mac_lane.ready: num_free += 1
+		return num_free, num_mac_lanes
+
+	def num_ln_free(self):
+		num_ln, num_free = 0, 0
+		for pe in self.pes:
+			num_ln += 1
+			if pe.layer_norm.ready: num_free += 1
+		return num_free, num_ln
+
+	def num_sftm_free(self):
+		num_sftm, num_free = 0, 0
+		for pe in self.pes:
+			num_sftm += 1
+			if pe.softmax.ready: num_free += 1
+		return num_free, num_sftm
 
 	def _fill_buffer(self, buffer_arr, num_ones):
 		count = 0
