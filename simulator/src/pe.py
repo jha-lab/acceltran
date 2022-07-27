@@ -55,22 +55,22 @@ class ProcessingElement(object):
 		assert op.compute_op is True
 		assigned_op = False
 
-		if isinstance(op, (MatrixMultTiledOp, Conv1DTiledOp)):
+		if isinstance(op, (MatrixMultOp, MatrixMultTiledOp, Conv1DOp, Conv1DTiledOp, NonLinearityOp, NonLinearityTiledOp)):
 			for mac_lane in self.mac_lanes:
 				if mac_lane.ready:
 					mac_lane.assign_op(op)
 					assigned_op = True
 					break
-		elif isinstance(op, LayerNormOp):
+		elif isinstance(op, (LayerNormOp, LayerNormTiledOp)):
 			if self.layer_norm.ready:
 				self.layer_norm.assign_op(op)
 				assigned_op = True
-		elif isinstance(op, SoftmaxOp):
+		elif isinstance(op, (SoftmaxOp, SoftmaxTiledOp)):
 			if self.softmax.ready:
 				self.softmax.assign_op(op)
 				assigned_op = True
 		else:
-			raise ValueError(f'Invalid operation: {op.op_name}')
+			raise ValueError(f'Invalid operation: {op.op_name} of type: {type(op)}')
 
 		return assigned_op
 
