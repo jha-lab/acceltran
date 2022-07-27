@@ -38,7 +38,8 @@ class Buffer(object):
 		self.weight_sparsity = constants['sparsity']['weight']
 		self.IL = constants['bits']['IL']
 		self.FL = constants['bits']['FL']
-		self.bandwidth = constants['main_memory']['bandwidth']
+		self.main_memory_bandwidth = constants['main_memory']['bandwidth']
+		self.bandwidth = constants[f'{buffer_type}_buffer']['bandwidth']
 		self.clock_frequency = constants['clock_frequency']
 		self.process_cycles = 0
 		self.ready = True
@@ -77,7 +78,7 @@ class Buffer(object):
 
 		return None
 
-	def remove_data(self, data):
+	def remove(self, data):
 		self.data = [d for d in self.data if d.data_name != data.data_name]
 
 	def can_store(self, data):
@@ -107,7 +108,7 @@ class Buffer(object):
 			self.data.append(data)
 			self.data_being_added = (data, 'load')
 			self.used += data.data_size * self.weight_factor
-			self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.bandwidth)
+			self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.main_memory_bandwidth)
 			self.energy_per_cycle = self.main_memory_energy * data.data_size / self.main_memory_block_size / self.process_cycles
 			self.ready = False
 
@@ -129,7 +130,7 @@ class Buffer(object):
 			self.data_being_added = (data, 'store')
 			self.used += data.data_size * self.weight_factor
 			
-		self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.block_size / (self.IL + self.FL))
+		self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.bandwidth)
 		self.energy_per_cycle = self.access_energy * data.data_size / self.block_size / self.process_cycles
 		self.ready = False
 
