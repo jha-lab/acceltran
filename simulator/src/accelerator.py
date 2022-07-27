@@ -256,6 +256,23 @@ class Accelerator(object):
 		# All energy in nJ
 		return tuple(total_pe_energy), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy
 
+	def can_assign(self, op_list):
+		assert type(op_list) == list
+
+		for op in op_list:
+			if isinstance(op, (MatrixMultOp, MatrixMultTiledOp, Conv1DOp, Conv1DTiledOp, NonLinearityOp, NonLinearityTiledOp)):
+				num_mac_lanes_free, num_mac_lanes = self.num_mac_lanes_free()
+				if num_mac_lanes - num_mac_lanes_free < 1: return False
+			if isinstance(op, (LayerNormOp, LayerNormTiledOp)):
+				num_ln_free, num_ln = self.num_ln_free()
+				if num_ln - num_ln_free < 1: return False
+			if isinstance(op, (SoftmaxOp, SoftmaxTiledOp)):
+				num_sftm_free, num_sftm = self.num_sftm_free()
+				if num_sftm - num_sftm_free < 1: return False
+
+		return True
+
+
 	def assign_op(self, op):
 		assert op.compute_op is True
 		assigned_op = False
