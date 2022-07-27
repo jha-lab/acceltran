@@ -92,7 +92,7 @@ class Softmax(Module):
 		self.assigned_op = None
 
 	def assign_op(self, op):
-		self.process_cycles = math.ceil(op.input_size[0] * (op.input_size[2]) * (1 - self.activation_sparsity))
+		self.process_cycles = math.ceil(op.input_size[0] * (op.input_size[1]) * (1 - self.activation_sparsity))
 		self.ready = False
 
 		self.assigned_op = op
