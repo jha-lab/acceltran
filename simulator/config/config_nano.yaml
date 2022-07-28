@@ -7,9 +7,9 @@ tile:
 
 non_linearity: 'gelu'
 
-pe: 128
+pe: 256
 
-lanes_per_pe: 8
+lanes_per_pe: 4
 
 mac_per_lane: 16
 
@@ -30,7 +30,7 @@ main_memory:
 scheduler:
   compute_ops:
     tiled: True
-    batch_size: 4
+    batch_size: 16
   memory_ops:
     tiled: False
     batch_size: 1
