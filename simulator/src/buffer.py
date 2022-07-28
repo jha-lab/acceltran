@@ -85,9 +85,9 @@ class Buffer(object):
 		if self.buffer_size - self.used > data.data_size:
 			return True
 		else:
-			required_data_size = 0
+			self.required_data_size = 0
 			for data in self.data:
-				if data.required_in_buffer: required_data_size += data.data_size
+				if data.required_in_buffer: self.required_data_size += data.data_size
 			if self.buffer_size - self.required_data_size > data.data_size:
 				return True
 		return False
@@ -95,8 +95,6 @@ class Buffer(object):
 	def load(self, data):
 		removed_old_data = False
 		if self.data_in_buffer(data):
-			# Latest used data in the end of the list
-			self.data.remove(data); self.data.append(data)
 			self.process_cycles = 0
 		else:
 			while self.used + data.data_size > self.buffer_size:
@@ -117,8 +115,7 @@ class Buffer(object):
 	def store(self, data):
 		removed_old_data = False
 		if self.data_in_buffer(data):
-			# Latest used data in the end of the list
-			self.data.remove(data); self.data.append(data)
+			self.process_cycles = 0
 		else:
 			while self.used + data.data_size > self.buffer_size:
 				# Remove oldest used data
@@ -130,9 +127,9 @@ class Buffer(object):
 			self.data_being_added = (data, 'store')
 			self.used += data.data_size * self.weight_factor
 			
-		self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.bandwidth)
-		self.energy_per_cycle = self.access_energy * data.data_size / self.block_size / self.process_cycles
-		self.ready = False
+			self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.bandwidth)
+			self.energy_per_cycle = self.access_energy * data.data_size / self.block_size / self.process_cycles
+			self.ready = False
 
 		return removed_old_data
 
