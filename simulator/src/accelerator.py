@@ -171,12 +171,14 @@ class Accelerator(object):
 			pes = gridspec.GridSpecFromSubplotSpec(len(self.pes)//4, 1, wspace=0, hspace=0,
 				subplot_spec=pe_col)
 			for pe in pes:
+				height_ratios = [1, 2] if self.config['lanes_per_pe'] < 8 else [2, 1]
 				mac_lanes_spec, sp_modules_spec = gridspec.GridSpecFromSubplotSpec(2, 1, wspace=0, hspace=0, 
-					height_ratios=[2, 1], subplot_spec=pe)
+					height_ratios=height_ratios, subplot_spec=pe)
 				
 				ln, sftm = gridspec.GridSpecFromSubplotSpec(1, 2, wspace=0, hspace=0, subplot_spec=sp_modules_spec)
 
-				mac_lane_arr = np.zeros((2, len(self.pes[pe_count].mac_lanes)//2))
+				mac_lane_size = (1, len(self.pes[pe_count].mac_lanes)) if self.config['lanes_per_pe'] < 8 else (2, len(self.pes[pe_count].mac_lanes)//2)
+				mac_lane_arr = np.zeros(mac_lane_size)
 				mac_lane_count = 0
 				for i in range(mac_lane_arr.shape[0]):
 					for j in range(mac_lane_arr.shape[1]):
@@ -187,8 +189,8 @@ class Accelerator(object):
 				ax = plt.Subplot(fig, mac_lanes_spec)
 				ax.imshow(mac_lane_arr, interpolation='none', aspect='auto', 
 						  rasterized=True, cmap='Blues', vmin=0, vmax=1.5)
-				ax.set_xticks(np.arange(-0.5, len(self.pes[pe_count].mac_lanes)//2, 1))
-				ax.set_yticks(np.arange(-0.5, 2, 1))
+				ax.set_xticks(np.arange(-0.5, mac_lane_size[1], 1))
+				ax.set_yticks(np.arange(-0.5, mac_lane_size[0], 1))
 				ax.set_xticklabels([])
 				ax.set_yticklabels([])
 				ax.tick_params(axis=u'both', which=u'both',length=0)
@@ -228,7 +230,7 @@ class Accelerator(object):
 		plt.savefig(os.path.join(utilization_dir, f'cycle_{self.cycle}.pdf'), bbox_inches='tight', dpi=300)
 		plt.close()
 
-	def process_cycle(self, memory_ops, compute_ops):
+	def process_cycle(self, memory_ops, compute_ops, ops_to_set_required):
 		total_pe_energy = [0, 0]
 		for pe in self.pes:
 			pe_energy = pe.process_cycle()
@@ -253,22 +255,32 @@ class Accelerator(object):
 				else:
 					break
 
+		for op in ops_to_set_required:
+			self.set_required(op)
+
 		# All energy in nJ
 		return tuple(total_pe_energy), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy
 
 	def can_assign(self, op_list):
 		assert type(op_list) == list
 
+		num_mac_lanes_free, num_mac_lanes = self.num_mac_lanes_free()
+		num_ln_free, num_ln = self.num_ln_free()
+		num_sftm_free, num_sftm = self.num_sftm_free()
+
+		num_mac_lanes_to_assign, num_ln_to_assign, num_sftm_to_assign = 0, 0, 0
+
 		for op in op_list:
+			assert op.compute_op is True
 			if isinstance(op, (MatrixMultOp, MatrixMultTiledOp, Conv1DOp, Conv1DTiledOp, NonLinearityOp, NonLinearityTiledOp)):
-				num_mac_lanes_free, num_mac_lanes = self.num_mac_lanes_free()
-				if num_mac_lanes - num_mac_lanes_free < 1: return False
-			if isinstance(op, (LayerNormOp, LayerNormTiledOp)):
-				num_ln_free, num_ln = self.num_ln_free()
-				if num_ln - num_ln_free < 1: return False
-			if isinstance(op, (SoftmaxOp, SoftmaxTiledOp)):
-				num_sftm_free, num_sftm = self.num_sftm_free()
-				if num_sftm - num_sftm_free < 1: return False
+				num_mac_lanes_to_assign += 1
+			elif isinstance(op, (LayerNormOp, LayerNormTiledOp)):
+				num_ln_to_assign += 1
+			elif isinstance(op, (SoftmaxOp, SoftmaxTiledOp)):
+				num_sftm_to_assign += 1
+
+		if num_mac_lanes_free < num_mac_lanes_to_assign or num_ln_free < num_ln_to_assign or num_sftm_free < num_sftm_to_assign:
+			return False
 
 		return True
 
