@@ -58,34 +58,34 @@ def check_config(config: dict, design_space: dict):
 
 
 def get_op_list(ops, op_idx, batch_size):
-	assert type(op_idx) == tuple
+	assert type(op_idx) == list
 
-	if op_idx is not None:
-		if type(ops[op_idx[0]]) == list:
-			assert len(op_idx[1]) != 0
-			ops_list = []
-			for head_idx, head_ops in enumerate(ops[op_idx[0]]):
-				if op_idx[1][head_idx] is None: ops_list.append(None)
-				elif batch_size == 1:
-					ops_list.append(head_ops[op_idx[1][head_idx]])
-				else:
-					ops_list.append([head_ops[i] for i in range(op_idx[1][head_idx], 
-						min(len(head_ops), op_idx[1][head_idx] + batch_size))])
-			return ops_list
-		else:
-			if batch_size == 1:
-				return [ops[op_idx[0]]]
+	if op_idx[0] is None:
+		return [None]
+	elif type(ops[op_idx[0]]) == list:
+		assert len(op_idx[1]) != 0
+		ops_list = []
+		for head_idx, head_ops in enumerate(ops[op_idx[0]]):
+			if op_idx[1][head_idx] is None: ops_list.append(None)
+			elif batch_size == 1:
+				ops_list.append(head_ops[op_idx[1][head_idx]])
 			else:
-				ops_list = []
-				# Add up to batch_size number of operations
-				for i in range(op_idx[0], op_idx[0] + batch_size):
-					if type(ops[i]) != list:
-						ops_list.append(ops[i])
-					else:
-						break
-				return ops_list
+				ops_list.append([head_ops[i] for i in range(op_idx[1][head_idx], 
+					min(len(head_ops), op_idx[1][head_idx] + batch_size))])
+		return ops_list
 	else:
-		return []
+		if batch_size == 1:
+			if op_idx[0] == None: return []
+			return [ops[op_idx[0]]]
+		else:
+			ops_list = []
+			# Add up to batch_size number of operations
+			for i in range(op_idx[0], op_idx[0] + batch_size + 1):
+				if i < len(ops) and type(ops[i]) != list and type(ops[i]) == type(ops[op_idx[0]]):
+					ops_list.append(ops[i])
+				else:
+					break
+			return [ops_list]
 
 
 def get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops):
@@ -127,6 +127,9 @@ def prev_memory_op_done(head_op, head_idx, memory_op_idx, memory_ops):
 
 
 def update_op_idx(ops, op_idx, stall_list, batch_size, ops_done):
+	if op_idx[0] is None:
+		return [None, []], 0
+
 	# Update op_idx based on stalls
 	for head_idx, stall in enumerate(stall_list):
 		if stall:
@@ -135,13 +138,16 @@ def update_op_idx(ops, op_idx, stall_list, batch_size, ops_done):
 		else:
 			ops_done += batch_size
 			if len(stall_list) > 1:
-				if op_idx[1][head_idx] < len(ops[op_idx[0]][head_idx]) - batch_size:
+				if op_idx[1][head_idx] is not None and op_idx[1][head_idx] < len(ops[op_idx[0]][head_idx]) - batch_size:
 					op_idx[1][head_idx] += batch_size
 				else:
 					op_idx[1][head_idx] = None
 			else:
-				op_idx[0] += batch_size
-				if type(ops[op_idx[0]]) == list:
+				for idx in range(op_idx[0] + 1, op_idx[0] + batch_size + 1):
+					if idx >= len(ops) - 1 or type(ops[idx]) == list: break
+				op_idx[0] = idx
+				if op_idx[0] > len(ops) - 1: break
+				elif type(ops[op_idx[0]]) == list:
 					op_idx[1] = [0] * len(ops[op_idx[0]])
 				else:
 					op_idx[1] = []
@@ -149,15 +155,42 @@ def update_op_idx(ops, op_idx, stall_list, batch_size, ops_done):
 	# If all ops are done in a multi-head op, proceed to next op
 	if len(stall_list) > 1 and all([op_idx[1][head_idx] is None for head_idx in range(len(stall_list))]):
 		op_idx[0] += 1
-		if type(ops[op_idx[0]]) == list:
+		if op_idx[0] < len(ops) and type(ops[op_idx[0]]) == list:
 			op_idx[1] = [0] * len(ops[op_idx[0]])
 		else:
 			op_idx[1] = []
 
 	if op_idx[0] > len(ops) - 1:
-		op_idx = None
+		op_idx[0] = None; op_idx[1] = []
 
 	return op_idx, ops_done
+
+
+def get_ops_done(memory_ops, compute_ops):
+	ops_done = 0
+	for op in memory_ops:
+		if type(op) == list:
+			for head_ops in op:
+				for head_op in head_ops:
+					if head_op.done: 
+						ops_done += 1
+					else:
+						break
+		else:
+			if op.done: ops_done += 1
+
+	for op in compute_ops:
+		if type(op) == list:
+			for head_ops in op:
+				for head_op in head_ops:
+					if head_op.done: 
+						ops_done += 1
+					else:
+						break
+		else:
+			if op.done: ops_done += 1
+
+	return ops_done
 
 
 def get_utilization(accelerator):
@@ -264,7 +297,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, tile_compute_ops=config['scheduler']['compute_ops']['tiled'], tile_memory_ops=config['scheduler']['memory_ops']['tiled'], debug=debug)
 
 	assert type(memory_ops[0]) == list and type(compute_ops[0]) == list
-	memory_op_idx, compute_op_idx, ops_done = (0, [0] * len(memory_ops[0])), (0, [0] * len(compute_ops[0])), 0
+	memory_op_idx, compute_op_idx, ops_done = [0, [0] * len(memory_ops[0])], [0, [0] * len(compute_ops[0])], 0
 
 	# Get operation batch sizes
 	compute_ops_batch_size = config['scheduler']['compute_ops']['batch_size']
@@ -285,12 +318,11 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 	last_compute_ops = {}
 
 	# Run operations on the accelerator in a cycle-accurate manner
-	while ops_done < num_ops or not accelerator.all_resources_free():
-
+	while not compute_ops[-1].done:
 		# Update progress bar
 		if not debug:
 			pbar.set_description(f'Simulating accelerator at cycle: {accelerator.cycle}')
-		pbar.update(ops_done - pbar.n)
+		pbar.update(get_ops_done(memory_ops, compute_ops) - pbar.n)
 
 		# Print cycle
 		if debug: tqdm.write(f'{color.GREEN}Cycle: {accelerator.cycle + 1}{color.ENDC}')
@@ -298,23 +330,22 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		memory_stall, compute_stall = False, False
 
 		if debug: 
-			tqdm.write(f'{color.HEADER}Running memory operation(s) with name(s):\n\t{f"{sp_char}".join([f"- {op.op_name}" for op in memory_op])}\nand compute operation(s) with name(s):\n\t{f"{sp_char}".join(["- " + (f"{op.op_name}" if compute_ops_batch_size == 1 else f"{op[0].op_name} + " + str( compute_ops_batch_size - 1) + " more") for op in compute_op])}{color.ENDC}')
+			tqdm.write(f'{color.HEADER}Running memory operation(s) with name(s):\n\t{f"{sp_char}".join([f"- {op.op_name}" for op in memory_op if op])}\nand compute operation(s) with name(s):\n\t{f"{sp_char}".join(["- " + (f"{op.op_name}" if compute_ops_batch_size == 1 else f"{op[0].op_name} + " + str( compute_ops_batch_size - 1) + " more") for op in compute_op if op])}{color.ENDC}')
 
 		# Run memory operation
 		if memory_op:
-			memory_stall = [False] * len(memory_op)
+			memory_stall = [None] * len(memory_op)
 			debug_output = []
 
 			# Sort operation order to give higher priority to tasks first
-			sorted_head_ids, head_ids = [0], [0]
-			if len(memory_op) > 1:
-				sorted_head_ids = np.argsort(np.array([idx for idx in memory_op_idx[1] if idx is not None]))
+			sorted_head_ids, head_ids = [i for i in range(len(memory_op))], [i for i in range(len(memory_op))]
+			if len([op for op in memory_op if op is not None]) > 1:
+				sorted_head_ids = np.argsort(np.array(memory_op_idx[1]))
 				head_ids = np.arange(len(memory_op))
 				head_ids = list(head_ids[sorted_head_ids])
 
 			for head_idx in head_ids:
 				head_op = memory_op[head_idx]
-
 				if head_op is None: continue
 
 				# Get corresponding data object
@@ -362,11 +393,12 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 				tqdm.write("\n".join([debug_output[i] for i in head_ids if i < len(debug_output)]))
 
 		# Run compute operation
+		ops_to_set_required = []
 		if compute_op:
 			# We do not sort operations here for staggered implemention and better utilization
-			compute_stall = [False] * len(compute_op)
+			compute_stall = [None] * len(compute_op)
 			for head_idx, head_ops in enumerate(compute_op):
-				if head_op is None: continue
+				if head_ops is None: continue
 
 				# Check if required data is in memory
 				if type(head_ops) != list:
@@ -391,10 +423,10 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 					for head_op in head_ops:
 						assigned_op = accelerator.assign_op(head_op)
 						assert assigned_op is True
-						accelerator.set_required(head_op)
+						ops_to_set_required.append(head_op)
 							
 		# Process cycle for every module
-		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops)
+		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops, ops_to_set_required)
 		accelerator.cycle += 1
 
 		# Log energy values for each cycle 
@@ -417,8 +449,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 			# Plot metrics
 			plot_metrics(logs_dir, constants)
 
-		if all(memory_stall) and all(compute_stall) and accelerator.all_resources_free():
-			min_cycles = min([process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]])
+		if memory_op_idx[0] is not None and memory_op_idx[0] < len(memory_ops) and  all([stall for stall in memory_stall if stall is not None]) and all([stall for stall in compute_stall if stall is not None]) and accelerator.all_resources_free():
+			cycles_list = [process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]]
+			min_cycles = min(cycles_list) if cycles_list else 0
 			min_cycles = min(plot_steps, min_cycles)
 
 			if min_cycles > 1:
@@ -436,9 +469,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 		memory_op, compute_op = get_op_list(memory_ops, memory_op_idx, memory_ops_batch_size), get_op_list(compute_ops, compute_op_idx, compute_ops_batch_size)
 
-	print(f'{color.GREEN}Finished simulation{color.ENDC}')
 	pbar.close()
-
+	print(f'{color.GREEN}Finished simulation{color.ENDC}')
+	
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(
@@ -447,7 +480,7 @@ if __name__ == '__main__':
 	parser.add_argument('--model_dict_path',
 		metavar='',
 		type=str,
-		default='./model_dicts/bert_tiny.json',
+		default='./model_dicts/bert_nano.json',
 		help='path where the model dictionary file is stored')
 	parser.add_argument('--config_path',
 		metavar='',
