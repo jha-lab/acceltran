@@ -17,7 +17,7 @@ batch_size: 4
 
 activation_buffer_size: 4
 
-weight_buffer_size: 2
+weight_buffer_size: 1
 
 mask_buffer_size: 1
 
