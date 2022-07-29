@@ -23,8 +23,9 @@ from accelerator import *
 from dict2ops import main as dict2ops
 
 
-SEQ_LENGTH = 512
+SEQ_LENGTH = 128
 DEBUG = False
+DO_LOGGING = True
 OVERWRITE_PLOT_STEPS_WITH_DEBUG = False
 OVERWRITE_LOGS = True
 gc.disable()
@@ -427,11 +428,11 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 						ops_to_set_required.append(head_op)
 							
 		# Process cycle for every module
-		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops, ops_to_set_required)
+		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops, ops_to_set_required + compute_op)
 		accelerator.cycle += 1
 
 		# Log energy values for each cycle 
-		logs = log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
+		if DO_LOGGING: logs = log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
 
 		if debug:
 			mac_lane_utilization, ln_utilization, sftm_utilization, activation_buffer_utilization, weight_buffer_utilization, mask_buffer_utilization = get_utilization(accelerator)
@@ -448,7 +449,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 			accelerator.plot_utilization(utilization_dir)
 
 			# Plot metrics
-			plot_metrics(logs_dir, constants)
+			if DO_LOGGING: plot_metrics(logs_dir, constants)
 
 		if memory_op_idx[0] is not None and memory_op_idx[0] < len(memory_ops) and  all([stall for stall in memory_stall if stall is not None]) and all([stall for stall in compute_stall if stall is not None]) and accelerator.all_resources_free():
 			cycles_list = [process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]]
@@ -462,7 +463,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 				accelerator.cycle += min_cycles
 
-				logs = log_metrics(logs, (0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
+				if DO_LOGGING: logs = log_metrics(logs, (0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
 				continue
 
 		memory_op_idx, ops_done = update_op_idx(memory_ops, memory_op_idx, memory_stall, memory_ops_batch_size, ops_done)
