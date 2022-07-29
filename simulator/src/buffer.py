@@ -82,27 +82,35 @@ class Buffer(object):
 		self.data = [d for d in self.data if d.data_name != data.data_name]
 
 	def can_store(self, data):
-		if self.buffer_size - self.used > data.data_size:
+		if self.buffer_size < data.data_size * self.weight_factor:
+			raise RuntimeError(f'Data to store is larger than what the {self.buffer_type} buffer can store')
+		elif self.buffer_size - self.used - (self.data_being_added[0].data_size * self.weight_factor if self.data_being_added else 0) >= data.data_size * self.weight_factor:
 			return True
 		else:
 			self.required_data_size = 0
 			for data in self.data:
 				if data.required_in_buffer: self.required_data_size += data.data_size
-			if self.buffer_size - self.required_data_size > data.data_size:
+			if self.data_being_added is not None: self.required_data_size += self.data_being_added[0].data_size
+			if self.buffer_size - self.required_data_size * self.weight_factor > data.data_size * self.weight_factor:
 				return True
 		return False
 
 	def load(self, data):
+		assert self.data_being_added == None
+
 		removed_old_data = False
 		if self.data_in_buffer(data):
 			self.process_cycles = 0
 		else:
-			while self.used + data.data_size > self.buffer_size:
-				# Remove oldest used data if is is not required
-				if not data.required_in_buffer:
-					self.used -= self.data[0].data_size * self.weight_factor
-					self.data.remove(self.data[0])
+			for d in self.data:
+				if self.used + data.data_size * self.weight_factor <= self.buffer_size:
+					break
+				elif not d.required_in_buffer: 
+					# Remove oldest used data if not required
+					self.used -= d.data_size * self.weight_factor
+					self.remove(d)
 					removed_old_data = True
+			assert self.used + data.data_size * self.weight_factor <= self.buffer_size
 			self.data.append(data)
 			self.data_being_added = (data, 'load')
 			self.used += data.data_size * self.weight_factor
@@ -113,16 +121,21 @@ class Buffer(object):
 		return removed_old_data
 
 	def store(self, data):
+		assert self.data_being_added == None
+
 		removed_old_data = False
 		if self.data_in_buffer(data):
 			self.process_cycles = 0
 		else:
-			while self.used + data.data_size > self.buffer_size:
-				# Remove oldest used data
-				if not data.required_in_buffer:
-					self.used -= self.data[0].data_size * self.weight_factor
-					self.data.remove(self.data[0])
+			for d in self.data:
+				if self.used + data.data_size * self.weight_factor <= self.buffer_size:
+					break
+				elif not d.required_in_buffer: 
+					# Remove oldest used data if not required
+					self.used -= d.data_size * self.weight_factor
+					self.remove(d)
 					removed_old_data = True
+			assert self.used + data.data_size * self.weight_factor <= self.buffer_size
 			self.data.append(data)
 			self.data_being_added = (data, 'store')
 			self.used += data.data_size * self.weight_factor
@@ -148,6 +161,7 @@ class Buffer(object):
 			cycles_done = min(self.process_cycles, num_cycles)
 			self.process_cycles = max(self.process_cycles - num_cycles, 0)
 			self.ready = True if self.process_cycles == 0 else False
+			if self.ready: self.data_being_added = None
 			
 			assert self.energy_per_cycle is not None
 			
