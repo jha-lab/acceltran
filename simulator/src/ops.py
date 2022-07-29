@@ -343,7 +343,7 @@ class SelfAttentionOp(Op):
 			wma_size = (key_transposed_size[0], key_transposed_size[1], key_transposed_size[1])
 			self.base_ops.append(MemoryLoadOp(f'{self.op_name}_wma-l', self.config, wma_size, 'weight'))
 
-			mult_key_op = MatrixMultOp(f'{self.op_name}_wma', self.config, [f'{self.op_name}_wma-l', f'{self.op_name}_k-s'],  wma_size, key_transposed_size)
+			mult_key_op = MatrixMultOp(f'{self.op_name}_wma', self.config, [f'{self.op_name}_wma-l', f'{self.op_name}_k-s', f'{self.op_name}_q-s', f'{self.op_name}_v-s'],  wma_size, key_transposed_size)
 			self.base_ops.append(mult_key_op)
 
 			# Store key matrix in buffer onto the same old position
@@ -356,7 +356,7 @@ class SelfAttentionOp(Op):
 			mult_key_size = key_transposed_size
 
 		# Implement scaled dot-product
-		sdp_1_op = MatrixMultOp(f'{self.op_name}_sdp-qk', self.config, [f'{self.op_name}_q-s', f'{self.op_name}_k-s'], query_size, mult_key_size)
+		sdp_1_op = MatrixMultOp(f'{self.op_name}_sdp-qk', self.config, [f'{self.op_name}_q-s', f'{self.op_name}_k-s', f'{self.op_name}_v-s'], query_size, mult_key_size)
 		self.base_ops.append(sdp_1_op)
 
 		sdp_1_size = sdp_1_op.output_size()
@@ -365,7 +365,7 @@ class SelfAttentionOp(Op):
 		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp-qk-s', self.config, sdp_1_size, 'activation'))
 
 		# Implement softmax function
-		self.base_ops.append(SoftmaxOp(f'{self.op_name}_sftm', self.config, [f'{self.op_name}_sdp-qk-s'], sdp_1_size))
+		self.base_ops.append(SoftmaxOp(f'{self.op_name}_sftm', self.config, [f'{self.op_name}_sdp-qk-s', f'{self.op_name}_v-s'], sdp_1_size))
 
 		# Store sotfmax output
 		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_sftm-s', self.config, sdp_1_size, 'activation'))
