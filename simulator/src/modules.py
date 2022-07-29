@@ -1,5 +1,6 @@
 # Run tiled operations on corresponding hardware modules
 
+import re
 import math
 import inspect
 from ops import *
@@ -98,14 +99,48 @@ class Softmax(Module):
 		self.assigned_op = op
 
 
-class Register(Module):
-	def __init__(self, module_name, config, constants, depth):
-		Module.__init__(self, module_name, constants['register']['dynamic'], constants['register']['leakage'], constants['register']['area'], constants['clock_frequency'])
-		self.depth = depth
+class FIFO(Module):
+	def __init__(self, module_name, config, constants):
+		Module.__init__(self, module_name, constants['fifo']['dynamic'], constants['fifo']['leakage'], constants['fifo']['area'], constants['clock_frequency'])
+		self.activation_sparsity = constants['sparsity']['activation']
+		self.depth = constants['fifo']['depth']
 		self.assigned_op = None
+		self.b, self.i, self.j, self.k = None, None, None, None
 
 	def assign_op(self, op):
-		self.process_cycles = 1
+		self.process_cycles = 0
+
+		same_prev_op = False
+		if self.assigned_op is not None and op.op_name[:op.op_name.find('_b')] == self.assigned_op.op_name[:self.assigned_op.op_name.find('_b')]:
+			same_prev_op = True
+
+		# Exploit data re-use
+		if isinstance(op, MatrixMultTiledOp):
+			b = int(re.search('b([0-9]+)', op.op_name).group()[1:])
+			i = int(re.search('i([0-9]+)', op.op_name).group()[1:])
+			j = int(re.search('j([0-9]+)', op.op_name).group()[1:])
+			k = int(re.search('k([0-9]+)', op.op_name).group()[1:])
+			if not (self.b == b and self.i == i and self.k == k) or not same_prev_op:
+				self.process_cycles += math.ceil(math.prod(op.input_1_size) * (1 - self.activation_sparsity) / self.depth)
+			if not (self.b == b and self.i == i and self.k == k) or not same_prev_op:
+				self.process_cycles += math.ceil(math.prod(op.input_2_size) * (1 - self.activation_sparsity) / self.depth)
+			self.b, self.i, self.j, self.k = b, i, j, k
+		elif isinstance(op, Conv1DTiledOp):
+			b = int(re.search('b([0-9]+)', op.op_name).group()[1:])
+			i = int(re.search('i([0-9]+)', op.op_name).group()[1:])
+			j = int(re.search('j([0-9]+)', op.op_name).group()[1:])
+			if not (self.b == b and self.i == i and self.j == j):
+				self.process_cycles += math.ceil(math.prod(op.input_size) * (1 - self.activation_sparsity) / self.depth)
+				if not same_prev_op:
+					self.process_cycles += math.ceil(op.kernel_size / self.depth)
+			self.b, self.i, self.j, self.k = b, i, j, None
+		else:
+			if isinstance(op, (NonLinearityOp, NonLinearityTiledOp, LayerNormOp, LayerNormTiledOp, SoftmaxOp, SoftmaxTiledOp, )):
+				self.process_cycles += math.ceil(math.prod(op.input_size) * (1 - self.activation_sparsity) / self.depth)
+			else:
+				self.process_cycles += math.ceil(op.num_muls * (1 - self.activation_sparsity) / self.depth)
+			self.b, self.i, self.j, self.k = None, None, None, None
+
 		self.ready = False
 
 		self.assigned_op = op
@@ -144,17 +179,20 @@ class MACLane(Module):
 		self.overlap_factor = constants['overlap_factor']
 		self.assigned_op = None
 
-		self.register = Register(f'{self.module_name}_reg', config, constants, 32)
+		self.fifo = FIFO(f'{self.module_name}_fifo', config, constants)
 		self.pre_sparsity = PreSparsity(f'{self.module_name}_pre-s', config, constants)
 		self.post_sparsity = PostSparsity(f'{self.module_name}_post-s', config, constants)
 
 	def assign_op(self, op):
-		self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs * (1 - self.activation_sparsity))
+		if isinstance(op, (NonLinearityOp, NonLinearityTiledOp)):
+			self.process_cycles = 1
+		else:
+			self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs * (1 - self.activation_sparsity))
 		self.ready = False
 
 		self.assigned_op = op
 
-		self.register.assign_op(op)
+		self.fifo.assign_op(op)
 		self.pre_sparsity.assign_op(op)
 		self.post_sparsity.assign_op(op)
 
