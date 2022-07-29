@@ -44,26 +44,26 @@ batch_size:
   - 32
 
 activation_buffer_size: # In MBs
-  - 8
-  - 16
-  - 32
-  - 64
-  - 128
-  - 256
-
-weight_buffer_size: # In MBs
-  - 8
-  - 16
-  - 32
-  - 64
-  - 128
-  - 256
-
-mask_buffer_size: # In MBs
+  - 1
+  - 2
   - 4
   - 8
   - 16
   - 32
+
+weight_buffer_size: # In MBs
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+
+mask_buffer_size: # In MBs
+  - 1
+  - 2
+  - 4
+  - 8
 
 main_memory_config:
   rram:
