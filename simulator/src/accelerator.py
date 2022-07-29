@@ -241,12 +241,12 @@ class Accelerator(object):
 		mask_buffer_energy = self.mask_buffer.process_cycle()
 
 		# If a compute_op is done, its corresponding data is not required in buffer anymore
-		for compute_op in compute_ops:
+		for idx, compute_op in enumerate(compute_ops):
 			if type(compute_op) == list:
 				for head_ops in compute_op:
-					for op in head_ops:
-						if op.done == True: 
-							self.set_not_required(op)
+					for head_idx, head_op in enumerate(head_ops):
+						if head_op.done == True: 
+							self.set_not_required(head_op)
 						else:
 							break
 			else:
@@ -256,7 +256,11 @@ class Accelerator(object):
 					break
 
 		for op in ops_to_set_required:
-			self.set_required(op)
+			if type(op) == list:
+				for head_op in op:
+					self.set_required(head_op)
+			elif op is not None:
+				self.set_required(op)
 
 		# All energy in nJ
 		return tuple(total_pe_energy), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy
