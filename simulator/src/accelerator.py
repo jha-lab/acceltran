@@ -114,12 +114,12 @@ class Accelerator(object):
 		buff_grid, pe_grid_sup = gridspec.GridSpec(1, 2, hspace=0, wspace=0.05, width_ratios=[1, 4])
 		pe_grid = gridspec.GridSpecFromSubplotSpec(1, 4, subplot_spec=pe_grid_sup, hspace=0, wspace=0)
 
-		activation_buffer_size = self.config['activation_buffer_size']
-		weight_buffer_size = self.config['weight_buffer_size']
-		mask_buffer_size = self.config['mask_buffer_size']
+		activation_buffer_size = int(self.config['activation_buffer_size'] * 16)
+		weight_buffer_size = int(self.config['weight_buffer_size'] * 16)
+		mask_buffer_size = int(self.config['mask_buffer_size'] * 16)
 
 		act_buff, weight_buff, mask_buff = gridspec.GridSpecFromSubplotSpec(3, 1, 
-			subplot_spec=buff_grid, hspace=0, wspace=0, height_ratios=[self.activation_buffer.buffer_size, self.weight_buffer.buffer_size, self.mask_buffer.buffer_size])
+			subplot_spec=buff_grid, hspace=0, wspace=0, height_ratios=[activation_buffer_size, weight_buffer_size, mask_buffer_size])
 
 		num_ones = math.ceil(self.activation_buffer.used * 1.0 / self.activation_buffer.buffer_size * activation_buffer_size * 16)
 		act_arr = np.zeros((activation_buffer_size, 16))
