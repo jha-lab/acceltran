@@ -71,7 +71,7 @@ def get_op_list(ops, op_idx, batch_size):
 				ops_list.append(head_ops[op_idx[1][head_idx]])
 			else:
 				ops_list.append([head_ops[i] for i in range(op_idx[1][head_idx], 
-					min(len(head_ops), op_idx[1][head_idx] + batch_size))])
+					min(len(head_ops), op_idx[1][head_idx] + batch_size)) if type(head_ops[i]) == type(head_ops[op_idx[1][head_idx]])])
 		return ops_list
 	else:
 		if batch_size == 1:
@@ -363,7 +363,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 				buffer = getattr(accelerator, f'{data.data_type}_buffer')
 
-				if buffer.ready:
+				if buffer.ready and accelerator.mask_buffer.ready:
 					# Previous memory_op for this buffer is done
 					prev_memory_op_done(head_op, head_idx, memory_op_idx, memory_ops)
 
@@ -376,6 +376,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 				if memory_stall[head_idx] and debug:
 					op_debug_output = []
+					if not accelerator.mask_buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: mask buffer not ready{color.ENDC}')
 					if not buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer not ready{color.ENDC}')
 					if not buffer.can_store(data): op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
 					if not last_compute_done: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: waiting for last compute operation "{get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops).op_name}"{color.ENDC}')
@@ -480,12 +481,12 @@ if __name__ == '__main__':
 	parser.add_argument('--model_dict_path',
 		metavar='',
 		type=str,
-		default='./model_dicts/bert_nano.json',
+		default='./model_dicts/bert_tiny.json',
 		help='path where the model dictionary file is stored')
 	parser.add_argument('--config_path',
 		metavar='',
 		type=str,
-		default='./config/config.yaml',
+		default='./config/config_tiny.yaml',
 		help='path to the accelerator configuration file')
 	parser.add_argument('--constants_path',
 		metavar='',
