@@ -103,6 +103,8 @@ class MatrixMultOp(Op):
 		self.compute_op = True
 		self.base_op = True
 
+		self.loop_unrolling = config['loop_unrolling']
+
 		self.check_input_sizes()
 		self.num_muls = input_1_size[0] * input_1_size[1] * input_1_size[2] * input_2_size[2]
 
@@ -139,11 +141,20 @@ class MatrixMultOp(Op):
 
 		tile_size = (self.config['tile']['tile_b'], self.config['tile']['tile_x'], self.config['tile']['tile_y'])
 
+		loop_order = self.loop_unrolling.split('_')
+		num_tiles = []
+		for order in loop_order:
+			if order == 'b': num_tiles.append(num_tiles_b)
+			if order == 'i': num_tiles.append(num_tiles_1_x)
+			if order == 'j': num_tiles.append(num_tiles_2_y)
+			if order == 'k': num_tiles.append(num_tiles_2_x)
+
 		self.tiled_ops = []
-		for b in range(num_tiles_b):
-			for i in range(num_tiles_1_x):
-				for j in range(num_tiles_2_y):
-					for k in range(num_tiles_2_x):
+		for l0 in range(num_tiles[0]):
+			for l1 in range(num_tiles[1]):
+				for l2 in range(num_tiles[2]):
+					for l3 in range(num_tiles[3]):
+						b, i, j, k = eval(f'l{loop_order.index("b")}'), eval(f'l{loop_order.index("i")}'), eval(f'l{loop_order.index("j")}'), eval(f'l{loop_order.index("k")}')
 						op_name = f'{self.op_name}_b{b}_i{i}_j{j}_k{k}'
 						self.tiled_ops.append(MatrixMultTiledOp(op_name, self.required_in_buffer, tile_size, tile_size))
 
@@ -168,6 +179,8 @@ class Conv1DOp(Op):
 		self.compute_op = True
 		self.base_op = True
 
+		self.loop_unrolling = config['loop_unrolling']
+
 		self.num_muls = input_size[0] * input_size[1] * math.floor((input_size[2] - kernel_size) * 1.0 / stride)
 
 	def tile_op(self):
@@ -183,10 +196,19 @@ class Conv1DOp(Op):
 		tile_size = (self.config['tile']['tile_b'], self.config['tile']['tile_x'], self.config['tile']['tile_y'])
 		# kernel_size = (self.config['tile']['tile_b'], self.kernel_size, self.config['tile']['tile_y'])
 
+		loop_order = self.loop_unrolling.split('_')
+		loop_order.remove('k')
+		num_tiles = []
+		for order in loop_order:
+			if order == 'b': num_tiles.append(num_tiles_b)
+			if order == 'i': num_tiles.append(num_tiles_x)
+			if order == 'j': num_tiles.append(num_tiles_y)
+
 		self.tiled_ops = []
-		for b in range(num_tiles_b):
-			for i in range(num_tiles_x):
-				for j in range(num_tiles_y):
+		for l0 in range(num_tiles[0]):
+			for l1 in range(num_tiles[1]):
+				for l2 in range(num_tiles[2]):
+					b, i, j = eval(f'l{loop_order.index("b")}'), eval(f'l{loop_order.index("i")}'), eval(f'l{loop_order.index("j")}')
 					op_name = f'{self.op_name}_b{b}_i{i}_j{j}'
 					self.tiled_ops.append(Conv1DTiledOp(op_name, self.required_in_buffer, tile_size, self.kernel_size, self.stride))
 
