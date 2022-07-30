@@ -42,6 +42,7 @@ class Accelerator(object):
 		self.area = self.area + self.activation_buffer.area + self.weight_buffer.area + self.mask_buffer.area
 
 		self.cycle = 0
+		self.idx_done = 0
 
 		# TODO: add main memory object with its leakage energy
 
@@ -68,9 +69,10 @@ class Accelerator(object):
 		for pe in self.pes:
 			for mac_lane in pe.mac_lanes:
 				if not mac_lane.ready: return False
+			for sftm in pe.softmax:
+				if not sftm.ready: return False
 			if not pe.layer_norm.ready: return False
-			if not pe.softmax.ready: return False
-
+			
 		return True
 
 	def num_mac_lanes_free(self):
@@ -91,8 +93,9 @@ class Accelerator(object):
 	def num_sftm_free(self):
 		num_sftm, num_free = 0, 0
 		for pe in self.pes:
-			num_sftm += 1
-			if pe.softmax.ready: num_free += 1
+			for sftm in pe.softmax:
+				num_sftm += 1
+				if sftm.ready: num_free += 1
 		return num_free, num_sftm
 
 	def _fill_buffer(self, buffer_arr, num_ones):
@@ -171,11 +174,9 @@ class Accelerator(object):
 			pes = gridspec.GridSpecFromSubplotSpec(len(self.pes)//4, 1, wspace=0, hspace=0,
 				subplot_spec=pe_col)
 			for pe in pes:
-				height_ratios = [1, 2] if self.config['lanes_per_pe'] < 8 else [2, 1]
-				mac_lanes_spec, sp_modules_spec = gridspec.GridSpecFromSubplotSpec(2, 1, wspace=0, hspace=0, 
+				height_ratios = [1, 1, 1] if self.config['lanes_per_pe'] < 8 else [2, 1, 1]
+				mac_lanes_spec, sftm_spec, ln_spec = gridspec.GridSpecFromSubplotSpec(3, 1, wspace=0, hspace=0, 
 					height_ratios=height_ratios, subplot_spec=pe)
-				
-				ln, sftm = gridspec.GridSpecFromSubplotSpec(1, 2, wspace=0, hspace=0, subplot_spec=sp_modules_spec)
 
 				mac_lane_size = (1, len(self.pes[pe_count].mac_lanes)) if self.config['lanes_per_pe'] < 8 else (2, len(self.pes[pe_count].mac_lanes)//2)
 				mac_lane_arr = np.zeros(mac_lane_size)
@@ -196,23 +197,30 @@ class Accelerator(object):
 				ax.tick_params(axis=u'both', which=u'both',length=0)
 				ax.grid(color='k', linewidth=0.5)
 				fig.add_subplot(ax)
+
+				sftm_arr = np.zeros((1, len(self.pes[pe_count].softmax)))
+				sftm_count = 0
+				for i in range(sftm_arr.shape[1]):
+					sftm_arr[0, i] = 1 if not self.pes[pe_count].softmax[sftm_count].ready else 0
+					sftm_count += 1
+
+				ax = plt.Subplot(fig, sftm_spec)
+				ax.imshow(sftm_arr, interpolation='none', aspect='auto', 
+						  rasterized=True, cmap='Greens', vmin=0, vmax=1.5)
+				ax.set_xticks(np.arange(-0.5, len(self.pes[pe_count].softmax), 1))
+				ax.set_yticks(np.arange(-0.5, 1, 1))
+				ax.set_xticklabels([])
+				ax.set_yticklabels([])
+				ax.tick_params(axis=u'both', which=u'both',length=0)
+				ax.grid(color='k', linewidth=0.5)
+				fig.add_subplot(ax)
 				
 				ln_arr = np.zeros((1, 1))
 				ln_arr[0][0] = 1 if not self.pes[pe_count].layer_norm.ready else 0
 
-				ax = plt.Subplot(fig, ln)
+				ax = plt.Subplot(fig, ln_spec)
 				ax.imshow(ln_arr, interpolation='none', aspect='auto', 
 						  rasterized=True, cmap='Purples', vmin=0, vmax=1.5)
-				ax.set_xticks([])
-				ax.set_yticks([])
-				fig.add_subplot(ax)
-
-				sftm_arr = np.zeros((1, 1))
-				sftm_arr[0][0] = 1 if not self.pes[pe_count].softmax.ready else 0
-				
-				ax = plt.Subplot(fig, sftm)
-				ax.imshow(sftm_arr, interpolation='none', aspect='auto', 
-						  rasterized=True, cmap='Greens', vmin=0, vmax=1.5)
 				ax.set_xticks([])
 				ax.set_yticks([])
 				fig.add_subplot(ax)
@@ -242,6 +250,8 @@ class Accelerator(object):
 
 		# If a compute_op is done, its corresponding data is not required in buffer anymore
 		for idx, compute_op in enumerate(compute_ops):
+			if idx < self.idx_done:
+				continue
 			if type(compute_op) == list:
 				for head_ops in compute_op:
 					for head_idx, head_op in enumerate(head_ops):
@@ -252,6 +262,7 @@ class Accelerator(object):
 			else:
 				if compute_op.done == True:
 					self.set_not_required(compute_op)
+					self.idx_done = idx
 				else:
 					break
 
