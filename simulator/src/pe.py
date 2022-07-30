@@ -27,13 +27,18 @@ class ProcessingElement(object):
 		self.dataflow = Dataflow(f'{self.pe_name}_df', config, constants)
 		self.dma = DMA(f'{self.pe_name}_dma', config, constants)
 
+		self.softmax = []
+		for s in range(config['softmax_per_pe']):
+			self.softmax.append(Softmax(f'{self.pe_name}_sftm{(s + 1)}', config, constants))
+		
 		self.layer_norm = LayerNorm(f'{self.pe_name}_ln', config, constants)
-		self.softmax = Softmax(f'{self.pe_name}_sftm', config, constants)
 
 		self.area = 0
 		for mac_lane in self.mac_lanes:
 			self.area += mac_lane.area
-		self.area = self.area + self.dataflow.area + self.dma.area + self.layer_norm.area + self.softmax.area
+		for sftm in self.softmax:
+			self.area += sftm.area
+		self.area = self.area + self.dataflow.area + self.dma.area + self.layer_norm.area
 
 	def process_cycle(self):
 		total_energy = [0, 0]
@@ -41,10 +46,14 @@ class ProcessingElement(object):
 			mac_lane_energy = mac_lane.process_cycle()
 			total_energy[0] += mac_lane_energy[0]; total_energy[1] += mac_lane_energy[1]
 
+		softmax_energy = [0, 0]
+		for sftm in self.softmax:
+			sftm_energy = sftm.process_cycle()
+			softmax_energy[0] += sftm_energy[0]; total_energy[1] += sftm_energy[1]
+
 		dataflow_energy = self.dataflow.process_cycle()
 		dma_energy = self.dma.process_cycle()
 		layer_norm_energy = self.layer_norm.process_cycle()
-		softmax_energy = self.softmax.process_cycle()
 
 		for i in [0, 1]:
 			total_energy[i] = total_energy[i] + dataflow_energy[i] + dma_energy[i] + layer_norm_energy[i] + softmax_energy[i]
@@ -66,9 +75,10 @@ class ProcessingElement(object):
 				self.layer_norm.assign_op(op)
 				assigned_op = True
 		elif isinstance(op, (SoftmaxOp, SoftmaxTiledOp)):
-			if self.softmax.ready:
-				self.softmax.assign_op(op)
-				assigned_op = True
+			for sftm in self.softmax:
+				if sftm.ready:
+					sftm.assign_op(op)
+					assigned_op = True
 		else:
 			raise ValueError(f'Invalid operation: {op.op_name} of type: {type(op)}')
 
