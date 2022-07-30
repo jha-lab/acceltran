@@ -83,14 +83,13 @@ class Buffer(object):
 
 	def can_store(self, data):
 		if self.buffer_size < data.data_size * self.weight_factor:
-			raise RuntimeError(f'Data to store is larger than what the {self.buffer_type} buffer can store')
-		elif self.buffer_size - self.used - (self.data_being_added[0].data_size * self.weight_factor if self.data_being_added else 0) >= data.data_size * self.weight_factor:
+			raise RuntimeError(f'Data is larger than what the {self.buffer_type} buffer can store')
+		elif self.buffer_size - self.used >= data.data_size * self.weight_factor:
 			return True
 		else:
 			self.required_data_size = 0
 			for data in self.data:
 				if data.required_in_buffer: self.required_data_size += data.data_size
-			if self.data_being_added is not None: self.required_data_size += self.data_being_added[0].data_size
 			if self.buffer_size - self.required_data_size * self.weight_factor > data.data_size * self.weight_factor:
 				return True
 		return False
