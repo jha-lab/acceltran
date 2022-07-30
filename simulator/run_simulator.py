@@ -42,6 +42,7 @@ def check_config(config: dict, design_space: dict):
 	assert config['pe'] in design_space['pe'], f'Configuration "pe" ({config["pe"]}) should be in {design_space["pe"]}'
 	assert config['lanes_per_pe'] in design_space['lanes_per_pe'], f'Configuration "lanes_per_pe" ({config["lanes_per_pe"]}) not in {design_space["lanes_per_pe"]}'
 	assert config['mac_per_lane'] in design_space['mac_per_lane'], f'Cofiguration "mac_per_lane" ({config["mac_per_lane"]}) not in {design_space["mac_per_lane"]}'
+	assert config['softmax_per_pe'] in design_space['softmax_per_pe'], f'Cofiguration "softmax_per_pe" ({config["softmax_per_pe"]}) not in {design_space["softmax_per_pe"]}'
 
 	assert config['tile']['tile_b'] <= config['batch_size'], f'Configuraton "tile_b" ({config["tile"]["tile_b"]}) should be less than or equal to "batch_size" ({config["batch_size"]})'
 	assert config['batch_size'] in design_space['batch_size'], f'Configuration "batch_size" not in {design_space["batch_size"]}'
@@ -89,14 +90,21 @@ def get_op_list(ops, op_idx, batch_size):
 			return [ops_list]
 
 
-def get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops):
+def get_last_compute_op(head_op, head_idx, memory_op_idx, memory_ops, compute_ops):
 	"""Get the last compute_op corresponding to the current storing memory_op"""
 
 	last_compute_op = None
 	compute_op_found = False
 
 	if memory_op_idx[1] != []:
-		head_ops = compute_ops[memory_op_idx[0]][head_idx]
+		num_lists = len([idx for idx in range(memory_op_idx[0]) if type(memory_ops[idx]) == list]) + 1
+		list_reached = 0
+		for idx in range(len(compute_ops)):
+			if type(compute_ops[idx]) == list:
+				list_reached += 1
+			if list_reached == num_lists: 
+				head_ops = compute_ops[idx][head_idx]
+				break
 	else:
 		head_ops = compute_ops
 
@@ -357,7 +365,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 					if head_op.op_name in last_compute_ops:
 						last_compute_op = last_compute_ops[head_op.op_name]
 					else:
-						last_compute_op = get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops)
+						last_compute_op = get_last_compute_op(head_op, head_idx, memory_op_idx, memory_ops, compute_ops)
 						last_compute_ops[head_op.op_name] = last_compute_op
 					last_compute_done = last_compute_op.done
 					store_op = True
@@ -368,7 +376,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 					# Previous memory_op for this buffer is done
 					prev_memory_op_done(head_op, head_idx, memory_op_idx, memory_ops)
 
-					if buffer.can_store(data) and last_compute_done:
+					if buffer.can_store(data) and accelerator.mask_buffer.can_store(data) and last_compute_done:
 						memory_stall[head_idx] = False
 					else:
 						memory_stall[head_idx] = True
@@ -377,10 +385,11 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 				if memory_stall[head_idx] and debug:
 					op_debug_output = []
-					if not accelerator.mask_buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: mask buffer not ready{color.ENDC}')
 					if not buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer not ready{color.ENDC}')
+					if not accelerator.mask_buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: mask buffer not ready{color.ENDC}')
 					if not buffer.can_store(data): op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
-					if not last_compute_done: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: waiting for last compute operation "{get_last_compute_op(head_op, head_idx, memory_op_idx, compute_ops).op_name}"{color.ENDC}')
+					if not accelerator.mask_buffer.can_store(data): op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {accelerator.mask_buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
+					if not last_compute_done: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: waiting for last compute operation "{get_last_compute_op(head_op, head_idx, memory_op_idx, memory_ops, compute_ops).op_name}"{color.ENDC}')
 					debug_output.append("\n".join(op_debug_output))
 				
 				if not memory_stall[head_idx]:
