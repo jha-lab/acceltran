@@ -37,6 +37,13 @@ mac_per_lane:
   - 1
   - 16
 
+softmax_per_pe:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+
 batch_size:
   - 1
   - 4
@@ -44,6 +51,9 @@ batch_size:
   - 32
 
 activation_buffer_size: # In MBs
+  - 0.125
+  - 0.25
+  - 0.5
   - 1
   - 2
   - 4
@@ -52,6 +62,9 @@ activation_buffer_size: # In MBs
   - 32
 
 weight_buffer_size: # In MBs
+  - 0.125
+  - 0.25
+  - 0.5
   - 1
   - 2
   - 4
@@ -60,6 +73,9 @@ weight_buffer_size: # In MBs
   - 32
 
 mask_buffer_size: # In MBs
+  - 0.125
+  - 0.25
+  - 0.5
   - 1
   - 2
   - 4
