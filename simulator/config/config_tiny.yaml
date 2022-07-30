@@ -7,17 +7,19 @@ tile:
 
 non_linearity: 'gelu'
 
-pe: 128
+pe: 64
 
-lanes_per_pe: 8
+lanes_per_pe: 16
 
 mac_per_lane: 16
+
+softmax_per_pe: 4
 
 batch_size: 4
 
 activation_buffer_size: 4
 
-weight_buffer_size: 1
+weight_buffer_size: 2
 
 mask_buffer_size: 1
 

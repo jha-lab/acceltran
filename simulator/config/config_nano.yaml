@@ -15,11 +15,11 @@ mac_per_lane: 16
 
 batch_size: 4
 
-activation_buffer_size: 16
+activation_buffer_size: 1
 
-weight_buffer_size: 32
+weight_buffer_size: 0.125
 
-mask_buffer_size: 4
+mask_buffer_size: 0.5
 
 loop_unrolling: 'b_i_j_k'
 
