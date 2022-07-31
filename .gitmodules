@@ -4,3 +4,6 @@
 [submodule "nvmain"]
 	path = nvmain
 	url = https://github.com/shikhartuli/nvmain.git
+[submodule "txf_design-space"]
+	path = txf_design-space
+	url = https://github.com/JHA-Lab/txf_design-space.git
