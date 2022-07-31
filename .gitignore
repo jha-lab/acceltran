@@ -10,6 +10,7 @@ synthesis/work_sg/
 pruning/bert-base-uncased/
 pruning/bert-base-uncased-weight_pruned/
 pruning/bert-base-pruned/
+pruning/utils/huggingface_datasets/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
