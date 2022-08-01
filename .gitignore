@@ -1,5 +1,5 @@
 # Repo-spcific directories
-simulator/logs/
+simulator/results/
 synthesis/14nm_sg/
 synthesis/DMA/
 synthesis/ddc/
@@ -11,6 +11,7 @@ pruning/bert-base-uncased/
 pruning/bert-base-uncased-weight_pruned/
 pruning/bert-base-pruned/
 pruning/utils/huggingface_datasets/
+tests/figures/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
