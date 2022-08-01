@@ -14,7 +14,9 @@ The figure below shows the utilization of different modules in an AccelTran arch
 - [Environment Setup](#environment-setup)
   - [Clone this repository and initialize sub-modules](#clone-this-repository-and-initialize-sub-modules)
   - [Setup python environment](#setup-python-environment)
-- [Replicating results](#replicating-results)
+- [Run synthesis](#run-synthesis)
+- [Run pruning](#run-pruning)
+- [Run simulator](#run-simulator)
 
 ## Environment setup
 
