@@ -272,7 +272,7 @@ def plot_metrics(logs_dir, constants):
 	ax_power.plot(logs_metrics['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs_metrics['total_pe_energy']], color='tab:blue', linestyle='-', label='PEs (dynamic)')
 	ax_power.plot(logs_metrics['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs_metrics['total_pe_energy']], color='tab:blue', linestyle='--', label='PEs (leakage)')
 	ax_power.plot(logs_metrics['cycle'], [logs_metrics['activation_buffer_energy'][i][0] + logs_metrics['weight_buffer_energy'][i][0] + logs_metrics['mask_buffer_energy'][i][0] for i in range(len(logs_metrics['cycle']))], 'k-', label='Buffers (dynamic)')
-	ax_power.plot(logs_metrics['cycle'], [(logs_metrics['activation_buffer_energy'][i][1] + logs_metrics['weight_buffer_energy'][i][1] + logs_metrics['mask_buffer_energy'][i][1]) for i in range(len(logs_metrics['cycle']))], 'k--', label='Bufferd (leakage)')
+	ax_power.plot(logs_metrics['cycle'], [(logs_metrics['activation_buffer_energy'][i][1] + logs_metrics['weight_buffer_energy'][i][1] + logs_metrics['mask_buffer_energy'][i][1]) for i in range(len(logs_metrics['cycle']))], 'k--', label='Buffers (leakage)')
 	ax_power.set_ylabel('Power (mW)')
 	ax_power.legend(loc='upper left')
 
