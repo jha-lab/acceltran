@@ -1,3 +1,3 @@
-# AccelTran
+# AccelTran: A Sparsity-Aware Monolithic 3D Accelerator for Transformer Architectures at Scale
 
 A Sparsity-Aware Accelerator for Transformers. More details coming soon...
