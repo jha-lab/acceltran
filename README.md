@@ -49,7 +49,7 @@ cd ..
 ```
 Here, `<M>` is the module that is to be synthesized in: `mac_lane`, `ln_forward_<T>` (for layer normalization), `softmax_<T>`, etc. where `<T>` is the tile size among 8, 16, or 32.
 
-All output resports are stores in [synthesis/reports](https://github.com/JHA-Lab/acceltran/tree/main/synthesis/reports). 
+All output resports are stored in [synthesis/reports](https://github.com/JHA-Lab/acceltran/tree/main/synthesis/reports). 
 
 To run the synthesis for the DMA module, run the following command instead:
 ```shell
