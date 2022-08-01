@@ -128,7 +128,7 @@ class Accelerator(object):
 		act_arr = np.zeros((activation_buffer_size, 16))
 		act_arr = self._fill_buffer(act_arr, num_ones)
 
-		accel_dict['activation_buffer_arr'] = act_arr.tolist()
+		accel_dict['activation_buffer'] = act_arr.tolist()
 
 		if debug: print(f'Activation buffer used: {self.activation_buffer.used * 100.0 / self.activation_buffer.buffer_size : 0.03f}%')
 
