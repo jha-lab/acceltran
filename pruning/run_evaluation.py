@@ -14,6 +14,7 @@ import shlex
 import argparse
 import re
 import json
+import math
 import numpy as np
 from utils.run_glue import main as run_glue
 
@@ -94,27 +95,38 @@ def main(args):
 		model = DPBertForSequenceClassification.from_pretrained('echarlaix/bert-base-uncased-sst2-acc91.1-d37-hybrid')
 		model.save_pretrained('./bert-base-uncased-weight_pruned/')
 
-	os.makedirs(args.output_dir, exist_ok=True)
+	os.makedirs(args.output_dir)
 	results = []
 
-	for pruning_threshold in np.arange(0, args.max_pruning_threshold, 0.005):
-		print(f'Running inference with pruning threshold: {pruning_threshold}')
-		result = {'pruning_threshold': pruning_threshold}
+	if args.min_k < 512 and args.max_pruning_threshold == 0:
+		logk = math.log(args.min_k, 2)
+		ks = list(np.logspace(logk, 9, num=10, base=2))
+		pruning_thresholds = [0 for _ in range(len(ks))]
+	elif args.max_pruning_threshold > 0 and args.min_k == 512:
+		pruning_thresholds = list(np.arange(0, args.max_pruning_threshold, 0.005))
+		ks = [0 for _ in range(len(pruning_thresholds))]
+	else:
+		raise ValueError('Either min_k has to be 512 or max_pruning_threshold has to be zero')
+
+	for p, k in zip(pruning_thresholds, ks):
+		print(f'Running inference with pruning threshold: {p}, and \'k\': {k}')
+		result = {'pruning_threshold': p, 'k': k}
 
 		# Make new output directory
-		output_dir = os.path.join(args.output_dir, f'threshold_p{str(pruning_threshold)[2:]}')
+		output_dir = os.path.join(args.output_dir, f'threshold_p{str(p)[2:]}_k{int(k)}')
 
 		# Load and save tokenizer
-		tokenizer = BertTokenizer.from_pretrained('./bert-base-uncased/' if pruning_threshold == 0 and USE_NON_PRUNED else './bert-base-uncased-weight_pruned')
+		tokenizer = BertTokenizer.from_pretrained('./bert-base-uncased/' if p == 0 and k == 512 and USE_NON_PRUNED else './bert-base-uncased-weight_pruned')
 		tokenizer.save_pretrained(output_dir)
 
 		# Initialize and save given model
-		model = DPBertForSequenceClassification.from_pretrained('./bert-base-uncased/' if pruning_threshold == 0 and USE_NON_PRUNED else './bert-base-uncased-weight_pruned')
+		model = DPBertForSequenceClassification.from_pretrained('./bert-base-uncased/' if p == 0 and k == 512 and USE_NON_PRUNED else './bert-base-uncased-weight_pruned')
 		model.save_pretrained(output_dir)
 
 		# Load and save new config
-		config = BertConfig.from_pretrained('./bert-base-uncased/' if pruning_threshold == 0 and USE_NON_PRUNED else './bert-base-uncased-weight_pruned')
-		config.pruning_threshold = pruning_threshold
+		config = BertConfig.from_pretrained('./bert-base-uncased/' if p == 0 and k == 512 and USE_NON_PRUNED else './bert-base-uncased-weight_pruned')
+		config.pruning_threshold = p
+		config.k = k
 		config.sparsity_file = os.path.join(output_dir, 'sparsity.json')
 		config.save_pretrained(output_dir)
 
@@ -123,7 +135,8 @@ def main(args):
 		# Load model and prune weights
 		model = DPBertForSequenceClassification.from_pretrained(output_dir)
 		if args.prune_weights: 
-			if pruning_threshold > 0:
+			assert k == 512, f'Weight pruning not supported in top-k pruning'
+			if p > 0:
 				model.prune_weights()
 
 				sparsity = json.load(open(config.sparsity_file))
@@ -147,14 +160,14 @@ def main(args):
 		metrics = run_glue(training_args)
 		print(metrics)
 
-		if pruning_threshold > 0:
+		if p > 0 or k < 512:
 			sparsity = json.load(open(config.sparsity_file))
 			matrix_sizes, num_zeros = 0, 0
 			for sp in sparsity:
 				num_zeros += sp[0]
 				matrix_sizes += sp[1]
 
-			print(f'Resultant activation sparsity: {num_zeros / matrix_sizes : 0.03f}')
+			print(f'Resultant (complete) activation sparsity: {num_zeros / matrix_sizes : 0.03f}')
 			result['activation_sparsity'] = num_zeros / matrix_sizes
 		else:
 			result['activation_sparsity'] = 0
@@ -167,7 +180,7 @@ def main(args):
 	fig, ax1 = plt.subplots()
 	ax1.set_xlabel('Pruning threshold')
 	ax1.set_ylabel('Activation sparsity (%)')
-	ax1.plot([result['pruning_threshold'] for result in results], [result['activation_sparsity'] * 100 for result in results])
+	ax1.plot([result['pruning_threshold'] for result in results], [result['activation_sparsity'] * 100 for result in results], color='k')
 	ax2 = ax1.twinx()
 	ax2.set_ylabel('Accuracy on SST-2 task', color='tab:red')
 	ax2.plot([result['pruning_threshold'] for result in results], [result['accuracy'] * 100 for result in results], color='tab:red')
@@ -194,6 +207,11 @@ if __name__ == '__main__':
 		type=float,
 		default=0,
 		help='maximum threshold for dynamic pruning')
+	parser.add_argument('--min_k',
+		metavar='',
+		type=float,
+		default=512,
+		help='maximum \'k\' in top-k pruning')
 	parser.add_argument('--prune_weights',
 		dest='prune_weights',
 		action='store_true')
