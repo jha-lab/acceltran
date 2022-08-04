@@ -93,9 +93,6 @@ def main(args):
 	# Load all GLUE datasets
 	load_all_glue_datasets()
 
-	# Load SQuAD v2 dataset
-	load_dataset('squad_v2')
-
 	if args.task == 'sst2':
 		if args.model_name == 'bert-base':
 			if not os.path.exists('./models/bert-base-sst2/pytorch_model.bin'):
