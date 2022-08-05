@@ -38,7 +38,7 @@ class Buffer(object):
 		self.weight_sparsity = constants['sparsity']['weight']
 		self.IL = constants['bits']['IL']
 		self.FL = constants['bits']['FL']
-		self.main_memory_bandwidth = constants['main_memory']['bandwidth']
+		self.main_memory_bandwidth = constants['main_memory']['bandwidth'][config['main_memory']['mode']]
 		self.bandwidth = constants[f'{buffer_type}_buffer']['bandwidth']
 		self.clock_frequency = constants['clock_frequency']
 		self.process_cycles = 0
