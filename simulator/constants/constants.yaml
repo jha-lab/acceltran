@@ -89,24 +89,24 @@ post_sparsity:
 # Buffer parameters
 weight_buffer:
   block_size: 64 # bytes
-  ddr_bandwidth: 102.4 # in GBps
-  bandwidth: 3141.46 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
+  ddr_bandwidth: 370 # in GBps
+  bandwidth: 11350.98 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
   area: 0.29410083 # um^2 per MB
   energy: 0.0856588 # (0.42123 + 0.418051) / 2 * math.sqrt(<weight_buffer_size in MB> / 24) in nJ
   leakage: 210.40467 # mW per MB
 
 activation_buffer:
   block_size: 64 # bytes
-  ddr_bandwidth: 102.4 # in GBps
-  bandwidth: 3141.46 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
+  ddr_bandwidth: 370 # in GBps
+  bandwidth: 11350.98 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
   area: 0.3033058333
   energy: 0.079275099 # (0.275546 + 0.273688) / 2 * math.sqrt(<activation_buffer_size in MB> / 12) in nJ
   leakage: 247.918667
 
 mask_buffer:
   block_size: 64 # bytes
-  ddr_bandwidth: 102.4 # in GBps
-  bandwidth: 3141.46 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
+  ddr_bandwidth: 370 # in GBps
+  bandwidth: 11350.98 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
   area: 0.302565
   energy: 0.08200675 # (0.164271 + 0.163756) / 2 * math.sqrt(<mask_buffer_size in MB> / 4) in nJ
   leakage: 238.196
@@ -114,8 +114,12 @@ mask_buffer:
 # Main memory parameters
 main_memory:
   block_size: 64
-  ddr_bandwidth: 40000 # in MBps
-  bandwidth: 1198.37 # ddr_bandwidth * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
+  ddr_bandwidth: 
+    lb: 25.6 # in GBps
+    hb: 256
+  bandwidth: 
+    lb: 785.365 # ddr_bandwidth * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
+    hb: 7853.65
   energy:
     rram_16_2_2: 17.321165 # access energy in nJ
     rram_8_2_4: 32.655499
@@ -125,6 +129,6 @@ main_memory:
     rram_1_2_32: 340.9690911
     dram_16_2_2: 69.00706337
     dram_8_2_4: 200.2819855
-    dram_32_2_1: 53.43777522
+    dram_32_2_1: 13.43777522
     dram_16_4_1: 38.28777884
     hbm_32_1_4: 26.5569841
