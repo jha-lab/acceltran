@@ -21,8 +21,8 @@ def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops
 	batch_size = config['batch_size']
 
 	ops = []
-	ops.append(MemoryStoreOp('word_emb', config, (VOCAB_SIZE, model_dict['h'][0]), 'weight'))
-	ops.append(MemoryStoreOp('pos_emb', config, (SEQ_LENGTH, model_dict['h'][0]), 'weight'))
+	ops.append(MemoryLoadOp('word_emb', config, (VOCAB_SIZE, model_dict['h'][0]), 'weight'))
+	ops.append(MemoryLoadOp('pos_emb', config, (SEQ_LENGTH, model_dict['h'][0]), 'weight'))
 
 	for layer in range(model_dict['l']):
 		layer_hidden_size = model_dict['h'][layer]
