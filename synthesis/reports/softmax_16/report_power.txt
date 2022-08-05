@@ -1,0 +1,56 @@
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: Design has unannotated primary inputs. (PWR-414)
+Warning: Design has unannotated sequential cell outputs. (PWR-415)
+ 
+****************************************
+Report : power
+        -analysis_effort low
+Design : softmax_16
+Version: I-2013.12-SP4
+Date   : Mon Aug  1 12:59:06 2022
+****************************************
+
+
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/stuli/acceltran/synthesis/library/14nm_sg_345K.db)
+
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+Design        Wire Load Model            Library
+------------------------------------------------
+softmax_16             1K                14nm_sg_345K_maxfan4_wire
+
+
+Global Operating Voltage = 0.8  
+Power-specific unit information :
+    Voltage Units = 1V
+    Capacitance Units = 1.000000ff
+    Time Units = 1ps
+    Dynamic Power Units = 1mW    (derived from V,C,T units)
+    Leakage Power Units = 1nW
+
+
+  Cell Internal Power  =  21.2568 mW   (61%)
+  Net Switching Power  =  13.3776 mW   (39%)
+                         ---------
+Total Dynamic Power    =  34.6343 mW  (100%)
+
+Cell Leakage Power     =   2.6696 mW
+
+
+                 Internal         Switching           Leakage            Total
+Power Group      Power            Power               Power              Power   (   %    )  Attrs
+--------------------------------------------------------------------------------------------------
+io_pad             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
+clock_network      0.0000            0.0000            0.0000            0.0000  (   0.00%)
+register       4.0858e-02        1.0585e-02        4.8753e+03        5.6318e-02  (   0.15%)
+sequential         0.0000        7.8503e-03            0.0000        7.8503e-03  (   0.02%)
+combinational     21.2003           13.3732        2.6647e+06           37.2526  (  99.83%)
+--------------------------------------------------------------------------------------------------
+Total             21.2412 mW        13.3916 mW     2.6696e+06 nW        37.3168 mW
+1
