@@ -52,15 +52,15 @@ layer_norm:
   tile_8:
     area: 20631.005754
     dynamic: 12.6646
-    leakage: 6.3819
+    leakage: 0.6594879
   tile_16:
-    area: 20631.005754
-    dynamic: 12.6646
-    leakage: 6.3819
+    area: 81104.126482
+    dynamic: 43.8378
+    leakage: 2.5753
   tile_32:
-    area: null
-    dynamic: null
-    leakage: null
+    area: 318834.6362
+    dynamic: 151.4800
+    leakage: 10.03566
 
 softmax:
   tile_8:
@@ -68,13 +68,13 @@ softmax:
     dynamic: 9.1386
     leakage: 0.6824872
   tile_16:
-    area: 22008.079435
-    dynamic: 9.1386
-    leakage: 0.6824872
+    area: 87573.326116
+    dynamic: 34.6343
+    leakage: 2.6696
   tile_32:
-    area: null
-    dynamic: null
-    leakage: null
+    area: 348466.9006
+    dynamic: 131.2602298481
+    leakage: 10.4423
 
 pre_sparsity:
   area: 6216.896914
