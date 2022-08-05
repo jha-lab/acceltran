@@ -19,17 +19,18 @@ batch_size: 4
 
 activation_buffer_size: 4
 
-weight_buffer_size: 2
+weight_buffer_size: 1
 
 mask_buffer_size: 1
 
 loop_unrolling: 'b_i_j_k'
 
 main_memory:
-  type: 'rram'
-  banks: 16
+  type: 'dram' # cheap and low power LP-DDR3 memory 
+  mode: 'lb'
+  banks: 32
   ranks: 2
-  channels: 2
+  channels: 1
 
 scheduler:
   compute_ops:
