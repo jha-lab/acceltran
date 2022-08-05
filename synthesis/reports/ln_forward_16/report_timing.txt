@@ -1,0 +1,172 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : ln_forward_16
+Version: I-2013.12-SP4
+Date   : Thu Aug  4 19:32:16 2022
+****************************************
+
+Operating Conditions: TYPICAL   Library: 14nm_sg_345K_maxfan4_wire
+Wire Load Model Mode: top
+
+  Startpoint: layer_mean_0/sum_reg[1]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: layer_mean_0/sum_reg[39]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  ln_forward_16      1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  clock clk (rise edge)                    0.00       0.00
+  clock network delay (ideal)              0.00       0.00
+  layer_mean_0/sum_reg[1]/CP (dff_sg)      0.00       0.00 r
+  layer_mean_0/sum_reg[1]/Q (dff_sg)      34.00      34.00 f
+  U789217/X (nor_x1_sg)                   14.91      48.91 r
+  U789216/X (nor_x1_sg)                   13.10      62.01 f
+  U789215/X (inv_x1_sg)                    5.33      67.34 r
+  U789210/X (nand_x1_sg)                  20.59      87.93 f
+  U789207/X (nand_x1_sg)                   9.48      97.42 r
+  U789204/X (nand_x1_sg)                  36.03     133.45 f
+  U789201/X (nor_x1_sg)                   13.63     147.08 r
+  U789200/X (inv_x1_sg)                    4.87     151.94 f
+  U789194/X (nand_x1_sg)                  25.99     177.94 r
+  U789192/X (nand_x1_sg)                   9.53     187.47 f
+  U789187/X (nand_x1_sg)                  26.66     214.13 r
+  U789185/X (nand_x1_sg)                   9.53     223.66 f
+  U789181/X (nand_x1_sg)                  36.82     260.49 r
+  U789179/X (nor_x1_sg)                   11.16     271.64 f
+  U789178/X (inv_x1_sg)                    5.31     276.95 r
+  U789175/X (nand_x1_sg)                  16.28     293.23 f
+  U789171/X (inv_x1_sg)                    8.88     302.11 r
+  U789170/X (nand_x1_sg)                   7.12     309.23 f
+  U789166/X (nand_x1_sg)                  31.24     340.48 r
+  U789165/X (inv_x1_sg)                    6.30     346.78 f
+  U789167/X (nand_x1_sg)                   6.66     353.44 r
+  U789283/X (nand_x1_sg)                  16.60     370.04 f
+  U789280/X (inv_x1_sg)                    8.86     378.90 r
+  U789278/X (nand_x1_sg)                   7.16     386.05 f
+  U789273/X (nand_x1_sg)                  26.29     412.34 r
+  U789271/X (nand_x1_sg)                   9.53     421.88 f
+  U789266/X (nand_x1_sg)                  26.66     448.54 r
+  U789264/X (nand_x1_sg)                   9.53     458.07 f
+  U789259/X (nand_x1_sg)                  26.66     484.73 r
+  U789256/X (nand_x1_sg)                   9.53     494.26 f
+  U789251/X (nand_x1_sg)                  26.66     520.92 r
+  U789248/X (nand_x1_sg)                   9.53     530.45 f
+  U789243/X (nand_x1_sg)                  26.66     557.11 r
+  U789240/X (nand_x1_sg)                   9.53     566.64 f
+  U789235/X (nand_x1_sg)                  26.66     593.30 r
+  U789233/X (nand_x1_sg)                   9.53     602.84 f
+  U789227/X (nand_x1_sg)                  26.66     629.50 r
+  U789224/X (nand_x1_sg)                   9.53     639.03 f
+  U789221/X (nand_x1_sg)                  26.66     665.69 r
+  U789229/X (nand_x1_sg)                   9.53     675.22 f
+  U789376/X (nand_x1_sg)                  26.66     701.88 r
+  U789373/X (nand_x1_sg)                   9.53     711.41 f
+  U789368/X (nand_x1_sg)                  26.66     738.07 r
+  U789366/X (nand_x1_sg)                   9.53     747.60 f
+  U789361/X (nand_x1_sg)                  26.66     774.26 r
+  U789358/X (nand_x1_sg)                   9.53     783.80 f
+  U789353/X (nand_x1_sg)                  26.66     810.46 r
+  U789350/X (nand_x1_sg)                   9.53     819.99 f
+  U789345/X (nand_x1_sg)                  26.66     846.65 r
+  U789343/X (nand_x1_sg)                   9.53     856.18 f
+  U789338/X (nand_x1_sg)                  26.66     882.84 r
+  U789335/X (nand_x1_sg)                   9.53     892.37 f
+  U789330/X (nand_x1_sg)                  26.66     919.03 r
+  U789328/X (nand_x1_sg)                   9.53     928.56 f
+  U789323/X (nand_x1_sg)                  26.66     955.22 r
+  U789321/X (nand_x1_sg)                   9.53     964.76 f
+  U789316/X (nand_x1_sg)                  26.66     991.42 r
+  U789314/X (nand_x1_sg)                   9.53    1000.95 f
+  U789309/X (nand_x1_sg)                  26.66    1027.61 r
+  U789307/X (nand_x1_sg)                   9.53    1037.14 f
+  U789302/X (nand_x1_sg)                  36.82    1073.96 r
+  U789300/X (nor_x1_sg)                   11.16    1085.12 f
+  U789299/X (inv_x1_sg)                    5.33    1090.45 r
+  U789294/X (nand_x1_sg)                  25.77    1116.22 f
+  U789291/X (nand_x1_sg)                  10.37    1126.60 r
+  U789289/X (nand_x1_sg)                  36.11    1162.71 f
+  U789296/X (nor_x1_sg)                   13.64    1176.35 r
+  U789453/X (inv_x1_sg)                    4.87    1181.21 f
+  U789449/X (nand_x1_sg)                  16.28    1197.49 r
+  U789446/X (inv_x1_sg)                    8.28    1205.77 f
+  U789443/X (nand_x1_sg)                   6.91    1212.69 r
+  U789439/X (nand_x1_sg)                  30.83    1243.51 f
+  U789438/X (inv_x1_sg)                    7.80    1251.31 r
+  U789436/X (nand_x1_sg)                   7.01    1258.32 f
+  U789431/X (nand_x1_sg)                  21.05    1279.37 r
+  U789429/X (nand_x1_sg)                   9.10    1288.46 f
+  U789424/X (nand_x1_sg)                  26.59    1315.05 r
+  U789422/X (nand_x1_sg)                   9.53    1324.58 f
+  U789417/X (nand_x1_sg)                  36.82    1361.41 r
+  U789415/X (nor_x1_sg)                   11.16    1372.56 f
+  U789414/X (inv_x1_sg)                    5.31    1377.87 r
+  U789410/X (nand_x1_sg)                  20.59    1398.46 f
+  U789407/X (nand_x1_sg)                   9.50    1407.96 r
+  U789403/X (nand_x1_sg)                  26.10    1434.05 f
+  U789400/X (nand_x1_sg)                  10.37    1444.42 r
+  U789398/X (nand_x1_sg)                  26.18    1470.60 f
+  U789395/X (nand_x1_sg)                  10.37    1480.97 r
+  U789390/X (nand_x1_sg)                  21.92    1502.89 f
+  U789392/X (nor_x1_sg)                   11.98    1514.87 r
+  U789391/X (inv_x1_sg)                    4.78    1519.65 f
+  U789387/X (nand_x1_sg)                   6.34    1525.98 r
+  U789386/X (nand_x1_sg)                  11.93    1537.91 f
+  U789385/X (inv_x1_sg)                    5.85    1543.75 r
+  layer_mean_0/sum_reg[39]/D (dff_sg)      0.00    1543.76 r
+  data arrival time                                1543.76
+
+  clock clk (rise edge)                 1429.00    1429.00
+  clock network delay (ideal)              0.00    1429.00
+  clock uncertainty                      -50.00    1379.00
+  layer_mean_0/sum_reg[39]/CP (dff_sg)     0.00    1379.00 r
+  library setup time                      -0.35    1378.65
+  data required time                               1378.65
+  -----------------------------------------------------------
+  data required time                               1378.65
+  data arrival time                               -1543.76
+  -----------------------------------------------------------
+  slack (VIOLATED)                                 -165.11
+
+
+  Startpoint: layer_mean_0/out_reg[15]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: mu[15] (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  ln_forward_16      1K                    14nm_sg_345K_maxfan4_wire
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  layer_mean_0/out_reg[15]/CP (dff_sg)                    0.00       0.00 r
+  layer_mean_0/out_reg[15]/Q (dff_sg)                    26.53      26.53 f
+  U917498/X (inv_x1_sg)                                  16.07      42.60 r
+  U885408/X (inv_x1_sg)                                  18.31      60.91 f
+  U1102184/X (inv_x1_sg)                                 18.23      79.14 r
+  U861585/X (inv_x1_sg)                                  13.97      93.10 f
+  mu[15] (out)                                            0.00      93.10 f
+  data arrival time                                                 93.10
+
+  max_delay                                            1429.00    1429.00
+  output external delay                                   0.00    1429.00
+  data required time                                              1429.00
+  --------------------------------------------------------------------------
+  data required time                                              1429.00
+  data arrival time                                                -93.10
+  --------------------------------------------------------------------------
+  slack (MET)                                                     1335.90
+
+
+1

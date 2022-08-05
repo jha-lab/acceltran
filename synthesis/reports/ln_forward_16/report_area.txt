@@ -1,0 +1,33 @@
+ 
+****************************************
+Report : area
+Design : ln_forward_16
+Version: I-2013.12-SP4
+Date   : Thu Aug  4 19:31:17 2022
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    14nm_sg_345K_maxfan4_wire (File: /u/stuli/acceltran/synthesis/library/14nm_sg_345K.db)
+
+Number of ports:                        15407
+Number of nets:                        815889
+Number of cells:                       789983
+Number of combinational cells:         784630
+Number of sequential cells:              5353
+Number of macros/black boxes:               0
+Number of buf/inv:                     234625
+Number of references:                      13
+
+Combinational area:              80999.464837
+Buf/Inv area:                    17608.042156
+Noncombinational area:             104.661645
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                 81104.126482
+Total area:                 undefined
+
+Information: This design contains unmapped logic. (RPT-7)
+1
