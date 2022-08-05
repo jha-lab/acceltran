@@ -7,6 +7,9 @@ synthesis/sdc/
 synthesis/netlists/
 synthesis/syn/
 synthesis/work_sg/
+**.rpt
+**_cell.txt
+**_net.txt
 pruning/models/
 pruning/results/
 pruning/utils/squad_v2/cached*
