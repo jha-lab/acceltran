@@ -210,7 +210,7 @@ def get_utilization(accelerator):
 	return (num_mac_lanes - num_mac_lanes_free) * 1.0 / num_mac_lanes, (num_ln - num_ln_free) * 1.0 / num_ln, (num_sftm - num_sftm_free) * 1.0 / num_sftm, accelerator.activation_buffer.used * 1.0 / accelerator.activation_buffer.buffer_size, accelerator.weight_buffer.used * 1.0 / accelerator.weight_buffer.buffer_size, accelerator.mask_buffer.used * 1.0 / accelerator.mask_buffer.buffer_size
 
 
-def log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps):
+def log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, stalls, logs_dir, accelerator, plot_steps):
 	"""Log energy values for every cycle"""
 	if logs:
 		last_cycle = logs['cycle'][-1]
@@ -219,10 +219,10 @@ def log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_e
 		for log_file in os.listdir(os.path.join(logs_dir, 'metrics')):
 			last_cycle = max(last_cycle, int(log_file.split('_')[1].split('.')[0]))
 
-		logs = {'cycle': [], 'total_pe_energy': [], 'activation_buffer_energy': [], 'weight_buffer_energy': [], 'mask_buffer_energy': [], 'activation_buffer_utilization': [], 'weight_buffer_utilization': [], 'mask_buffer_utilization': [], 'mac_lane_utilization': [], 'ln_utilization': [], 'sftm_utilization': []}
+		logs = {'cycle': [], 'total_pe_energy': [], 'activation_buffer_energy': [], 'weight_buffer_energy': [], 'mask_buffer_energy': [], 'activation_buffer_utilization': [], 'weight_buffer_utilization': [], 'mask_buffer_utilization': [], 'mac_lane_utilization': [], 'ln_utilization': [], 'sftm_utilization': [], 'stalls': []}
 
 	cycle_difference = accelerator.cycle - last_cycle
-	assert cycle_difference > 0 and cycle_difference <= plot_steps
+	assert cycle_difference > 0 
 	for c in range(last_cycle + 1, accelerator.cycle + 1):
 		logs['cycle'].append(c)
 		logs['total_pe_energy'].append((total_pe_energy[0] / cycle_difference, total_pe_energy[1] / cycle_difference))
@@ -239,6 +239,8 @@ def log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_e
 		logs['ln_utilization'].append(ln_utilization)
 		logs['sftm_utilization'].append(sftm_utilization)
 
+		logs['stalls'].append(stalls)
+
 	if accelerator.cycle % plot_steps == 0:
 		json.dump(logs, open(os.path.join(logs_dir, 'metrics', f'logs_{accelerator.cycle}.json'), 'w+'))
 		del logs; gc.collect()
@@ -251,7 +253,7 @@ def log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_e
 
 
 def plot_metrics(logs_dir, constants):
-	logs_metrics = {'cycle': [], 'total_pe_energy': [], 'activation_buffer_energy': [], 'weight_buffer_energy': [], 'mask_buffer_energy': [], 'activation_buffer_utilization': [], 'weight_buffer_utilization': [], 'mask_buffer_utilization': [], 'mac_lane_utilization': [], 'ln_utilization': [], 'sftm_utilization': []}
+	logs_metrics = {'cycle': [], 'total_pe_energy': [], 'activation_buffer_energy': [], 'weight_buffer_energy': [], 'mask_buffer_energy': [], 'activation_buffer_utilization': [], 'weight_buffer_utilization': [], 'mask_buffer_utilization': [], 'mac_lane_utilization': [], 'ln_utilization': [], 'sftm_utilization': [], 'stalls': []}
 	log_files = os.listdir(os.path.join(logs_dir, 'metrics'))
 	log_files = sorted(log_files, key=lambda log_file: int(log_file.split('_')[1].split('.')[0]))
 	for log_file in log_files:
@@ -267,6 +269,7 @@ def plot_metrics(logs_dir, constants):
 		logs_metrics['mac_lane_utilization'].extend(logs_temp['mac_lane_utilization'])
 		logs_metrics['ln_utilization'].extend(logs_temp['ln_utilization'])
 		logs_metrics['sftm_utilization'].extend(logs_temp['sftm_utilization'])
+		logs_metrics['stalls'].extend(logs_temp['stalls'])
 
 	fig, (ax_power, ax_utilization) = plt.subplots(2, 1)
 	ax_power.plot(logs_metrics['cycle'], [pe_energy[0] * constants['clock_frequency'] for pe_energy in logs_metrics['total_pe_energy']], color='tab:blue', linestyle='-', label='PEs (dynamic)')
@@ -292,7 +295,7 @@ def plot_metrics(logs_dir, constants):
 	plt.close()
 
 
-def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, utilization_dir: str, debug=False):
+def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, debug=False):
 	"""Run a model_dict on an Accelerator object"""
 
 	# Check if configuration is valid
@@ -305,8 +308,8 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 	# Get tiled ops from model dictionary
 	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, tile_compute_ops=config['scheduler']['compute_ops']['tiled'], tile_memory_ops=config['scheduler']['memory_ops']['tiled'], debug=debug)
 
-	assert type(memory_ops[0]) == list and type(compute_ops[0]) == list
-	memory_op_idx, compute_op_idx, ops_done = [0, [0] * len(memory_ops[0])], [0, [0] * len(compute_ops[0])], 0
+	assert type(memory_ops[2]) == list and type(compute_ops[0]) == list
+	memory_op_idx, compute_op_idx, ops_done = [0, []], [0, [0] * len(compute_ops[0])], 0
 
 	# Get operation batch sizes
 	compute_ops_batch_size = config['scheduler']['compute_ops']['batch_size']
@@ -325,6 +328,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 	sp_char = "\n\t"
 	reverse_memory_order = False
 	last_compute_ops = {}
+	stalls = [0] * 7
 
 	# Run operations on the accelerator in a cycle-accurate manner
 	while not compute_ops[-1].done:
@@ -337,6 +341,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		if debug: tqdm.write(f'{color.GREEN}Cycle: {accelerator.cycle + 1}{color.ENDC}')
 
 		memory_stall, compute_stall = False, False
+		new_stalls = [0] * 7
 
 		if debug: 
 			tqdm.write(f'{color.HEADER}Running memory operation(s) with name(s):\n\t{f"{sp_char}".join([f"- {op.op_name}" for op in memory_op if op])}\nand compute operation(s) with name(s):\n\t{f"{sp_char}".join(["- " + (f"{op.op_name}" if compute_ops_batch_size == 1 else f"{op[0].op_name} + " + str( compute_ops_batch_size - 1) + " more") for op in compute_op if op])}{color.ENDC}')
@@ -385,11 +390,21 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 				if memory_stall[head_idx] and debug:
 					op_debug_output = []
-					if not buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer not ready{color.ENDC}')
-					if not accelerator.mask_buffer.ready: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: mask buffer not ready{color.ENDC}')
-					if not buffer.can_store(data): op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
-					if not accelerator.mask_buffer.can_store(data): op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {accelerator.mask_buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
-					if not last_compute_done: op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: waiting for last compute operation "{get_last_compute_op(head_op, head_idx, memory_op_idx, memory_ops, compute_ops).op_name}"{color.ENDC}')
+					if not buffer.ready: 
+						op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer not ready{color.ENDC}')
+						new_stalls[0] = max(1, new_stalls[0] + 1)
+					if not accelerator.mask_buffer.ready: 
+						op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: mask buffer not ready{color.ENDC}')
+						new_stalls[1] = max(1, new_stalls[1] + 1)  
+					if not buffer.can_store(data): 
+						op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
+						new_stalls[2] = max(1, new_stalls[2] + 1)
+					if not accelerator.mask_buffer.can_store(data): 
+						op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: {accelerator.mask_buffer.buffer_type} buffer can\'t store data of size {data.data_size}{color.ENDC}')
+						new_stalls[3] = max(1, new_stalls[3] + 1)
+					if not last_compute_done: 
+						op_debug_output.append(f'{color.WARNING}Memory stall{f" for head {head_idx + 1}" if len(memory_op) > 1 else ""}: waiting for last compute operation "{get_last_compute_op(head_op, head_idx, memory_op_idx, memory_ops, compute_ops).op_name}"{color.ENDC}')
+						new_stalls[4] = max(1, new_stalls[4] + 1)
 					debug_output.append("\n".join(op_debug_output))
 				
 				if not memory_stall[head_idx]:
@@ -417,7 +432,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 				if not accelerator.can_assign(head_ops):
 					compute_stall[head_idx] = True
-					if debug: tqdm.write(f'{color.WARNING}Compute stall{f" for head {head_idx + 1}" if len(compute_op) > 1 else ""}: all resources are busy{color.ENDC}')
+					if debug: 
+						tqdm.write(f'{color.WARNING}Compute stall{f" for head {head_idx + 1}" if len(compute_op) > 1 else ""}: all resources are busy{color.ENDC}')
+						new_stalls[5] = max(1, new_stalls[5] + 1)
 
 				required_in_buffer_stall = False
 				for head_op in head_ops:
@@ -425,6 +442,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 						if not accelerator.activation_buffer.data_in_buffer(data_name) and not accelerator.weight_buffer.data_in_buffer(data_name):
 							compute_stall[head_idx] = True
 							required_in_buffer_stall = True
+							new_stalls[6] = max(1, new_stalls[6] + 1)
 							break
 				
 				if debug and required_in_buffer_stall: tqdm.write(f'{color.WARNING}Compute stall{f" for head {head_idx + 1}" if len(compute_op) > 1 else ""}: {data_name} required in buffer{color.ENDC}')
@@ -440,8 +458,11 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy = accelerator.process_cycle(memory_ops, compute_ops, ops_to_set_required + compute_op)
 		accelerator.cycle += 1
 
+		# Update stalls
+		stalls = [stalls[i] + new_stalls[i] for i in range(7)]
+
 		# Log energy values for each cycle 
-		if DO_LOGGING: logs = log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
+		if DO_LOGGING: logs = log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, stalls, logs_dir, accelerator, plot_steps)
 
 		if debug:
 			mac_lane_utilization, ln_utilization, sftm_utilization, activation_buffer_utilization, weight_buffer_utilization, mask_buffer_utilization = get_utilization(accelerator)
@@ -455,7 +476,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 		if accelerator.cycle % plot_steps == 0:
 			# Plot utilization of the accelerator
-			accelerator.plot_utilization(utilization_dir)
+			accelerator.plot_utilization(os.path.join(logs_dir, 'utilization'))
 
 			# Plot metrics
 			if DO_LOGGING: plot_metrics(logs_dir, constants)
@@ -472,7 +493,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 				accelerator.cycle += min_cycles
 
-				if DO_LOGGING: logs = log_metrics(logs, (0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, logs_dir, accelerator, plot_steps)
+				stalls = [stalls[i] + (new_stalls[i] * min_cycles) for i in range(7)]
+
+				if DO_LOGGING: logs = log_metrics(logs, (0, 0), activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, stalls, logs_dir, accelerator, plot_steps)
 				continue
 
 		memory_op_idx, ops_done = update_op_idx(memory_ops, memory_op_idx, memory_stall, memory_ops_batch_size, ops_done)
@@ -516,13 +539,8 @@ if __name__ == '__main__':
 	parser.add_argument('--logs_dir',
 		metavar='',
 		type=str,
-		default='./logs/',
-		help='directory to logs')
-	parser.add_argument('--utilization_dir',
-		metavar='',
-		type=str,
-		default='./logs/utilization/',
-		help='directory to store utlization plots')
+		default='./results/bert_tiny/',
+		help='directory to store results')
 	parser.add_argument('--debug',
 		dest='debug',
 		help='print debugging statements',
@@ -556,8 +574,7 @@ if __name__ == '__main__':
 		print(f'{color.WARNING}Plotting steps set to 1 in debugging mode{color.ENDC}')
 
 	if os.path.exists(args.logs_dir) and OVERWRITE_LOGS: shutil.rmtree(args.logs_dir)
-	if os.path.exists(args.utilization_dir) and OVERWRITE_LOGS: shutil.rmtree(args.utilization_dir)
-	os.makedirs(os.path.join(args.logs_dir, 'metrics'))
+	os.makedirs(os.path.join(args.logs_dir, 'metrics')); os.makedirs(os.path.join(args.logs_dir, 'utilization'))
 
-	main(model_dict, config, constants, design_space, args.logs_dir, args.plot_steps, args.utilization_dir, args.debug)
+	main(model_dict, config, constants, design_space, args.logs_dir, args.plot_steps, args.debug)
 
