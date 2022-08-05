@@ -19,6 +19,8 @@ import numpy as np
 from utils.run_glue import main as run_glue
 from utils.run_squad import main as run_squad
 from utils import run_squad_legacy
+import time
+import platform
 
 from load_all_glue_datasets import main as load_all_glue_datasets
 from datasets import load_dataset, load_metric
@@ -42,9 +44,30 @@ GLUE_TASKS = ['cola', 'mnli', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnl
 MAX_K = {'sst2': 512, 'squad_v2': 384}
 
 
-def get_training_args(output_dir, task):
-
-	if task == 'sst2':
+def get_training_args(output_dir, task, throughput_test=None):
+	if throughput_test is not None:
+		if throughput_test == 'cpu':
+			training_args = f'--model_name_or_path {output_dir} \
+				--task_name sst2 \
+				--do_eval \
+				--logging_steps 50 \
+				--max_seq_length 512 \
+				--overwrite_output_dir \
+				--per_device_eval_batch_size 64 \
+				--max_val_samples 256 \
+				--no_cuda \
+				--output_dir {output_dir}'
+		else:
+			training_args = f'--model_name_or_path {output_dir} \
+			--task_name sst2 \
+			--do_eval \
+			--logging_steps 50 \
+			--max_seq_length 512 \
+			--overwrite_output_dir \
+			--per_device_eval_batch_size 64 \
+			--max_val_samples 256 \
+			--output_dir {output_dir}'
+	elif task == 'sst2':
 		training_args = f'--model_name_or_path {output_dir} \
 			--task_name sst2 \
 			--do_eval \
@@ -85,10 +108,6 @@ def main(args):
 	"""Dynamic pruning front-end function"""
 	assert args.task in ['sst2', 'squad_v2'], 'Only the SST2 and SQuAD v2 tasks are supported right now'
 	assert args.model_name in ['bert-tiny', 'bert-base'], 'Only BERT-Tiny and BERT-Base are supported right now'
-
-	output_dir = os.path.join('./results/' if USE_NON_PRUNED else './results/nn_pruning/', f'{args.model_name}_{args.task}_{"dp" if args.max_pruning_threshold > 0 else "top-k"}{"_wp" if args.prune_weights else ""}')
-
-	print(f'Output directory: {output_dir}')
 
 	# Load all GLUE datasets
 	load_all_glue_datasets()
@@ -149,6 +168,71 @@ def main(args):
 				model.save_pretrained('./models/bert-tiny-squad_v2/')
 			tokenizer = BertTokenizer.from_pretrained('./models/bert-tiny-squad_v2/')
 			model = DPBertForQuestionAnswering.from_pretrained('./models/bert-tiny-squad_v2/')
+
+	if args.throughput_test is not None:
+		assert args.task == 'sst2', 'Only SST-2 task supported for throughput test'
+
+		output_dir = f'./results/throughput/{args.model_name}_{args.throughput_test}'
+		os.makedirs(output_dir, exist_ok=True)
+
+		# Set p and k for 30% activation sparsity
+		cases = [(0.01, 512), (0, 16)]
+
+		results = []
+		if os.path.exists(os.path.join(output_dir, 'results.json')):
+			results = json.load(open(os.path.join(output_dir, 'results.json')))
+
+		for p, k in cases:
+			print(f'Running inference with pruning threshold: {p}, and \'k\': {k}')
+			result = {'pruning_threshold': p, 'k': k}
+
+			# Make new output directory
+			temp_dir = os.path.join(output_dir, f'threshold_p{str(p)[2:]}_k{int(k)}')
+			if p in [result['pruning_threshold'] for result in results] and k in [result['k'] for result in results]:
+				print(f'Results already stored')
+				continue
+
+			# Load and save tokenizer
+			temp_tokenizer = tokenizer
+			if args.model_name == 'bert-base' and not USE_NON_PRUNED:
+				temp_tokenizer = tokenizer_wp
+			temp_tokenizer.save_pretrained(temp_dir)
+
+			# Initialize and save given model
+			temp_model = model
+			if args.model_name == 'bert-base' and not USE_NON_PRUNED:
+				temp_model = model_wp
+			temp_model.save_pretrained(temp_dir)
+
+			# Load and save new config
+			config = BertConfig.from_pretrained(temp_dir)
+			config.pruning_threshold = p
+			config.k = k
+			config.sparsity_file = None
+			config.save_pretrained(temp_dir)
+
+			# Load model
+			temp_model = DPBertForSequenceClassification.from_pretrained(temp_dir)
+
+			# Run evaluation on the SST-2 task or the SQuAD task
+			training_args = get_training_args(temp_dir, args.task, args.throughput_test)
+			start_time = time.time()
+			metrics = run_glue(training_args)
+			end_time = time.time()
+			print(metrics)
+
+			result['throughput'] = 256 / (end_time - start_time)
+			print(f'Throughput: {256 / (end_time - start_time)} seq/sec')
+
+			results.append(result)
+			json.dump(results, open(os.path.join(output_dir, 'results.json'), 'w+'))
+
+		return
+
+
+	output_dir = os.path.join('./results/' if USE_NON_PRUNED else './results/nn_pruning/', f'{args.model_name}_{args.task}_{"dp" if args.max_pruning_threshold > 0 else "top-k"}{"_wp" if args.prune_weights else ""}')
+
+	print(f'Output directory: {output_dir}')
 
 	os.makedirs(output_dir, exist_ok=True)
 	results = []
@@ -241,7 +325,7 @@ def main(args):
 		if os.path.exists(config.sparsity_file): 
 			os.rename(config.sparsity_file, os.path.join(temp_dir, 'weight_sparsity.json'))
 
-		# Run evaluation on the SST-2 task
+		# Run evaluation on the SST-2 task or the SQuAD task
 		training_args = get_training_args(temp_dir, args.task)
 		metrics = run_glue(training_args) if args.task == 'sst2' else run_squad_legacy.evaluate(training_args, temp_model, tokenizer)
 		print(metrics)
@@ -311,7 +395,13 @@ if __name__ == '__main__':
 		help='maximum \'k\' in top-k pruning')
 	parser.add_argument('--prune_weights',
 		dest='prune_weights',
-		action='store_true')
+		action='store_true',
+		help='to prune weights of the model')
+	parser.add_argument('--throughput_test',
+		metavar='',
+		type=str,
+		default=None,
+		help='target platform for throughput test (overrides other flags)')
 	parser.set_defaults(prune_weights=False)
 
 	args = parser.parse_args()
