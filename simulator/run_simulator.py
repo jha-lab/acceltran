@@ -295,20 +295,20 @@ def plot_metrics(logs_dir, constants):
 	plt.close()
 
 
-def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, debug=False):
+def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, plot_utilization=True, first_layer_only=False, debug=False):
 	"""Run a model_dict on an Accelerator object"""
 
 	# Check if configuration is valid
-	check_config(config, design_space)
+	if not debug: check_config(config, design_space)
 
 	# Instantiate accelerator baesd on given configuration
 	accelerator = Accelerator(config, constants)
 	print(f'{color.GREEN}Accelerator area: {accelerator.area / 1e6 : 0.03f} mm\u00b2{color.ENDC}')
 	
 	# Get tiled ops from model dictionary
-	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, tile_compute_ops=config['scheduler']['compute_ops']['tiled'], tile_memory_ops=config['scheduler']['memory_ops']['tiled'], debug=debug)
+	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, tile_compute_ops=config['scheduler']['compute_ops']['tiled'], tile_memory_ops=config['scheduler']['memory_ops']['tiled'], first_layer_only=first_layer_only, debug=debug)
 
-	assert type(memory_ops[2]) == list and type(compute_ops[0]) == list
+	assert type(memory_ops[1]) == list and type(compute_ops[0]) == list
 	memory_op_idx, compute_op_idx, ops_done = [0, []], [0, [0] * len(compute_ops[0])], 0
 
 	# Get operation batch sizes
@@ -461,6 +461,8 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		# Update stalls
 		stalls = [stalls[i] + new_stalls[i] for i in range(7)]
 
+		tqdm.write(f'weight buffer process cycles: {accelerator.weight_buffer.process_cycles}')
+
 		# Log energy values for each cycle 
 		if DO_LOGGING: logs = log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, stalls, logs_dir, accelerator, plot_steps)
 
@@ -476,7 +478,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 
 		if accelerator.cycle % plot_steps == 0:
 			# Plot utilization of the accelerator
-			accelerator.plot_utilization(os.path.join(logs_dir, 'utilization'))
+			if plot_utilization: accelerator.plot_utilization(os.path.join(logs_dir, 'utilization'))
 
 			# Plot metrics
 			if DO_LOGGING: plot_metrics(logs_dir, constants)
@@ -484,7 +486,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		if memory_op_idx[0] is not None and memory_op_idx[0] < len(memory_ops) and  all([stall for stall in memory_stall if stall is not None]) and all([stall for stall in compute_stall if stall is not None]) and accelerator.all_resources_free():
 			cycles_list = [process_cycles for process_cycles in [accelerator.activation_buffer.process_cycles, accelerator.weight_buffer.process_cycles, accelerator.mask_buffer.process_cycles] if process_cycles not in [0, None]]
 			min_cycles = min(cycles_list) if cycles_list else 0
-			min_cycles = min(plot_steps, min_cycles)
+			min_cycles = min(plot_steps - accelerator.cycle % plot_steps - 1, min_cycles)
 
 			if min_cycles > 1:
 				activation_buffer_energy = accelerator.activation_buffer.process_cycle(min_cycles)
@@ -541,11 +543,19 @@ if __name__ == '__main__':
 		type=str,
 		default='./results/bert_tiny/',
 		help='directory to store results')
+	parser.add_argument('--do_not_plot_utilization',
+		dest='plot_utilization',
+		help='do not plot accelerator utilization',
+		action='store_false')
+	parser.add_argument('--first_layer_only',
+		dest='first_layer_only',
+		help='only simulate the first layer',
+		action='store_true')
 	parser.add_argument('--debug',
 		dest='debug',
 		help='print debugging statements',
 		action='store_true')
-	parser.set_defaults(debug=DEBUG)
+	parser.set_defaults(debug=DEBUG, plot_utilization=True, first_layer_only=False)
 
 	args = parser.parse_args()
 
@@ -576,5 +586,5 @@ if __name__ == '__main__':
 	if os.path.exists(args.logs_dir) and OVERWRITE_LOGS: shutil.rmtree(args.logs_dir)
 	os.makedirs(os.path.join(args.logs_dir, 'metrics')); os.makedirs(os.path.join(args.logs_dir, 'utilization'))
 
-	main(model_dict, config, constants, design_space, args.logs_dir, args.plot_steps, args.debug)
+	main(model_dict, config, constants, design_space, args.logs_dir, args.plot_steps, args.plot_utilization, args.first_layer_only, args.debug)
 
