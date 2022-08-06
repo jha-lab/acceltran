@@ -14,17 +14,16 @@ SEQ_LENGTH = 512
 VOCAB_SIZE = 30522
 
 
-def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops=False, debug=False):
+def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops=False, first_layer_only=False, debug=False):
 	"""Convert model dictionary to software compute operations"""
 	assert 'p' not in model_dict.keys(), 'Only model dictionaries in FlexiBERT 2.0 are supported'
 
 	batch_size = config['batch_size']
 
 	ops = []
-	ops.append(MemoryLoadOp('word_emb', config, (VOCAB_SIZE, model_dict['h'][0]), 'weight'))
-	ops.append(MemoryLoadOp('pos_emb', config, (SEQ_LENGTH, model_dict['h'][0]), 'weight'))
+	ops.append(MemoryLoadOp('emb', config, (VOCAB_SIZE + SEQ_LENGTH, model_dict['h'][0]), 'weight'))
 
-	for layer in range(model_dict['l']):
+	for layer in range(model_dict['l'] if not first_layer_only else 1):
 		layer_hidden_size = model_dict['h'][layer]
 		multihead_ops = []
 		for i, attention_head in enumerate(model_dict['o'][layer]):
