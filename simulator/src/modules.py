@@ -24,6 +24,7 @@ class Module(object):
 		self.area = area
 		self.clock_frequency = clock_frequency
 		self.process_cycles = None 
+		self.buffer_energy = 0
 		self.ready = True
 
 	def process_cycle(self):
@@ -33,9 +34,12 @@ class Module(object):
 			self.process_cycles -= 1
 			self.ready = False
 
+		submodule_dynamic_energy, submodule_leakage_energy = 0, 0
+
 		for member in inspect.getmembers(self):
 			if isinstance(member, Module):
-				member.process_cycle()
+				dyn, leak = member.process_cycle()
+				submodule_dynamic_energy += dyn; submodule_leakage_energy += leak
 				if not member.ready: self.ready = False
 
 		if self.ready and self.assigned_op is not None:
@@ -44,7 +48,7 @@ class Module(object):
 		if self.ready:
 			return (0, 0) # if not used, the module is power-gated resulting in no leakage power
 		else:
-			return (self.dynamic_power / self.clock_frequency, self.leakage_power / self.clock_frequency) # unit: nJ
+			return (self.dynamic_power / self.clock_frequency + submodule_dynamic_energy + self.buffer_energy, self.leakage_power / self.clock_frequency + submodule_leakage_energy) # unit: nJ
 
 
 class Dataflow(Module):
@@ -106,9 +110,12 @@ class FIFO(Module):
 		self.depth = constants['fifo']['depth']
 		self.assigned_op = None
 		self.b, self.i, self.j, self.k = None, None, None, None
+		self.access_energy = constants['activation_buffer']['energy'] * math.sqrt(config['activation_buffer_size'])
+		self.block_size = constants['activation_buffer']['block_size']
 
 	def assign_op(self, op):
 		self.process_cycles = 0
+		self.buffer_energy = 0
 
 		same_prev_op = False
 		if self.assigned_op is not None and op.op_name[:op.op_name.find('_b')] == self.assigned_op.op_name[:self.assigned_op.op_name.find('_b')]:
@@ -122,8 +129,10 @@ class FIFO(Module):
 			k = int(re.search('k([0-9]+)', op.op_name).group()[1:])
 			if not (self.b == b and self.i == i and self.k == k) or not same_prev_op:
 				self.process_cycles += math.ceil(math.prod(op.input_1_size) * (1 - self.activation_sparsity) / self.depth)
-			if not (self.b == b and self.i == i and self.k == k) or not same_prev_op:
+				self.buffer_energy += self.access_energy * math.prod(op.input_1_size) / self.block_size 
+			if not (self.b == b and self.k == k and self.j == j) or not same_prev_op:
 				self.process_cycles += math.ceil(math.prod(op.input_2_size) * (1 - self.activation_sparsity) / self.depth)
+				self.buffer_energy += self.access_energy * math.prod(op.input_2_size) / self.block_size 
 			self.b, self.i, self.j, self.k = b, i, j, k
 		elif isinstance(op, Conv1DTiledOp):
 			b = int(re.search('b([0-9]+)', op.op_name).group()[1:])
@@ -131,17 +140,23 @@ class FIFO(Module):
 			j = int(re.search('j([0-9]+)', op.op_name).group()[1:])
 			if not (self.b == b and self.i == i and self.j == j):
 				self.process_cycles += math.ceil(math.prod(op.input_size) * (1 - self.activation_sparsity) / self.depth)
+				self.buffer_energy += self.access_energy * math.prod(op.input_size) / self.block_size 
 				if not same_prev_op:
 					self.process_cycles += math.ceil(op.kernel_size / self.depth)
+					self.buffer_energy += self.access_energy * math.prod(op.kernel_size) / self.block_size 
 			self.b, self.i, self.j, self.k = b, i, j, None
 		else:
 			if isinstance(op, (NonLinearityOp, NonLinearityTiledOp, LayerNormOp, LayerNormTiledOp, SoftmaxOp, SoftmaxTiledOp, )):
 				self.process_cycles += math.ceil(math.prod(op.input_size) * (1 - self.activation_sparsity) / self.depth)
+				self.buffer_energy += self.access_energy * math.prod(op.input_size) / self.block_size 
 			else:
 				self.process_cycles += math.ceil(op.num_muls * (1 - self.activation_sparsity) / self.depth)
+				self.buffer_energy += self.access_energy * math.prod(op.num_muls) / self.block_size
 			self.b, self.i, self.j, self.k = None, None, None, None
 
 		self.ready = False
+
+		self.buffer_energy = self.buffer_energy / self.process_cycles
 
 		self.assigned_op = op
 
