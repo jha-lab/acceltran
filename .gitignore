@@ -1,6 +1,10 @@
 # Repo-spcific directories
 simulator/results/
-simulator/job_scripts/
+simulator/job_scripts/exploration/
+simulator/job_scripts/sparsity/
+simulator/job_scripts/dataflow/
+simulator/job_scripts/*.slurm
+simulator/job_scripts/*.out
 simulator/config/dataflow/
 simulator/config/exploration/
 simulator/constants/sparsity/
