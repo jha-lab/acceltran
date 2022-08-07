@@ -1,0 +1,41 @@
+# Configuration for an instance accelerator in the AccelTran design space
+
+tile:
+  tile_b: 1
+  tile_x: 16
+  tile_y: 16
+
+non_linearity: 'gelu'
+
+pe: 512
+
+lanes_per_pe: 32
+
+mac_per_lane: 16
+
+softmax_per_pe: 32
+
+batch_size: 4
+
+activation_buffer_size: 64
+
+weight_buffer_size: 96
+
+mask_buffer_size: 16
+
+loop_unrolling: 'b_i_j_k'
+
+main_memory:
+  type: 'rram'
+  mode: 'hb'
+  banks: 32
+  ranks: 2
+  channels: 1
+
+scheduler:
+  compute_ops:
+    tiled: True
+    batch_size: 128
+  memory_ops:
+    tiled: False
+    batch_size: 1
