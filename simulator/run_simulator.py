@@ -365,6 +365,9 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 				# Get corresponding data object
 				data = head_op.convert_to_data()
 
+				# Word and position embeddings are always required in buffer
+				if 'emb' in head_op.op_name: data.required_in_buffer = True
+
 				last_compute_done, store_op = True, False
 				if isinstance(head_op, (MemoryStoreOp, MemoryStoreTiledOp)): 
 					if head_op.op_name in last_compute_ops:
@@ -461,8 +464,6 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		# Update stalls
 		stalls = [stalls[i] + new_stalls[i] for i in range(7)]
 
-		tqdm.write(f'weight buffer process cycles: {accelerator.weight_buffer.process_cycles}')
-
 		# Log energy values for each cycle 
 		if DO_LOGGING: logs = log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, stalls, logs_dir, accelerator, plot_steps)
 
@@ -504,6 +505,11 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 		compute_op_idx, ops_done = update_op_idx(compute_ops, compute_op_idx, compute_stall, compute_ops_batch_size, ops_done)
 
 		memory_op, compute_op = get_op_list(memory_ops, memory_op_idx, memory_ops_batch_size), get_op_list(compute_ops, compute_op_idx, compute_ops_batch_size)
+
+	# Save remaining logs
+	if DO_LOGGING: 
+		json.dump(logs, open(os.path.join(logs_dir, 'metrics', f'logs_{accelerator.cycle}.json'), 'w+'))
+		plot_metrics(logs_dir, constants)
 
 	pbar.close()
 	print(f'{color.GREEN}Finished simulation{color.ENDC}')
