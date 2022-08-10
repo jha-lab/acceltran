@@ -272,10 +272,11 @@ def plot_metrics(logs_dir, constants):
 		logs_metrics['stalls'].extend(logs_temp['stalls'])
 
 	fig, (ax_power, ax_utilization) = plt.subplots(2, 1)
-	ln1 = ax_power.plot(logs_metrics['cycle'], np.convolve([pe_energy[0] * constants['clock_frequency'] / 1000 for pe_energy in logs_metrics['total_pe_energy']], np.ones(64)/64, 'same'), color='b', linestyle='-', label='PEs (dynamic)')
+	moving_avg = min([64, len(logs_metrics['cycle'])])
+	ln1 = ax_power.plot(logs_metrics['cycle'], np.convolve([pe_energy[0] * constants['clock_frequency'] / 1000 for pe_energy in logs_metrics['total_pe_energy']], np.ones(moving_avg)/moving_avg, 'same'), color='b', linestyle='-', label='PEs (dynamic)')
 	ln2 = ax_power.plot(logs_metrics['cycle'], [pe_energy[1] * constants['clock_frequency'] / 1000 for pe_energy in logs_metrics['total_pe_energy']], color='tab:blue', linestyle='--', label='PEs (leakage)') 
 	ax_mem_power = ax_power.twinx()
-	ln3 = ax_mem_power.plot(logs_metrics['cycle'], [(logs_metrics['activation_buffer_energy'][i][0] + logs_metrics['weight_buffer_energy'][i][0] + logs_metrics['mask_buffer_energy'][i][0]) * constants['clock_frequency'] / 1000 for i in range(len(logs_metrics['cycle']))], color='tab:grey', label='Buffers + RRAM')
+	ln3 = ax_mem_power.plot(logs_metrics['cycle'], [(logs_metrics['activation_buffer_energy'][i][0] + logs_metrics['weight_buffer_energy'][i][0] + logs_metrics['mask_buffer_energy'][i][0]) * constants['clock_frequency'] / 1000 for i in range(len(logs_metrics['cycle']))], color='tab:grey', label='Buffers Main mem.')
 	# ln4 = ax_mem_power.plot(logs_metrics['cycle'], [(logs_metrics['activation_buffer_energy'][i][1] + logs_metrics['weight_buffer_energy'][i][1] + logs_metrics['mask_buffer_energy'][i][1]) * constants['clock_frequency'] / 1000 for i in range(len(logs_metrics['cycle']))], 'k--', label='Buffers + RRAM (leakage)')
 	lns = ln1 + ln2 + ln3
 	labs = [ln.get_label() for ln in lns]
@@ -287,7 +288,7 @@ def plot_metrics(logs_dir, constants):
 
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['mac_lane_utilization']], color='tab:blue', linestyle='-', label='MAC Lanes')
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['ln_utilization']], color='tab:purple', linestyle='-', label='Layer-norm')
-	ax_utilization.plot(logs_metrics['cycle'], np.convolve([util * 100.0 for util in logs_metrics['sftm_utilization']], np.ones(64)/64, 'same'), color='tab:green', linestyle='-', label='Softmax')
+	ax_utilization.plot(logs_metrics['cycle'], np.convolve([util * 100.0 for util in logs_metrics['sftm_utilization']], np.ones(moving_avg)/moving_avg, 'same'), color='tab:green', linestyle='-', label='Softmax')
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['activation_buffer_utilization']], 'k-', label='Activation Buffer')
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['weight_buffer_utilization']], 'k--', label='Weight Buffer')
 	ax_utilization.plot(logs_metrics['cycle'], [util * 100.0 for util in logs_metrics['mask_buffer_utilization']], color='grey', label='Mask Buffer')
