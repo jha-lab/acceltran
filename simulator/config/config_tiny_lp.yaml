@@ -1,0 +1,41 @@
+# Configuration for an instance accelerator in the AccelTran design space
+
+tile:
+  tile_b: 1
+  tile_x: 16
+  tile_y: 16
+
+non_linearity: 'gelu'
+
+pe: 64
+
+lanes_per_pe: 16
+
+mac_per_lane: 16
+
+softmax_per_pe: 4
+
+batch_size: 4
+
+activation_buffer_size: 4
+
+weight_buffer_size: 8
+
+mask_buffer_size: 1
+
+loop_unrolling: 'b_i_j_k'
+
+main_memory:
+  type: 'dram' # cheap and low power LP-DDR3 memory 
+  mode: 'lb'
+  banks: 32
+  ranks: 2
+  channels: 1
+
+scheduler:
+  compute_ops:
+    tiled: True
+    batch_size: 2
+  memory_ops:
+    tiled: False
+    batch_size: 1
