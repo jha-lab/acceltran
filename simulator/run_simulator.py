@@ -277,7 +277,6 @@ def plot_metrics(logs_dir, constants):
 	ln2 = ax_power.plot(logs_metrics['cycle'], [pe_energy[1] * constants['clock_frequency'] / 1000 for pe_energy in logs_metrics['total_pe_energy']], color='tab:blue', linestyle='--', label='PEs (leakage)') 
 	ax_mem_power = ax_power.twinx()
 	ln3 = ax_mem_power.plot(logs_metrics['cycle'], [(logs_metrics['activation_buffer_energy'][i][0] + logs_metrics['weight_buffer_energy'][i][0] + logs_metrics['mask_buffer_energy'][i][0]) * constants['clock_frequency'] / 1000 for i in range(len(logs_metrics['cycle']))], color='tab:grey', label='Buffers Main mem.')
-	# ln4 = ax_mem_power.plot(logs_metrics['cycle'], [(logs_metrics['activation_buffer_energy'][i][1] + logs_metrics['weight_buffer_energy'][i][1] + logs_metrics['mask_buffer_energy'][i][1]) * constants['clock_frequency'] / 1000 for i in range(len(logs_metrics['cycle']))], 'k--', label='Buffers + RRAM (leakage)')
 	lns = ln1 + ln2 + ln3
 	labs = [ln.get_label() for ln in lns]
 	ax_power.legend(lns, labs, loc='upper left')
