@@ -91,7 +91,7 @@ weight_buffer:
   block_size: 64 # bytes
   ddr_bandwidth: 370 # in GBps
   bandwidth: 11350.98 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
-  area: 0.29410083 # um^2 per MB
+  area: 294100.83 # um^2 per MB
   energy: 0.0856588 # (0.42123 + 0.418051) / 2 * math.sqrt(<weight_buffer_size in MB> / 24) in nJ
   leakage: 210.40467 # mW per MB
 
@@ -99,7 +99,7 @@ activation_buffer:
   block_size: 64 # bytes
   ddr_bandwidth: 370 # in GBps
   bandwidth: 11350.98 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
-  area: 0.3033058333
+  area: 303305.83
   energy: 0.079275099 # (0.275546 + 0.273688) / 2 * math.sqrt(<activation_buffer_size in MB> / 12) in nJ
   leakage: 247.918667
 
@@ -107,7 +107,7 @@ mask_buffer:
   block_size: 64 # bytes
   ddr_bandwidth: 370 # in GBps
   bandwidth: 11350.98 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
-  area: 0.302565
+  area: 302565.0
   energy: 0.08200675 # (0.164271 + 0.163756) / 2 * math.sqrt(<mask_buffer_size in MB> / 4) in nJ
   leakage: 238.196
 
