@@ -17,11 +17,11 @@ softmax_per_pe: 32
 
 batch_size: 4
 
-activation_buffer_size: 64
+activation_buffer_size: 32
 
-weight_buffer_size: 96
+weight_buffer_size: 64
 
-mask_buffer_size: 16
+mask_buffer_size: 8
 
 loop_unrolling: 'b_i_j_k'
 
