@@ -36,6 +36,7 @@ class ProcessingElement(object):
 		self.area = 0
 		for mac_lane in self.mac_lanes:
 			self.area += mac_lane.area
+			self.area += mac_lane.pre_sparsity.area + mac_lane.post_sparsity.area + mac_lane.fifo.area
 		for sftm in self.softmax:
 			self.area += sftm.area
 		self.area = self.area + self.dataflow.area + self.dma.area + self.layer_norm.area
