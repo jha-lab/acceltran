@@ -118,7 +118,7 @@ main_memory:
     lb: 25.6 # in GBps
     hb: 256
   bandwidth: 
-    lb: 785.365 # ddr_bandwidth * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
+    lb: 785.365 # ddr_bandwidth * 1024 * 1024 * 1024 * (IL + FL) / clock_frequency * 1e-6
     hb: 7853.65
   energy:
     rram_16_2_2: 17.321165 # access energy in nJ
