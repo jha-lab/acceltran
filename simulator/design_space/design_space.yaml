@@ -44,7 +44,6 @@ softmax_per_pe:
   - 64
 
 batch_size:
-  - 1
   - 4
   - 16
   - 32
