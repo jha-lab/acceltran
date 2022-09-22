@@ -1,4 +1,4 @@
-# Run sparsity tests
+# Run dataflow tests
 
 import os
 import gc
