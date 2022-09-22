@@ -143,7 +143,7 @@ class FIFO(Module):
 				self.buffer_energy += self.access_energy * math.prod(op.input_size) / self.block_size 
 				if not same_prev_op:
 					self.process_cycles += math.ceil(op.kernel_size / self.depth)
-					self.buffer_energy += self.access_energy * math.prod(op.kernel_size) / self.block_size 
+					self.buffer_energy += self.access_energy * op.kernel_size / self.block_size 
 			self.b, self.i, self.j, self.k = b, i, j, None
 		else:
 			if isinstance(op, (NonLinearityOp, NonLinearityTiledOp, LayerNormOp, LayerNormTiledOp, SoftmaxOp, SoftmaxTiledOp, )):
