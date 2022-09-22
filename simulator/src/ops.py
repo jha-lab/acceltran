@@ -166,7 +166,7 @@ class Conv1DOp(Op):
 
 	Attributes:
 		input_size (tuple): size of the input matrix
-		kernel_size (tuple): size of the convolutional kernel
+		kernel_size (int): size of the convolutional kernel
 		compute_op (bool): if the operation is a compute operation (only for base operation)
 		required_in_buffer (list): list of data object names required in buffer (only for base operation which is also a compute operation)
 	"""
