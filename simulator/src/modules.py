@@ -146,7 +146,7 @@ class FIFO(Module):
 					self.buffer_energy += self.access_energy * op.kernel_size / self.block_size 
 			self.b, self.i, self.j, self.k = b, i, j, None
 		else:
-			if isinstance(op, (NonLinearityOp, NonLinearityTiledOp, LayerNormOp, LayerNormTiledOp, SoftmaxOp, SoftmaxTiledOp, )):
+			if isinstance(op, (NonLinearityOp, NonLinearityTiledOp, LayerNormOp, LayerNormTiledOp, SoftmaxOp, SoftmaxTiledOp)):
 				self.process_cycles += math.ceil(math.prod(op.input_size) * (1 - self.activation_sparsity) / self.depth)
 				self.buffer_energy += self.access_energy * math.prod(op.input_size) / self.block_size 
 			else:
@@ -156,7 +156,7 @@ class FIFO(Module):
 
 		self.ready = False
 
-		self.buffer_energy = self.buffer_energy / self.process_cycles
+		self.buffer_energy = self.buffer_energy / self.process_cycles if self.process_cycles != 0 else 0
 
 		self.assigned_op = op
 
