@@ -360,7 +360,7 @@ def main(model_dict: dict, config: dict, constants: dict, design_space: dict, lo
 			# Sort operation order to give higher priority to tasks first
 			sorted_head_ids, head_ids = [i for i in range(len(memory_op))], [i for i in range(len(memory_op))]
 			if len([op for op in memory_op if op is not None]) > 1:
-				sorted_head_ids = np.argsort(np.array(memory_op_idx[1]))
+				sorted_head_ids = np.argsort(np.array([idx for idx  in memory_op_idx[1] if idx is not None]))
 				head_ids = np.arange(len(memory_op))
 				head_ids = list(head_ids[sorted_head_ids])
 
