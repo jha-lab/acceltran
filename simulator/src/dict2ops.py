@@ -10,7 +10,7 @@ from tqdm import tqdm
 from ops import *
 
 
-SEQ_LENGTH = 512
+SEQ_LENGTH = 128
 VOCAB_SIZE = 30522
 
 
@@ -82,7 +82,7 @@ def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops
 
 	memory_ops, compute_ops = [], []
 	num_ops = 0
-	for op in tqdm(ops, desc='Tiling operations'):
+	for op in tqdm(ops, desc='Converting model to hardware operations'):
 		if isinstance(op, list):
 			memory_multihead_ops, compute_multihead_ops = [], []
 			for head_op in op:
