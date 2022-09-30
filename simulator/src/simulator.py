@@ -320,7 +320,7 @@ def simulate(model_dict: dict, config: dict, constants: dict, design_space: dict
 	memory_op, compute_op = get_op_list(memory_ops, memory_op_idx, memory_ops_batch_size), get_op_list(compute_ops, compute_op_idx, compute_ops_batch_size)
 
 	# Create logs dictionary
-	logs = {}
+	logs = {'area': accelerator.area / 1e6}
 
 	pbar = tqdm(total=num_ops)
 	pbar.set_description(f'Simulating accelerator:')
@@ -571,7 +571,7 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 	# energy['weight_buffer'] += main_memory_energy * emb_data.data_size / main_memory_block_size
 
 	# Create logs dictionary
-	logs = {}
+	logs = {'area': accelerator.area / 1e6}
 
 	pbar = tqdm(total=len(compute_ops)-1)
 	pbar.set_description(f'Simulating accelerator')
@@ -707,4 +707,6 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 
 	pbar.close()
 	print(f'{color.GREEN}Finished simulation{color.ENDC}')
+
+	return logs
 
