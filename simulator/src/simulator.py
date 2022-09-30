@@ -515,7 +515,185 @@ def simulate(model_dict: dict, config: dict, constants: dict, design_space: dict
 	print(f'{color.GREEN}Finished simulation{color.ENDC}')
 
 
+def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, plot_utilization=True, first_layer_only=False, debug=False):
+	"""Run model_dict in an approximate manner on the Accelerator object"""
 
+	# Check if configuration is valid
+	if not debug: check_config(config, design_space)
 
+	# Instantiate accelerator based on given configuration
+	accelerator = Accelerator(config, constants)
+	print(f'{color.GREEN}Accelerator area: {accelerator.area / 1e6 : 0.03f} mm\u00b2{color.ENDC}')
+	
+	# Get ops from model_dict
+	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, tile_compute_ops=False, tile_memory_ops=False, first_layer_only=first_layer_only, debug=debug)
+	print('No tiling implemented in a fast run')
 
+	assert type(memory_ops[1]) == list and type(compute_ops[0]) == list
+	memory_op_idx, compute_op_idx, ops_done = [0, []], [0, [0] * len(compute_ops[0])], 0
+	memory_fast_idx, compute_fast_idx = 1, 0
+
+	energy = {'buffer': 0, 'main_memory': 0, 'mac_lanes': [0, 0], 'softmax': [0, 0], 'layer_norm': [0 ,0], 'sparsity': [0, 0], 'others': [0, 0]}
+
+	# Current cycle
+	cycles = 0
+
+	# Set weight factors
+	weight_factor = {'activation': (constants['bits']['IL'] + constants['bits']['FL']) * (1 - constants['sparsity']['activation']), 'weight': (constants['bits']['IL'] + constants['bits']['FL']) * (1 - constants['sparsity']['weight']), 'mask': 1}
+
+	# Set buffer parameters
+	main_memory_energy = constants['main_memory']['energy'][f'{config["main_memory"]["type"]}_{config["main_memory"]["banks"]}_{config["main_memory"]["ranks"]}_{config["main_memory"]["channels"]}']
+	main_memory_bandwidth = constants['main_memory']['bandwidth'][config['main_memory']['mode']]
+	main_memory_block_size = constants['main_memory']['block_size']
+
+	# Set PE paramaters
+	clock_frequency = constants['clock_frequency']
+	num_mac_lanes = config['pe'] * config['lanes_per_pe']
+	num_macs = config['pe'] * config['lanes_per_pe'] * config['mac_per_lane']
+	num_softmax = config['pe'] * config['softmax_per_pe']
+	num_layer_norm = config['pe']
+	mac_lane_dynamic = constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['dynamic']
+	mac_lane_leakage = constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['leakage'] 
+	softmax_dynamic = constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['dynamic']
+	softmax_leakage = constants['softmax'][f'tile_{config["tile"]["tile_x"]}']['leakage']
+	layer_norm_dynamic = constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['dynamic']
+	layer_norm_leakage = constants['layer_norm'][f'tile_{config["tile"]["tile_x"]}']['leakage']
+	sparsity_dynamic = constants['pre_sparsity']['dynamic'] + constants['post_sparsity']['dynamic']
+	sparsity_leakage = constants['pre_sparsity']['leakage'] + constants['post_sparsity']['leakage']
+	others_dynamic = constants['dma']['dynamic'] + constants['fifo']['dynamic'] + constants['dataflow']['dynamic']
+	others_leakage = constants['dma']['leakage'] + constants['fifo']['leakage'] + constants['dataflow']['leakage']
+
+	# Get input embeddings into weight buffer
+	emb_data = memory_ops[0].convert_to_data()
+	accelerator.weight_buffer.can_store(emb_data)
+	cycles += math.ceil(emb_data.data_size * weight_factor['weight'] / main_memory_bandwidth)
+	# energy['weight_buffer'] += main_memory_energy * emb_data.data_size / main_memory_block_size
+
+	# Create logs dictionary
+	logs = {}
+
+	pbar = tqdm(total=len(compute_ops)-1)
+	pbar.set_description(f'Simulating accelerator:')
+
+	while memory_fast_idx < len(memory_ops) or compute_fast_idx < len(compute_ops):
+
+		# Update progress bar
+		pbar.update(compute_fast_idx - pbar.n)
+
+		if memory_fast_idx < len(memory_ops):
+			if type(memory_ops[memory_fast_idx]) == list:
+				# Find energy of all ops
+				for head in memory_ops[memory_fast_idx]:
+					for head_op in head:
+						data = head_op.convert_to_data()
+						if isinstance(head_op, MemoryStoreOp):
+							energy[f'buffer'] += constants[f'{data.data_type}_buffer']['energy'] * math.sqrt(config[f'{data.data_type}_buffer_size']) * data.data_size / constants[f'{data.data_type}_buffer']['block_size']
+						else:
+							energy[f'main_memory'] += main_memory_energy * data.data_size * (1 - constants['sparsity']['weight']) / main_memory_block_size
+			else:
+				head_op = memory_ops[memory_fast_idx]
+				data = head_op.convert_to_data()
+				if isinstance(head_op, MemoryStoreOp):
+					energy[f'buffer'] += constants[f'{data.data_type}_buffer']['energy'] * math.sqrt(config[f'{data.data_type}_buffer_size']) * data.data_size / constants[f'{data.data_type}_buffer']['block_size']
+				else:
+					energy[f'main_memory'] += main_memory_energy * data.data_size * (1 - constants['sparsity']['weight']) / main_memory_block_size
+
+		if compute_fast_idx < len(compute_ops):
+			if type(compute_ops[compute_fast_idx]) == list:
+				mac_lanes_head, softmax_head, layer_norm_head = None, None, None
+				pe_cycles = [np.inf, np.inf, np.inf]
+				head_ids = [0 for _ in range(len(compute_ops[compute_fast_idx]))]
+				while any([head_ids[i] < len(compute_ops[compute_fast_idx][i]) for i in range(len(head_ids))]):
+					for i, head_id in enumerate(head_ids):
+						if head_id == len(compute_ops[compute_fast_idx][i]): continue
+						head_op = compute_ops[compute_fast_idx][i][head_id]
+						if isinstance(head_op, (MatrixMultOp, Conv1DOp)):
+							if mac_lanes_head is None:
+								tiled_ops = head_op.tile_op()
+								mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * (1 - constants['sparsity']['activation']))
+								energy['mac_lanes'][0] += (mac_lane_dynamic * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
+								energy['mac_lanes'][1] += (mac_lane_leakage * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
+								energy['sparsity'][0] += (sparsity_dynamic * num_mac_lanes) / clock_frequency * len(tiled_ops)
+								energy['sparsity'][1] += (sparsity_leakage * num_mac_lanes) / clock_frequency * len(tiled_ops)
+								energy['others'][0] += (others_dynamic * config['pe']) / clock_frequency * len(tiled_ops)
+								energy['others'][1] += (others_leakage * config['pe']) / clock_frequency * len(tiled_ops)
+								pe_cycles[0], mac_lanes_head = mac_lanes_cycles, i
+								head_ids[i] = min(head_ids[i] + 1, len(compute_ops[compute_fast_idx][i]))
+						elif isinstance(head_op, SoftmaxOp):
+							if softmax_head is None:
+								tiled_ops = head_op.tile_op()
+								softmax_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].input_size[0] * (tiled_ops[0].input_size[0] + tiled_ops[0].input_size[1]) * (1 - constants['sparsity']['activation']) / num_softmax)
+								energy['softmax'][0] += (softmax_dynamic * num_softmax) / clock_frequency * softmax_cycles
+								energy['softmax'][1] += (softmax_leakage * num_softmax) / clock_frequency * softmax_cycles
+								pe_cycles[1], softmax_head = softmax_cycles, i
+								head_ids[i] = min(head_ids[i] + 1, len(compute_ops[compute_fast_idx][i]))
+						elif instance(head_op, LayerNormOp):
+							if layer_norm_head is not None:
+								tiled_ops = head_op.tile_op()
+								layer_norm_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].input_size[0] * (tiled_ops[0].input_size[1] + tiled_ops[0].input_size[2]) * (1 - constants['sparsity']['activation']) / num_layer_norm)
+								energy['layer_norm'][0] += (layer_norm_dynamic * num_layer_norm) / clock_frequency * layer_norm_cycles
+								energy['layer_norm'][1] += (layer_norm_leakage * num_layer_norm) / clock_frequency * layer_norm_cycles
+								pe_cycles[2], layer_norm_head = layer_norm_cycles, i
+								head_ids[i] = min(head_ids[i] + 1, len(compute_ops[compute_fast_idx][i]))
+
+					min_cycles = min(pe_cycles)
+					cycles += min_cycles
+
+					for m in range(len(pe_cycles)):
+						if pe_cycles[m] == min_cycles:
+							if m == 0:
+								mac_lanes_head = None
+							elif m == 1:
+								softmax_head = None
+							else:
+								layer_norm_head = None
+							pe_cycles[m] = np.inf
+						else:
+							pe_cycles[m] -= min_cycles
+
+					if mac_lanes_head is None:
+						assert pe_cycles[0] == np.inf
+					else:
+						assert pe_cycles[0] < np.inf
+
+					if softmax_head is None:
+						assert pe_cycles[1] == np.inf
+					else:
+						assert pe_cycles[1] < np.inf
+
+					if layer_norm_head is None:
+						assert pe_cycles[2] == np.inf
+					else:
+						assert pe_cycles[2] < np.inf
+			else:
+				head_op = compute_ops[compute_fast_idx]
+				if isinstance(head_op, MatrixMultOp):
+					mac_lanes_cycles = math.ceil(head_op.num_muls * 1.0 / num_macs * (1 - constants['sparsity']['activation']))
+					cycles += mac_lanes_cycles
+					energy['mac_lanes'][0] += (mac_lane_dynamic * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
+					energy['mac_lanes'][1] += (mac_lane_leakage * num_mac_lanes) / clock_frequency * mac_lanes_cycles
+				elif isinstance(head_op, SoftmaxOp):
+					tiled_ops = head_op.tile_op()
+					softmax_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].input_size[0] * (tiled_ops[0].input_size[0] + tiled_ops[0].input_size[1]) * (1 - constants['sparsity']['activation']) / num_softmax)
+					cycles += softmax_cycles
+					energy['softmax'][0] += (softmax_dynamic * num_softmax) / clock_frequency * softmax_cycles
+					energy['softmax'][1] += (softmax_leakage * num_softmax) / clock_frequency * softmax_cycles
+				elif isinstance(head_op, LayerNormOp):
+					tiled_ops = head_op.tile_op()
+					layer_norm_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].input_size[0] * (tiled_ops[0].input_size[1] + tiled_ops[0].input_size[2]) * (1 - constants['sparsity']['activation']) / num_layer_norm)
+					cycles += layer_norm_cycles
+					energy['layer_norm'][0] += (layer_norm_dynamic * num_layer_norm) / clock_frequency * layer_norm_cycles
+					energy['layer_norm'][1] += (layer_norm_leakage * num_layer_norm) / clock_frequency * layer_norm_cycles
+
+		memory_fast_idx = min(memory_fast_idx + 1, len(memory_ops))
+		compute_fast_idx = min(compute_fast_idx + 1, len(compute_ops))
+
+	logs = {'cycles': cycles, 'energy': energy}
+
+	# Save logs
+	if DO_LOGGING: 
+		json.dump(logs, open(os.path.join(logs_dir, 'metrics', f'logs_fast.json'), 'w+'))
+
+	pbar.close()
+	print(f'{color.GREEN}Finished simulation{color.ENDC}')
 
