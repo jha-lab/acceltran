@@ -114,7 +114,7 @@ class Buffer(object):
 			self.data_being_added = (data, 'load')
 			self.used += data.data_size * self.weight_factor
 			self.process_cycles = math.ceil(data.data_size * self.weight_factor / self.main_memory_bandwidth)
-			self.energy_per_cycle = self.main_memory_energy * data.data_size / self.main_memory_block_size / self.process_cycles
+			self.energy_per_cycle = self.main_memory_energy * data.data_size * (1 - self.weight_sparsity) / self.main_memory_block_size / self.process_cycles
 			self.ready = False
 
 		return removed_old_data
