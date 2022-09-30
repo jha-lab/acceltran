@@ -574,7 +574,7 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 	logs = {}
 
 	pbar = tqdm(total=len(compute_ops)-1)
-	pbar.set_description(f'Simulating accelerator:')
+	pbar.set_description(f'Simulating accelerator')
 
 	while memory_fast_idx < len(memory_ops) or compute_fast_idx < len(compute_ops):
 
