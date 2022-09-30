@@ -545,6 +545,7 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 	main_memory_energy = constants['main_memory']['energy'][f'{config["main_memory"]["type"]}_{config["main_memory"]["banks"]}_{config["main_memory"]["ranks"]}_{config["main_memory"]["channels"]}']
 	main_memory_bandwidth = constants['main_memory']['bandwidth'][config['main_memory']['mode']]
 	main_memory_block_size = constants['main_memory']['block_size']
+	buffer_bandwidth = {'activation': constants['activation_buffer']['bandwidth'], 'weight': constants['activation_buffer']['bandwidth']}
 
 	# Set PE paramaters
 	clock_frequency = constants['clock_frequency']
@@ -594,8 +595,11 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 				head_op = memory_ops[memory_fast_idx]
 				data = head_op.convert_to_data()
 				if isinstance(head_op, MemoryStoreOp):
+					# Add latency for sequential operations
+					cycles += math.ceil(data.data_size * weight_factor[data.data_type] / buffer_bandwidth[data.data_type])
 					energy[f'buffer'] += constants[f'{data.data_type}_buffer']['energy'] * math.sqrt(config[f'{data.data_type}_buffer_size']) * data.data_size / constants[f'{data.data_type}_buffer']['block_size']
 				else:
+					cycles += math.ceil(data.data_size * weight_factor[data.data_type] / main_memory_bandwidth)
 					energy[f'main_memory'] += main_memory_energy * data.data_size * (1 - constants['sparsity']['weight']) / main_memory_block_size
 
 		if compute_fast_idx < len(compute_ops):
@@ -607,10 +611,13 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 					for i, head_id in enumerate(head_ids):
 						if head_id == len(compute_ops[compute_fast_idx][i]): continue
 						head_op = compute_ops[compute_fast_idx][i][head_id]
-						if isinstance(head_op, (MatrixMultOp, Conv1DOp)):
+						if isinstance(head_op, (MatrixMultOp, Conv1DOp, NonLinearityOp)):
 							if mac_lanes_head is None:
 								tiled_ops = head_op.tile_op()
-								mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * (1 - constants['sparsity']['activation']))
+								if isinstance(head_op, NonLinearityOp):
+									mac_lanes_cycles = len(tiled_ops)
+								else:
+									mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * (1 - constants['sparsity']['activation']))
 								energy['mac_lanes'][0] += (mac_lane_dynamic * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
 								energy['mac_lanes'][1] += (mac_lane_leakage * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
 								energy['sparsity'][0] += (sparsity_dynamic * num_mac_lanes) / clock_frequency * len(tiled_ops)
@@ -622,7 +629,7 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 						elif isinstance(head_op, SoftmaxOp):
 							if softmax_head is None:
 								tiled_ops = head_op.tile_op()
-								softmax_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].input_size[0] * (tiled_ops[0].input_size[0] + tiled_ops[0].input_size[1]) * (1 - constants['sparsity']['activation']) / num_softmax)
+								softmax_cycles = math.ceil(len(tiled_ops) * config['tile']['tile_b'] * (tiled_ops[0].input_size[0] + tiled_ops[0].input_size[1]) * (1 - constants['sparsity']['activation']) / num_softmax)
 								energy['softmax'][0] += (softmax_dynamic * num_softmax) / clock_frequency * softmax_cycles
 								energy['softmax'][1] += (softmax_leakage * num_softmax) / clock_frequency * softmax_cycles
 								pe_cycles[1], softmax_head = softmax_cycles, i
@@ -667,14 +674,18 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 						assert pe_cycles[2] < np.inf
 			else:
 				head_op = compute_ops[compute_fast_idx]
-				if isinstance(head_op, MatrixMultOp):
-					mac_lanes_cycles = math.ceil(head_op.num_muls * 1.0 / num_macs * (1 - constants['sparsity']['activation']))
+				if isinstance(head_op, (MatrixMultOp, Conv1DOp, NonLinearityOp)):
+					tiled_ops = head_op.tile_op()
+					if isinstance(head_op, NonLinearityOp):
+						mac_lanes_cycles = len(tiled_ops)
+					else:
+						mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * (1 - constants['sparsity']['activation']))
 					cycles += mac_lanes_cycles
 					energy['mac_lanes'][0] += (mac_lane_dynamic * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
 					energy['mac_lanes'][1] += (mac_lane_leakage * num_mac_lanes) / clock_frequency * mac_lanes_cycles
 				elif isinstance(head_op, SoftmaxOp):
 					tiled_ops = head_op.tile_op()
-					softmax_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].input_size[0] * (tiled_ops[0].input_size[0] + tiled_ops[0].input_size[1]) * (1 - constants['sparsity']['activation']) / num_softmax)
+					softmax_cycles = math.ceil(len(tiled_ops) * config['tile']['tile_b'] * (tiled_ops[0].input_size[0] + tiled_ops[0].input_size[1]) * (1 - constants['sparsity']['activation']) / num_softmax)
 					cycles += softmax_cycles
 					energy['softmax'][0] += (softmax_dynamic * num_softmax) / clock_frequency * softmax_cycles
 					energy['softmax'][1] += (softmax_leakage * num_softmax) / clock_frequency * softmax_cycles
