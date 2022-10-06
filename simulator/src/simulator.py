@@ -699,7 +699,7 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 		memory_fast_idx = min(memory_fast_idx + 1, len(memory_ops))
 		compute_fast_idx = min(compute_fast_idx + 1, len(compute_ops))
 
-	logs = {'cycles': cycles, 'energy': energy}
+	logs.update({'cycles': cycles, 'energy': energy})
 
 	# Save logs
 	if DO_LOGGING: 
