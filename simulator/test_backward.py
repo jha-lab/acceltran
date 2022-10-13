@@ -37,10 +37,20 @@ def main():
 
 	op = SelfAttentionOp('test', config, input_size=(4, 128, 768), hidden_size=64, type='wma')
 
-	# Test forward operation creation
+	# Test forward and backward operation creation
 	op.convert_to_fwd_base_ops()
+	op.convert_to_bwd_base_ops()
 
-	# Test backward pass
+	op = ConvOp('test', config, input_size=(4, 128, 768), hidden_size=64, kernel_size=5)
+
+	# Test forward and backward operation creation
+	op.convert_to_fwd_base_ops()
+	op.convert_to_bwd_base_ops()
+
+	op = FeedForwardOp('test', config, input_size=(4, 128, 768), hidden_size=1024)
+
+	# Test forward and backward operation creation
+	op.convert_to_fwd_base_ops()
 	op.convert_to_bwd_base_ops()
 	
 
