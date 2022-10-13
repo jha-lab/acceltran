@@ -752,7 +752,7 @@ class FeedForwardOp(Op):
 		self.ff_weight_size = (self.input_size[0], self.input_size[2], self.hidden_size)
 		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_f-l', self.config, self.ff_weight_size, 'weight'))
 
-		ff_op = MatrixMultOp(f'{self.op_name}_f', self.config, [f'{self.op_name}_f-l'], self.input_size, self.ff_size)
+		ff_op = MatrixMultOp(f'{self.op_name}_f', self.config, [f'{self.op_name}_f-l'], self.input_size, self.ff_weight_size)
 		self.fwd_base_ops.append(ff_op)
 
 		ff_size = ff_op.output_size()
@@ -765,7 +765,7 @@ class FeedForwardOp(Op):
 		self.bwd_base_ops = []
 
 		# Incoming gradients are assumed to be in the activation buffer
-		del_f_size = (self.input_size[0], self.input_size[1], self.ff_size[2])
+		del_f_size = (self.input_size[0], self.input_size[1], self.ff_weight_size[2])
 
 		if not self.fwd_base_ops: self.convert_to_base_ops()
 
