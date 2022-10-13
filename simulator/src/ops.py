@@ -494,7 +494,7 @@ class SelfAttentionOp(Op):
 		key_op = MatrixMultOp(f'{self.op_name}_k[wgt]', self.config, [f'{self.op_name}_k[del]'], Op.transpose_size(self.input_size), del_key_size)
 		self.bwd_base_ops.append(key_op)
 
-		assert self.weight == key_op.output_size()
+		assert self.weight_size == key_op.output_size()
 
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_k[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
 
@@ -507,7 +507,6 @@ class SelfAttentionOp(Op):
 		value_op = MatrixMultOp(f'{self.op_name}_v[wgt]', self.config, [f'{self.op_name}_v[del]'], Op.transpose_size(self.input_size), del_value_size)
 		self.bwd_base_ops.append(value_op)
 
-		assert self.weight == value_op.output_size()
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_v[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
 
 	def tile_fwd_ops(self, tile_memory_ops=False):
@@ -595,8 +594,8 @@ class ConvOp(Op):
 		# Size of the gradients should match the input
 		output_grad_size = self.input_size
 
-		conv_op = Conv1DOp(f'{self.op_name}_c[wgt]', self.config, [], output_grad_size, self.input_size)
-		self.bwd_base_ops.append(con_op)
+		conv_op = Conv1DOp(f'{self.op_name}_c[wgt]', self.config, [], output_grad_size, self.input_size[1])
+		self.bwd_base_ops.append(conv_op)
 
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_c[wgt]-s', self.config, self.conv_matrix_size, 'weight', overwrite=True))
 
