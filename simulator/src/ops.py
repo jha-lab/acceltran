@@ -15,6 +15,9 @@ class Op(object):
 		# List of data names required in buffer for the current operation
 		self.required_in_buffer = [] 
 
+	def __repr__(self):
+		return self.op_name
+
 	@staticmethod
 	def transpose_size(matrix_size):
 		return (matrix_size[0], matrix_size[2], matrix_size[1])
@@ -404,7 +407,7 @@ class SelfAttentionOp(Op):
 		"""Convert operation to backward base operations"""
 		self.bwd_base_ops = []
 
-		if not self.fwd_base_ops: self.convert_to_base_ops()
+		if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
 
 		# Incoming gradients are assumed to be in the activation buffer
 		del_out_size = (self.sdp_2_size[0], self.sdp_2_size[1], self.output_size[2])
@@ -509,47 +512,30 @@ class SelfAttentionOp(Op):
 
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_v[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
 
-	def tile_fwd_ops(self, tile_memory_ops=False):
+	def tile_op(self, direction, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
-			self.tiled_fwd_ops (list): list of tiled base ops
+			self.tiled_ops (list): list of tiled base ops
 		"""
-		if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
+		if direction == 'fwd':
+			if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
+			base_ops = self.fwd_base_ops
+		else:
+			if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
+			base_ops = self.bwd_base_ops
 
-		self.tiled_fwd_ops = []
-		for op in self.fwd_base_ops:
+		self.tiled_ops = []
+		for op in base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_ops: 
-					self.tiled_fwd_ops.extend(op.tile_op())
-					# TODO: implement tiled required_in_buffer for compute operations
+					self.tile_op.extend(op.tile_op())
 				else:
-					self.tiled_fwd_ops.append(op)
+					self.tile_op.append(op)
 			else:
-				self.tiled_fwd_ops.extend(op.tile_op())
+				self.tile_op.extend(op.tile_op())
 
-		return self.tiled_fwd_ops
-
-	def tile_bwd_ops(self, tile_memory_ops=False):
-		"""Implement tiled operations
-
-		Returns:
-			self.tiled_bwd_ops (list): list of tiled base ops
-		"""
-		if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
-
-		self.tiled_bwd_ops = []
-		for op in self.fwd_base_ops:
-			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_ops: 
-					self.tiled_bwd_ops.extend(op.tile_op())
-					# TODO: implement tiled required_in_buffer for compute operations
-				else:
-					self.tiled_bwd_ops.append(op)
-			else:
-				self.tiled_bwd_ops.extend(op.tile_op())
-
-		return self.tiled_bwd_ops
+		return self.tiled_ops
 
 
 class ConvOp(Op):
@@ -589,7 +575,7 @@ class ConvOp(Op):
 		"""Convert operation to backward base operations"""
 		self.bwd_base_ops = []
 
-		if not self.fwd_base_ops: self.convert_to_base_ops()
+		if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
 
 		# Size of the gradients should match the input
 		output_grad_size = self.input_size
@@ -599,47 +585,30 @@ class ConvOp(Op):
 
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_c[wgt]-s', self.config, self.conv_matrix_size, 'weight', overwrite=True))
 
-	def tile_fwd_ops(self, tile_memory_ops=False):
+	def tile_op(self, direction, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
-			self.tiled_fwd_ops (list): list of tiled base ops
+			self.tiled_ops (list): list of tiled base ops
 		"""
-		if not self.fwd_base_ops: self.convert_to_base_ops()
+		if direction == 'fwd':
+			if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
+			base_ops = self.fwd_base_ops
+		else:
+			if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
+			base_ops = self.bwd_base_ops
 
-		self.tiled_fwd_ops = []
-		for op in self.fwd_base_ops:
+		self.tiled_ops = []
+		for op in base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_ops: 
-					self.tiled_fwd_ops.extend(op.tile_op())
+					self.tile_op.extend(op.tile_op())
 				else:
-					self.tiled_fwd_ops.append(op)
+					self.tile_op.append(op)
 			else:
-				self.tiled_fwd_ops.extend(op.tile_op())
+				self.tile_op.extend(op.tile_op())
 
-		return self.tiled_fwd_ops
-
-	def tile_bwd_ops(self, tile_memory_ops=False):
-		"""Implement tiled operations
-
-		Returns:
-			self.tiled_bwd_ops (list): list of tiled base ops
-		"""
-		if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
-
-		self.tiled_bwd_ops = []
-		for op in self.fwd_base_ops:
-			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_ops: 
-					self.tiled_bwd_ops.extend(op.tile_op())
-					# TODO: implement tiled required_in_buffer for compute operations
-				else:
-					self.tiled_bwd_ops.append(op)
-			else:
-				self.tiled_bwd_ops.extend(op.tile_op())
-
-		return self.tiled_bwd_ops
-
+		return self.tiled_ops
 
 class LinearTransformOp(Op):
 	"""Linear transformation operation
@@ -681,51 +650,34 @@ class LinearTransformOp(Op):
 		"""Convert operation to backward base operations"""
 		self.bwd_base_ops = []
 
-		if not self.fwd_base_ops: self.convert_to_base_ops()
+		if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
 
 		# No learning in linear transform
 
-	def tile_fwd_ops(self, tile_memory_ops=False):
+	def tile_op(self, direction, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
-			self.tiled_fwd_ops (list): list of tiled base ops
+			self.tiled_ops (list): list of tiled base ops
 		"""
-		if not self.fwd_base_ops: self.convert_to_base_ops()
+		if direction == 'fwd':
+			if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
+			base_ops = self.fwd_base_ops
+		else:
+			if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
+			base_ops = self.bwd_base_ops
 
-		self.tiled_fwd_ops = []
-		for op in self.fwd_base_ops:
+		self.tiled_ops = []
+		for op in base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_ops: 
-					self.tiled_fwd_ops.extend(op.tile_op())
+					self.tile_op.extend(op.tile_op())
 				else:
-					self.tiled_fwd_ops.append(op)
+					self.tile_op.append(op)
 			else:
-				self.tiled_fwd_ops.extend(op.tile_op())
+				self.tile_op.extend(op.tile_op())
 
-		return self.tiled_fwd_ops
-
-	def tile_bwd_ops(self, tile_memory_ops=False):
-		"""Implement tiled operations
-
-		Returns:
-			self.tiled_bwd_ops (list): list of tiled base ops
-		"""
-		if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
-
-		self.tiled_bwd_ops = []
-		for op in self.fwd_base_ops:
-			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_ops: 
-					self.tiled_bwd_ops.extend(op.tile_op())
-					# TODO: implement tiled required_in_buffer for compute operations
-				else:
-					self.tiled_bwd_ops.append(op)
-			else:
-				self.tiled_bwd_ops.extend(op.tile_op())
-
-		return self.tiled_bwd_ops
-
+		return self.tiled_ops
 
 class FeedForwardOp(Op):
 	"""Feed-forward neural network operation
@@ -764,10 +716,11 @@ class FeedForwardOp(Op):
 		"""Convert operation to backward base operations"""
 		self.bwd_base_ops = []
 
+		if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
+
 		# Incoming gradients are assumed to be in the activation buffer
 		del_f_size = (self.input_size[0], self.input_size[1], self.ff_weight_size[2])
 
-		if not self.fwd_base_ops: self.convert_to_base_ops()
 
 		# Get weight update matrix (del_W = x_[i-1].T * del_i)
 		ff_op = MatrixMultOp(f'{self.op_name}_f[wgt]', self.config, [], Op.transpose_size(self.input_size), del_f_size)
@@ -777,44 +730,28 @@ class FeedForwardOp(Op):
 
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_f[wgt]-s', self.config, self.ff_weight_size, 'weight', overwrite=True))
 
-	def tile_fwd_ops(self, tile_memory_ops=False):
+	def tile_op(self, direction, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
-			self.tiled_fwd_ops (list): list of tiled base ops
+			self.tiled_ops (list): list of tiled base ops
 		"""
-		if not self.fwd_base_ops: self.convert_to_base_ops()
+		if direction == 'fwd':
+			if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
+			base_ops = self.fwd_base_ops
+		else:
+			if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
+			base_ops = self.bwd_base_ops
 
-		self.tiled_fwd_ops = []
-		for op in self.fwd_base_ops:
+		self.tiled_ops = []
+		for op in base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_ops: 
-					self.tiled_fwd_ops.extend(op.tile_op())
+					self.tile_op.extend(op.tile_op())
 				else:
-					self.tiled_fwd_ops.append(op)
+					self.tile_op.append(op)
 			else:
-				self.tiled_fwd_ops.extend(op.tile_op())
+				self.tile_op.extend(op.tile_op())
 
-		return self.tiled_fwd_ops
-
-	def tile_bwd_ops(self, tile_memory_ops=False):
-		"""Implement tiled operations
-
-		Returns:
-			self.tiled_bwd_ops (list): list of tiled base ops
-		"""
-		if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
-
-		self.tiled_bwd_ops = []
-		for op in self.fwd_base_ops:
-			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_ops: 
-					self.tiled_bwd_ops.extend(op.tile_op())
-					# TODO: implement tiled required_in_buffer for compute operations
-				else:
-					self.tiled_bwd_ops.append(op)
-			else:
-				self.tiled_bwd_ops.extend(op.tile_op())
-
-		return self.tiled_bwd_ops
+		return self.tiled_ops
 
