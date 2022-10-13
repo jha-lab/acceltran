@@ -15,16 +15,19 @@ class Op(object):
 		# List of data names required in buffer for the current operation
 		self.required_in_buffer = [] 
 
-	def transpose_size(self, matrix_size):
+	@staticmethod
+	def transpose_size(matrix_size):
 		return (matrix_size[0], matrix_size[2], matrix_size[1])
 
 
 class Data(object):
 	"""Class for a generic data block"""
-	def __init__(self, data_name, data_size, data_type):
+	def __init__(self, data_name, data_size, data_type, preloaded=True, overwrite=False):
 		self.data_name = data_name
 		self.data_size = data_size
 		self.data_type = data_type
+		self.preloaded = preloaded
+		self.overwrite = overwrite
 		self.required_in_buffer = False
 
 
@@ -35,16 +38,18 @@ class MemoryLoadOp(Op):
 		input_size (tuple): size of the input matrix to be loaded
 		data_type (str): type of data to fetch in ['activation', 'weight']
 		compute_op (bool): if the operation is a compute operation (only for base operation)
+		preloaded (bool): if the weight matrix is preloaded (for throughput calculation)
 	"""
-	def __init__(self, op_name, config, input_size, data_type):
+	def __init__(self, op_name, config, input_size, data_type, preloaded=True):
 		Op.__init__(self, op_name, config)
 		self.input_size = input_size
 		self.data_type = data_type
+		self.preloaded = preloaded
 		self.compute_op = False
 		self.base_op = True
 
 	def convert_to_data(self):
-		return Data(data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type)
+		return Data(data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type, preloaded=self.preloaded)
 
 	def tile_op(self):
 		"""Tile a memory load operation
@@ -64,16 +69,18 @@ class MemoryStoreOp(Op):
 		input_size (tuple): size of the input matrix to be loaded
 		data_type (str): type of data to fetch in ['activation', 'weight']
 		compute_op (bool): if the operation is a compute operation (only for base operation)
+		overwrite (bool): if an activation/weight is being overwridden
 	"""
-	def __init__(self, op_name, config, input_size, data_type):
+	def __init__(self, op_name, config, input_size, data_type, overwrite=False):
 		Op.__init__(self, op_name, config)
 		self.input_size = input_size
 		self.data_type = data_type
+		self.overwrite = overwrite
 		self.compute_op = False
 		self.base_op = True
 
 	def convert_to_data(self):
-		return Data(data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type)
+		return Data(data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type, overwrite=self.overwrite)
 
 	def tile_op(self):
 		"""Tile a memory load operation
@@ -307,112 +314,243 @@ class SelfAttentionOp(Op):
 		self.input_size = input_size
 		self.hidden_size = hidden_size
 		self.type = type
-		self.base_ops = []
+		self.fwd_base_ops = []
+		self.bwd_base_ops = []
 
-	def convert_to_base_ops(self):
-		"""Convert operation to base operations"""
-		self.base_ops = []
+	def convert_to_fwd_base_ops(self):
+		"""Convert operation to forward base operations"""
+		self.fwd_base_ops = []
 
-		# Input activations are assumed to be in the activation buffer
-		## self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp-l', self.config, self.input_size, 'activation'))
+		# Input activations are assumed to be in the activation buffer for throughput calculation (i.e., only loaded once)
+		## self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_inp-l', self.config, self.input_size, 'activation'))
 
 		# Load weight matrices
-		weight_size = (self.input_size[0], self.input_size[2], self.hidden_size)
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_q-l', self.config, weight_size, 'weight'))
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_k-l', self.config, weight_size, 'weight'))
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_v-l', self.config, weight_size, 'weight'))
+		self.weight_size = (self.input_size[0], self.input_size[2], self.hidden_size)
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_q-l', self.config, self.weight_size, 'weight'))
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_k-l', self.config, self.weight_size, 'weight'))
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_v-l', self.config, self.weight_size, 'weight'))
 
 		# Get query, key, and value matrices
-		query_op = MatrixMultOp(f'{self.op_name}_q', self.config, [f'{self.op_name}_q-l'], self.input_size, weight_size)
-		key_op = MatrixMultOp(f'{self.op_name}_k', self.config, [f'{self.op_name}_k-l'], self.input_size, weight_size)
-		value_op = MatrixMultOp(f'{self.op_name}_v', self.config, [f'{self.op_name}_v-l'], self.input_size, weight_size)
+		query_op = MatrixMultOp(f'{self.op_name}_q', self.config, [f'{self.op_name}_q-l'], self.input_size, self.weight_size)
+		key_op = MatrixMultOp(f'{self.op_name}_k', self.config, [f'{self.op_name}_k-l'], self.input_size, self.weight_size)
+		value_op = MatrixMultOp(f'{self.op_name}_v', self.config, [f'{self.op_name}_v-l'], self.input_size, self.weight_size)
 
-		self.base_ops.extend([query_op, key_op, value_op])
+		self.fwd_base_ops.extend([query_op, key_op, value_op])
 
-		query_size, key_size, value_size = query_op.output_size(), key_op.output_size(), value_op.output_size()
+		self.query_size, self.key_size, self.value_size = query_op.output_size(), key_op.output_size(), value_op.output_size()
 
-		key_transposed_size = self.transpose_size(key_size)
+		self.key_transposed_size = Op.transpose_size(self.key_size)
 
 		# Store key, query and value matrices in buffer
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_q-s', self.config, query_size, 'activation'))
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_k-s', self.config, key_size, 'activation'))
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_v-s', self.config, value_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_q-s', self.config, self.query_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_k-s', self.config, self.key_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_v-s', self.config, self.value_size, 'activation'))
 
 		# Implement weighted multiplicative attention
 		if self.type == 'wma':
-			wma_size = (key_transposed_size[0], key_transposed_size[1], key_transposed_size[1])
-			self.base_ops.append(MemoryLoadOp(f'{self.op_name}_wma-l', self.config, wma_size, 'weight'))
+			self.wma_size = (self.key_transposed_size[0], self.key_transposed_size[1], self.key_transposed_size[1])
+			self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_wma-l', self.config, self.wma_size, 'weight'))
 
-			mult_key_op = MatrixMultOp(f'{self.op_name}_wma', self.config, [f'{self.op_name}_wma-l', f'{self.op_name}_k-s', f'{self.op_name}_q-s', f'{self.op_name}_v-s'],  wma_size, key_transposed_size)
-			self.base_ops.append(mult_key_op)
+			mult_key_op = MatrixMultOp(f'{self.op_name}_wma', self.config, [f'{self.op_name}_wma-l', f'{self.op_name}_k-s', f'{self.op_name}_q-s', f'{self.op_name}_v-s'],  self.wma_size, self.key_transposed_size)
+			self.fwd_base_ops.append(mult_key_op)
 
 			# Store key matrix in buffer onto the same old position
-			self.base_ops.append(MemoryStoreOp(f'{self.op_name}_k-s', self.config, key_size, 'activation'))
+			self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_k-s', self.config, self.key_size, 'activation'))
 
-			mult_key_size = mult_key_op.output_size()
+			self.mult_key_size = mult_key_op.output_size()
 
-			assert mult_key_size == key_transposed_size
+			assert self.mult_key_size == self.key_transposed_size
 		else:
-			mult_key_size = key_transposed_size
+			self.mult_key_size = self.key_transposed_size
 
 		# Implement scaled dot-product
-		sdp_1_op = MatrixMultOp(f'{self.op_name}_sdp-qk', self.config, [f'{self.op_name}_q-s', f'{self.op_name}_k-s', f'{self.op_name}_v-s'], query_size, mult_key_size)
-		self.base_ops.append(sdp_1_op)
+		sdp_1_op = MatrixMultOp(f'{self.op_name}_sdp-qk', self.config, [f'{self.op_name}_q-s', f'{self.op_name}_k-s', f'{self.op_name}_v-s'], self.query_size, self.mult_key_size)
+		self.fwd_base_ops.append(sdp_1_op)
 
-		sdp_1_size = sdp_1_op.output_size()
+		self.sdp_1_size = sdp_1_op.output_size()
 
 		# Store scaled dot-product output
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp-qk-s', self.config, sdp_1_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp-qk-s', self.config, self.sdp_1_size, 'activation'))
 
 		# Implement softmax function
-		self.base_ops.append(SoftmaxOp(f'{self.op_name}_sftm', self.config, [f'{self.op_name}_sdp-qk-s', f'{self.op_name}_v-s'], sdp_1_size))
+		self.fwd_base_ops.append(SoftmaxOp(f'{self.op_name}_sftm', self.config, [f'{self.op_name}_sdp-qk-s', f'{self.op_name}_v-s'], self.sdp_1_size))
 
 		# Store sotfmax output
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_sftm-s', self.config, sdp_1_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_sftm-s', self.config, self.sdp_1_size, 'activation'))
 
 		# Multiply with value matrix
-		sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v', self.config, [f'{self.op_name}_v-s', f'{self.op_name}_sftm-s'],  sdp_1_size, value_size)
-		self.base_ops.append(sdp_2_op)
+		sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v', self.config, [f'{self.op_name}_v-s', f'{self.op_name}_sftm-s'],  self.sdp_1_size, self.value_size)
+		self.fwd_base_ops.append(sdp_2_op)
 
-		sdp_2_size = sdp_2_op.output_size()
+		self.sdp_2_size = sdp_2_op.output_size()
 
 		# Store value matrix multiplication output
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp-v-s', self.config, sdp_2_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp-v-s', self.config, self.sdp_2_size, 'activation'))
 
 		# Multiply with output matrix
-		out_weight_size = (self.input_size[0], self.hidden_size, self.input_size[2])
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_o-l', self.config, out_weight_size, 'weight'))
+		self.out_weight_size = (self.input_size[0], self.hidden_size, self.input_size[2])
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_o-l', self.config, self.out_weight_size, 'weight'))
 
-		out_op = MatrixMultOp(f'{self.op_name}_o', self.config, [f'{self.op_name}_o-l', f'{self.op_name}_sdp-v-s'], sdp_2_size, out_weight_size)
-		self.base_ops.append(out_op)
+		out_op = MatrixMultOp(f'{self.op_name}_o', self.config, [f'{self.op_name}_o-l', f'{self.op_name}_sdp-v-s'], self.sdp_2_size, self.out_weight_size)
+		self.fwd_base_ops.append(out_op)
 
-		output_size = out_op.output_size()
-		assert output_size == self.input_size
+		self.output_size = out_op.output_size()
+		assert self.output_size == self.input_size
 
 		# Store attenion-head output matrix
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_o-s', self.config, self.input_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_o-s', self.config, self.input_size, 'activation'))
 
-	# TODO: check if tiled loading would be better than loading full matrix
-	def tile_op(self, tile_memory_ops=False):
+	def convert_to_bwd_base_ops(self):
+		"""Convert operation to backward base operations"""
+		self.bwd_base_ops = []
+
+		if not self.fwd_base_ops: self.convert_to_base_ops()
+
+		# Incoming gradients are assumed to be in the activation buffer
+		del_out_size = (self.sdp_2_size[0], self.sdp_2_size[1], self.output_size[2])
+
+		# Get weight update matrix (del_W = x_[i-1].T * del_i)
+		out_op = MatrixMultOp(f'{self.op_name}_o[wgt]', self.config, [], Op.transpose_size(self.sdp_2_size), del_out_size)
+		self.bwd_base_ops.append(out_op)
+
+		assert self.out_weight_size == out_op.output_size()
+
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_o[wgt]-s', self.config, self.out_weight_size, 'weight', overwrite=True))
+
+		# Find gradient from out_op (del_i = del_[i+1] * W_[i+1].T)
+		del_sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v[del]', self.config, [f'{self.op_name}_o[wgt]'], del_out_size, Op.transpose_size(out_op.output_size())) 
+		del_sdp_2_size = del_sdp_2_op.output_size()
+		self.bwd_base_ops.append(del_sdp_2_op)
+
+		assert del_sdp_2_size == (self.sdp_1_size[0], self.sdp_1_size[1], self.value_size[2])
+
+		# Get weight update matrix for value matrix
+		sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v[wgt]', self.config, [f'{self.op_name}_sdp-v[del]'], Op.transpose_size(self.sdp_1_size), del_sdp_2_size)
+		self.bwd_base_ops.append(sdp_2_op)
+
+		assert self.value_size == sdp_2_op.output_size()
+
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp-v[wgt]-s', self.config, self.value_size, 'weight', overwrite=True))
+
+		# Find gradient from sdp_2_op towards mult_key
+		del_sdp_1_k_op = MatrixMultOp(f'{self.op_name}_sdp-qk_k[del]', self.config, [f'{self.op_name}_sdp-v[wgt]'], del_sdp_2_size, Op.transpose_size(sdp_2_op.output_size()))
+		del_sdp_1_k_size = del_sdp_1_k_op.output_size()
+		self.bwd_base_ops.append(del_sdp_1_k_op)
+
+		# Get weight update matrix for mult_key
+		sdp_1_k_op = MatrixMultOp(f'{self.op_name}_sdp_qk_k[wgt]', self.config, [f'{self.op_name}_sdp-qk_k[del]'], Op.transpose_size(self.query_size), del_sdp_1_k_size)
+		self.bwd_base_ops.append(sdp_1_k_op)
+
+		assert self.mult_key_size == sdp_1_k_op.output_size()
+
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp_qk_k[wgt]-s', self.config, self.mult_key_size, 'weight', overwrite=True))
+
+		# Find gradient from sdp_2_op towards query output 
+		del_sdp_1_q_op = MatrixMultOp(f'{self.op_name}_sdp-qk_q[del]', self.config, [f'{self.op_name}_sdp-v[wgt]'], Op.transpose_size(sdp_2_op.output_size()), del_sdp_2_size)
+		del_sdp_1_q_size = del_sdp_1_q_op.output_size()
+		self.bwd_base_ops.append(del_sdp_1_q_op)
+
+		# Get weight update matrix for the query output 
+		sdp_1_q_op = MatrixMultOp(f'{self.op_name}_sdp_qk_q[wgt]', self.config, [f'{self.op_name}_sdp-qk_q[del]'], Op.transpose_size(self.mult_key_size), del_sdp_1_q_size)
+		self.bwd_base_ops.append(sdp_1_q_op)
+
+		assert self.query_size == sdp_1_q_op.output_size()
+
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp_qk_q[wgt]-s', self.config, self.query_size, 'weight', overwrite=True))
+
+		if self.type == 'wma':
+			# Find gradient from sdp_1_op towards wma matrix
+			del_wma_op = MatrixMultOp(f'{self.op_name}_wma[del]', self.config, [f'{self.op_name}_sdp-qk_k[del]'], sdp_1_k_op.output_size(), del_sdp_1_k_size)
+			del_wma_size = del_wma_op.output_size()
+			self.bwd_base_ops.append(del_wma_op)
+
+			# Get weight update matrix for wma matrix
+			wma_op = MatrixMultOp(f'{self.op_name}_wma[wgt]', self.config, [f'{self.op_name}_wma[del]'], del_wma_size, Op.transpose_size(self.key_transposed_size))
+			self.bwd_base_ops.append(wma_op)
+
+			assert self.wma_size == wma_op.output_size()
+
+			self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_wma[wgt]-s', self.config, self.wma_size, 'weight', overwrite=True))
+
+		# Find the gradient from query output to query matrix
+		del_query_op = MatrixMultOp(f'{self.op_name}_q[del]', self.config, [f'{self.op_name}_sdp_qk_q[wgt]'], del_sdp_1_q_size, Op.transpose_size(sdp_1_q_op.output_size()))
+		del_query_size = del_query_op.output_size()
+		self.bwd_base_ops.append(del_query_op)
+
+		# Get weight update matrix for query matrix
+		query_op = MatrixMultOp(f'{self.op_name}_q[wgt]', self.config, [f'{self.op_name}_q[del]'], Op.transpose_size(self.input_size), Op.transpose_size(del_query_size))
+		self.bwd_base_ops.append(query_op)
+
+		assert self.weight_size == query_op.output_size()
+
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_q[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
+
+		# Find the gradient from query output to key matrix
+		del_key_op = MatrixMultOp(f'{self.op_name}_k[del]', self.config, [f'{self.op_name}_sdp_qk_k[wgt]'], del_sdp_1_k_size, Op.transpose_size(sdp_1_k_op.output_size()))
+		del_key_size = del_key_op.output_size()
+		self.bwd_base_ops.append(del_key_op)
+
+		# Get weight update matrix for key matrix
+		key_op = MatrixMultOp(f'{self.op_name}_k[wgt]', self.config, [f'{self.op_name}_k[del]'], Op.transpose_size(self.input_size), del_key_size)
+		self.bwd_base_ops.append(key_op)
+
+		assert self.weight == key_op.output_size()
+
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_k[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
+
+		# Find the gradient from query output to value matrix
+		del_value_op = MatrixMultOp(f'{self.op_name}_v[del]', self.config, [f'{self.op_name}_sdp_v[wgt]'], del_sdp_2_size, Op.transpose_size(sdp_2_op.output_size()))
+		del_value_size = del_value_op.output_size()
+		self.bwd_base_ops.append(del_value_op)
+
+		# Get weight update matrix for value matrix
+		value_op = MatrixMultOp(f'{self.op_name}_v[wgt]', self.config, [f'{self.op_name}_v[del]'], Op.transpose_size(self.input_size), del_value_size)
+		self.bwd_base_ops.append(value_op)
+
+		assert self.weight == value_op.output_size()
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_v[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
+
+	def tile_fwd_ops(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
-			self.tiled_ops (list): list of tiled base ops
+			self.tiled_fwd_ops (list): list of tiled base ops
 		"""
-		if not self.base_ops: self.convert_to_base_ops()
+		if not self.fwd_base_ops: self.convert_to_fwd_base_ops()
 
-		self.tiled_ops = []
-		for op in self.base_ops:
+		self.tiled_fwd_ops = []
+		for op in self.fwd_base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_ops: 
-					self.tiled_ops.extend(op.tile_op())
+					self.tiled_fwd_ops.extend(op.tile_op())
 					# TODO: implement tiled required_in_buffer for compute operations
 				else:
-					self.tiled_ops.append(op)
+					self.tiled_fwd_ops.append(op)
 			else:
-				self.tiled_ops.extend(op.tile_op())
+				self.tiled_fwd_ops.extend(op.tile_op())
 
-		return self.tiled_ops
+		return self.tiled_fwd_ops
+
+	def tile_bwd_ops(self, tile_memory_ops=False):
+		"""Implement tiled operations
+
+		Returns:
+			self.tiled_bwd_ops (list): list of tiled base ops
+		"""
+		if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
+
+		self.tiled_bwd_ops = []
+		for op in self.fwd_base_ops:
+			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
+				if tile_memory_ops: 
+					self.tiled_bwd_ops.extend(op.tile_op())
+					# TODO: implement tiled required_in_buffer for compute operations
+				else:
+					self.tiled_bwd_ops.append(op)
+			else:
+				self.tiled_bwd_ops.extend(op.tile_op())
+
+		return self.tiled_bwd_ops
 
 
 class ConvOp(Op):
@@ -428,44 +566,45 @@ class ConvOp(Op):
 		self.input_size = input_size
 		self.hidden_size = hidden_size
 		self.kernel_size = kernel_size
-		self.base_ops = []
+		self.fwd_base_ops = []
+		self.bwd_base_ops = []
 
-	def convert_to_base_ops(self):
-		"""Convert operation to base operations"""
-		self.base_ops = []
+	def convert_to_fwd_base_ops(self):
+		"""Convert operation to forward base operations"""
+		self.fwd_base_ops = []
 
 		# Input activations are assumed to be in the activation buffer
-		## self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
+		## self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load convolution matrix
 		conv_matrix_size = (self.input_size[0], self.kernel_size, self.input_size[2])
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_c-l', self.config, conv_matrix_size, 'weight'))
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_c-l', self.config, conv_matrix_size, 'weight'))
 
 		conv_op = Conv1DOp(f'{self.op_name}_c', self.config, [f'{self.op_name}_c-l'], self.input_size, self.kernel_size)
-		self.base_ops.append(conv_op)
+		self.fwd_base_ops.append(conv_op)
 
 		# Store attenion-head output matrix
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_c-s', self.config, self.input_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_c-s', self.config, self.input_size, 'activation'))
 
-	def tile_op(self, tile_memory_ops=False):
+	def tile_fwd_ops(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
-			self.tiled_ops (list): list of tiled base ops
+			self.tiled_fwd_ops (list): list of tiled base ops
 		"""
-		if not self.base_ops: self.convert_to_base_ops()
+		if not self.fwd_base_ops: self.convert_to_base_ops()
 
-		self.tiled_ops = []
-		for op in self.base_ops:
+		self.tiled_fwd_ops = []
+		for op in self.fwd_base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_ops: 
-					self.tiled_ops.extend(op.tile_op())
+					self.tiled_fwd_ops.extend(op.tile_op())
 				else:
-					self.tiled_ops.append(op)
+					self.tiled_fwd_ops.append(op)
 			else:
-				self.tiled_ops.extend(op.tile_op())
+				self.tiled_fwd_ops.extend(op.tile_op())
 
-		return self.tiled_ops
+		return self.tiled_fwd_ops
 
 
 class LinearTransformOp(Op):
@@ -481,47 +620,48 @@ class LinearTransformOp(Op):
 		self.input_size = input_size
 		self.hidden_size = hidden_size
 		self.type = type
-		self.base_ops = []
+		self.fwd_base_ops = []
+		self.bwd_base_ops = []
 
-	def convert_to_base_ops(self):
-		"""Convert operation to base operations"""
-		self.base_ops = []
+	def convert_to_fwd_base_ops(self):
+		"""Convert operation to forward base operations"""
+		self.fwd_base_ops = []
 
 		# Input activations are assumed to be in the activation buffer
-		## self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
+		## self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load Vandermonde matrix
 		vandermonde_size = (self.input_size[0], self.input_size[1], self.input_size[1])
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_l-l', self.config, vandermonde_size, 'weight'))
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_l-l', self.config, vandermonde_size, 'weight'))
 
 		lt_op = MatrixMultOp(f'{self.op_name}_l', self.config, [f'{self.op_name}_l-l'], vandermonde_size, self.input_size)
-		self.base_ops.append(lt_op)
+		self.fwd_base_ops.append(lt_op)
 
 		output_size = lt_op.output_size()
 		assert output_size == self.input_size
 
 		# Store attenion-head output matrix
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_l-s', self.config, self.input_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_l-s', self.config, self.input_size, 'activation'))
 
 	def tile_op(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
-			self.tiled_ops (list): list of tiled base ops
+			self.tiled_fwd_ops (list): list of tiled base ops
 		"""
-		if not self.base_ops: self.convert_to_base_ops()
+		if not self.fwd_base_ops: self.convert_to_base_ops()
 
-		self.tiled_ops = []
-		for op in self.base_ops:
+		self.tiled_fwd_ops = []
+		for op in self.fwd_base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_ops: 
-					self.tiled_ops.extend(op.tile_op())
+					self.tiled_fwd_ops.extend(op.tile_op())
 				else:
-					self.tiled_ops.append(op)
+					self.tiled_fwd_ops.append(op)
 			else:
-				self.tiled_ops.extend(op.tile_op())
+				self.tiled_fwd_ops.extend(op.tile_op())
 
-		return self.tiled_ops
+		return self.tiled_fwd_ops
 
 
 class FeedForwardOp(Op):
@@ -535,44 +675,45 @@ class FeedForwardOp(Op):
 		Op.__init__(self, op_name, config)
 		self.input_size = input_size
 		self.hidden_size = hidden_size
-		self.base_ops = []
+		self.fwd_base_ops = []
+		self.bwd_base_ops = []
 
-	def convert_to_base_ops(self):
-		"""Convert operation to base operations"""
-		self.base_ops = []
+	def convert_to_fwd_base_ops(self):
+		"""Convert operation to forward base operations"""
+		self.fwd_base_ops = []
 
 		# Input activations are assumed to be in the activation buffer
-		## self.base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
+		## self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load linear matrix
 		ff_size = (self.input_size[0], self.input_size[2], self.hidden_size)
-		self.base_ops.append(MemoryLoadOp(f'{self.op_name}_f-l', self.config, ff_size, 'weight'))
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_f-l', self.config, ff_size, 'weight'))
 
 		ff_op = MatrixMultOp(f'{self.op_name}_f', self.config, [f'{self.op_name}_f-l'], self.input_size, ff_size)
-		self.base_ops.append(ff_op)
+		self.fwd_base_ops.append(ff_op)
 
 		ff_size = ff_op.output_size()
 
 		# Store attenion-head output matrix
-		self.base_ops.append(MemoryStoreOp(f'{self.op_name}_f-s', self.config, ff_size, 'activation'))
+		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_f-s', self.config, ff_size, 'activation'))
 
 	def tile_op(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
-			self.tiled_ops (list): list of tiled base ops
+			self.tiled_fwd_ops (list): list of tiled base ops
 		"""
-		if not self.base_ops: self.convert_to_base_ops()
+		if not self.fwd_base_ops: self.convert_to_base_ops()
 
-		self.tiled_ops = []
-		for op in self.base_ops:
+		self.tiled_fwd_ops = []
+		for op in self.fwd_base_ops:
 			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
 				if tile_memory_ops: 
-					self.tiled_ops.extend(op.tile_op())
+					self.tiled_fwd_ops.extend(op.tile_op())
 				else:
-					self.tiled_ops.append(op)
+					self.tiled_fwd_ops.append(op)
 			else:
-				self.tiled_ops.extend(op.tile_op())
+				self.tiled_fwd_ops.extend(op.tile_op())
 
-		return self.tiled_ops
+		return self.tiled_fwd_ops
 
