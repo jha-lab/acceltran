@@ -21,7 +21,7 @@ def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops
 	batch_size = config['batch_size']
 
 	ops = []
-	ops.append(MemoryLoadOp('emb', config, (VOCAB_SIZE + SEQ_LENGTH, model_dict['h'][0]), 'weight'))
+	ops.append(MemoryLoadOp('emb', config, (VOCAB_SIZE + SEQ_LENGTH, model_dict['h'][0]), 'weight', preloaded=False))
 
 	for layer in range(model_dict['l'] if not first_layer_only else 1):
 		layer_hidden_size = model_dict['h'][layer]
