@@ -777,7 +777,7 @@ class FeedForwardOp(Op):
 
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_f[wgt]-s', self.config, self.ff_weight_size, 'weight', overwrite=True))
 
-	def tile_op(self, tile_memory_ops=False):
+	def tile_fwd_ops(self, tile_memory_ops=False):
 		"""Implement tiled operations
 
 		Returns:
@@ -796,4 +796,25 @@ class FeedForwardOp(Op):
 				self.tiled_fwd_ops.extend(op.tile_op())
 
 		return self.tiled_fwd_ops
+
+	def tile_bwd_ops(self, tile_memory_ops=False):
+		"""Implement tiled operations
+
+		Returns:
+			self.tiled_bwd_ops (list): list of tiled base ops
+		"""
+		if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
+
+		self.tiled_bwd_ops = []
+		for op in self.fwd_base_ops:
+			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
+				if tile_memory_ops: 
+					self.tiled_bwd_ops.extend(op.tile_op())
+					# TODO: implement tiled required_in_buffer for compute operations
+				else:
+					self.tiled_bwd_ops.append(op)
+			else:
+				self.tiled_bwd_ops.extend(op.tile_op())
+
+		return self.tiled_bwd_ops
 
