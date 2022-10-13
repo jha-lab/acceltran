@@ -750,16 +750,33 @@ class FeedForwardOp(Op):
 		## self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load linear matrix
-		ff_size = (self.input_size[0], self.input_size[2], self.hidden_size)
-		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_f-l', self.config, ff_size, 'weight'))
+		self.ff_weight_size = (self.input_size[0], self.input_size[2], self.hidden_size)
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_f-l', self.config, self.ff_weight_size, 'weight'))
 
-		ff_op = MatrixMultOp(f'{self.op_name}_f', self.config, [f'{self.op_name}_f-l'], self.input_size, ff_size)
+		ff_op = MatrixMultOp(f'{self.op_name}_f', self.config, [f'{self.op_name}_f-l'], self.input_size, self.ff_size)
 		self.fwd_base_ops.append(ff_op)
 
 		ff_size = ff_op.output_size()
 
 		# Store attenion-head output matrix
 		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_f-s', self.config, ff_size, 'activation'))
+
+	def convert_to_bwd_base_ops(self):
+		"""Convert operation to backward base operations"""
+		self.bwd_base_ops = []
+
+		# Incoming gradients are assumed to be in the activation buffer
+		del_f_size = (self.input_size[0], self.input_size[1], self.ff_size[2])
+
+		if not self.fwd_base_ops: self.convert_to_base_ops()
+
+		# Get weight update matrix (del_W = x_[i-1].T * del_i)
+		ff_op = MatrixMultOp(f'{self.op_name}_f[wgt]', self.config, [], Op.transpose_size(self.input_size), del_f_size)
+		self.bwd_base_ops.append(ff_op)
+
+		assert self.ff_weight_size == ff_op.output_size()
+
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_f[wgt]-s', self.config, self.ff_weight_size, 'weight', overwrite=True))
 
 	def tile_op(self, tile_memory_ops=False):
 		"""Implement tiled operations
