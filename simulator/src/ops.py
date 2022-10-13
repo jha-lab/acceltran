@@ -577,14 +577,28 @@ class ConvOp(Op):
 		## self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_inp...', self.config, self.input_size, 'activation'))
 
 		# Load convolution matrix
-		conv_matrix_size = (self.input_size[0], self.kernel_size, self.input_size[2])
-		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_c-l', self.config, conv_matrix_size, 'weight'))
+		self.conv_matrix_size = (self.input_size[0], self.kernel_size, self.input_size[2])
+		self.fwd_base_ops.append(MemoryLoadOp(f'{self.op_name}_c-l', self.config, self.conv_matrix_size, 'weight'))
 
 		conv_op = Conv1DOp(f'{self.op_name}_c', self.config, [f'{self.op_name}_c-l'], self.input_size, self.kernel_size)
 		self.fwd_base_ops.append(conv_op)
 
 		# Store attenion-head output matrix
 		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_c-s', self.config, self.input_size, 'activation'))
+
+	def convert_to_bwd_base_ops(self):
+		"""Convert operation to backward base operations"""
+		self.bwd_base_ops = []
+
+		if not self.fwd_base_ops: self.convert_to_base_ops()
+
+		# Size of the gradients should match the input
+		output_grad_size = self.input_size
+
+		conv_op = Conv1DOp(f'{self.op_name}_c[wgt]', self.config, [], output_grad_size, self.input_size)
+		self.bwd_base_ops.append(con_op)
+
+		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_c[wgt]-s', self.config, self.conv_matrix_size, 'weight', overwrite=True))
 
 	def tile_fwd_ops(self, tile_memory_ops=False):
 		"""Implement tiled operations
@@ -605,6 +619,27 @@ class ConvOp(Op):
 				self.tiled_fwd_ops.extend(op.tile_op())
 
 		return self.tiled_fwd_ops
+
+	def tile_bwd_ops(self, tile_memory_ops=False):
+		"""Implement tiled operations
+
+		Returns:
+			self.tiled_bwd_ops (list): list of tiled base ops
+		"""
+		if not self.bwd_base_ops: self.convert_to_bwd_base_ops()
+
+		self.tiled_bwd_ops = []
+		for op in self.fwd_base_ops:
+			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
+				if tile_memory_ops: 
+					self.tiled_bwd_ops.extend(op.tile_op())
+					# TODO: implement tiled required_in_buffer for compute operations
+				else:
+					self.tiled_bwd_ops.append(op)
+			else:
+				self.tiled_bwd_ops.extend(op.tile_op())
+
+		return self.tiled_bwd_ops
 
 
 class LinearTransformOp(Op):
@@ -643,25 +678,7 @@ class LinearTransformOp(Op):
 		# Store attenion-head output matrix
 		self.fwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_l-s', self.config, self.input_size, 'activation'))
 
-	def tile_op(self, tile_memory_ops=False):
-		"""Implement tiled operations
-
-		Returns:
-			self.tiled_fwd_ops (list): list of tiled base ops
-		"""
-		if not self.fwd_base_ops: self.convert_to_base_ops()
-
-		self.tiled_fwd_ops = []
-		for op in self.fwd_base_ops:
-			if isinstance(op, (MemoryLoadOp, MemoryStoreOp)):
-				if tile_memory_ops: 
-					self.tiled_fwd_ops.extend(op.tile_op())
-				else:
-					self.tiled_fwd_ops.append(op)
-			else:
-				self.tiled_fwd_ops.extend(op.tile_op())
-
-		return self.tiled_fwd_ops
+	
 
 
 class FeedForwardOp(Op):
