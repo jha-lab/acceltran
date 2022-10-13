@@ -32,7 +32,7 @@ OVERWRITE_LOGS = True
 
 def main():
 
-	config = yaml.safe_load(open('./config/config_tiny.yaml'))
+	config = yaml.safe_load(open('./config/config_base.yaml'))
 	model_dict = json.load(open('./model_dicts/bert_tiny.json'))
 
 	op = SelfAttentionOp('test', config, input_size=(4, 128, 768), hidden_size=64, type='wma')
