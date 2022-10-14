@@ -25,11 +25,10 @@ class Op(object):
 
 class Data(object):
 	"""Class for a generic data block"""
-	def __init__(self, data_name, data_size, data_type, preloaded=True, overwrite=False):
+	def __init__(self, data_name, data_size, data_type, overwrite=False):
 		self.data_name = data_name
 		self.data_size = data_size
 		self.data_type = data_type
-		self.preloaded = preloaded
 		self.overwrite = overwrite
 		self.required_in_buffer = False
 
@@ -41,18 +40,16 @@ class MemoryLoadOp(Op):
 		input_size (tuple): size of the input matrix to be loaded
 		data_type (str): type of data to fetch in ['activation', 'weight']
 		compute_op (bool): if the operation is a compute operation (only for base operation)
-		preloaded (bool): if the weight matrix is preloaded (for throughput calculation)
 	"""
-	def __init__(self, op_name, config, input_size, data_type, preloaded=True):
+	def __init__(self, op_name, config, input_size, data_type):
 		Op.__init__(self, op_name, config)
 		self.input_size = input_size
 		self.data_type = data_type
-		self.preloaded = preloaded
 		self.compute_op = False
 		self.base_op = True
 
 	def convert_to_data(self):
-		return Data(data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type, preloaded=self.preloaded)
+		return Data(data_name=self.op_name, data_size=math.prod(self.input_size), data_type=self.data_type)
 
 	def tile_op(self):
 		"""Tile a memory load operation
@@ -104,12 +101,14 @@ class MatrixMultOp(Op):
 		input_2_size (tuple): size of the input_2 matrix
 		compute_op (bool): if the operation is a compute operation (only for base operation)
 		required_in_buffer (list): list of data object names required in buffer (only for base operation which is also a compute operation)
+		mode (str): mode of operation in ['fwd', 'bwd']
 	"""
-	def __init__(self, op_name, config, required_in_buffer, input_1_size, input_2_size):
+	def __init__(self, op_name, config, required_in_buffer, input_1_size, input_2_size, mode='fwd'):
 		Op.__init__(self, op_name, config)
 		self.required_in_buffer = required_in_buffer
 		self.input_1_size = input_1_size
 		self.input_2_size = input_2_size
+		self.mode = mode
 		self.compute_op = True
 		self.base_op = True
 
@@ -166,7 +165,7 @@ class MatrixMultOp(Op):
 					for l3 in range(num_tiles[3]):
 						b, i, j, k = eval(f'l{loop_order.index("b")}'), eval(f'l{loop_order.index("i")}'), eval(f'l{loop_order.index("j")}'), eval(f'l{loop_order.index("k")}')
 						op_name = f'{self.op_name}_b{b}_i{i}_j{j}_k{k}'
-						self.tiled_ops.append(MatrixMultTiledOp(op_name, self.required_in_buffer, tile_size, tile_size))
+						self.tiled_ops.append(MatrixMultTiledOp(op_name, self.required_in_buffer, tile_size, tile_size, mode=self.mode))
 
 		return self.tiled_ops
 
@@ -180,12 +179,13 @@ class Conv1DOp(Op):
 		compute_op (bool): if the operation is a compute operation (only for base operation)
 		required_in_buffer (list): list of data object names required in buffer (only for base operation which is also a compute operation)
 	"""
-	def __init__(self, op_name, config, required_in_buffer, input_size, kernel_size, stride=1):
+	def __init__(self, op_name, config, required_in_buffer, input_size, kernel_size, stride=1, mode='fwd'):
 		Op.__init__(self, op_name, config)
 		self.required_in_buffer = required_in_buffer
 		self.input_size = input_size
 		self.kernel_size = kernel_size
 		self.stride = stride
+		self.mode = mode
 		self.compute_op = True
 		self.base_op = True
 
@@ -220,7 +220,7 @@ class Conv1DOp(Op):
 				for l2 in range(num_tiles[2]):
 					b, i, j = eval(f'l{loop_order.index("b")}'), eval(f'l{loop_order.index("i")}'), eval(f'l{loop_order.index("j")}')
 					op_name = f'{self.op_name}_b{b}_i{i}_j{j}'
-					self.tiled_ops.append(Conv1DTiledOp(op_name, self.required_in_buffer, tile_size, self.kernel_size, self.stride))
+					self.tiled_ops.append(Conv1DTiledOp(op_name, self.required_in_buffer, tile_size, self.kernel_size, self.stride, self.mode))
 
 		return self.tiled_ops
 
@@ -413,7 +413,7 @@ class SelfAttentionOp(Op):
 		del_out_size = (self.sdp_2_size[0], self.sdp_2_size[1], self.output_size[2])
 
 		# Get weight update matrix (del_W = x_[i-1].T * del_i)
-		out_op = MatrixMultOp(f'{self.op_name}_o[wgt]', self.config, [], Op.transpose_size(self.sdp_2_size), del_out_size)
+		out_op = MatrixMultOp(f'{self.op_name}_o[wgt]', self.config, [], Op.transpose_size(self.sdp_2_size), del_out_size, mode='bwd')
 		self.bwd_base_ops.append(out_op)
 
 		assert self.out_weight_size == out_op.output_size()
@@ -421,14 +421,14 @@ class SelfAttentionOp(Op):
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_o[wgt]-s', self.config, self.out_weight_size, 'weight', overwrite=True))
 
 		# Find gradient from out_op (del_i = del_[i+1] * W_[i+1].T)
-		del_sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v[del]', self.config, [f'{self.op_name}_o[wgt]'], del_out_size, Op.transpose_size(out_op.output_size())) 
+		del_sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v[del]', self.config, [f'{self.op_name}_o[wgt]'], del_out_size, Op.transpose_size(out_op.output_size()), mode='bwd') 
 		del_sdp_2_size = del_sdp_2_op.output_size()
 		self.bwd_base_ops.append(del_sdp_2_op)
 
 		assert del_sdp_2_size == (self.sdp_1_size[0], self.sdp_1_size[1], self.value_size[2])
 
 		# Get weight update matrix for value matrix
-		sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v[wgt]', self.config, [f'{self.op_name}_sdp-v[del]'], Op.transpose_size(self.sdp_1_size), del_sdp_2_size)
+		sdp_2_op = MatrixMultOp(f'{self.op_name}_sdp-v[wgt]', self.config, [f'{self.op_name}_sdp-v[del]'], Op.transpose_size(self.sdp_1_size), del_sdp_2_size, mode='bwd')
 		self.bwd_base_ops.append(sdp_2_op)
 
 		assert self.value_size == sdp_2_op.output_size()
@@ -436,12 +436,12 @@ class SelfAttentionOp(Op):
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp-v[wgt]-s', self.config, self.value_size, 'weight', overwrite=True))
 
 		# Find gradient from sdp_2_op towards mult_key
-		del_sdp_1_k_op = MatrixMultOp(f'{self.op_name}_sdp-qk_k[del]', self.config, [f'{self.op_name}_sdp-v[wgt]'], del_sdp_2_size, Op.transpose_size(sdp_2_op.output_size()))
+		del_sdp_1_k_op = MatrixMultOp(f'{self.op_name}_sdp-qk_k[del]', self.config, [f'{self.op_name}_sdp-v[wgt]'], del_sdp_2_size, Op.transpose_size(sdp_2_op.output_size()), mode='bwd')
 		del_sdp_1_k_size = del_sdp_1_k_op.output_size()
 		self.bwd_base_ops.append(del_sdp_1_k_op)
 
 		# Get weight update matrix for mult_key
-		sdp_1_k_op = MatrixMultOp(f'{self.op_name}_sdp_qk_k[wgt]', self.config, [f'{self.op_name}_sdp-qk_k[del]'], Op.transpose_size(self.query_size), del_sdp_1_k_size)
+		sdp_1_k_op = MatrixMultOp(f'{self.op_name}_sdp_qk_k[wgt]', self.config, [f'{self.op_name}_sdp-qk_k[del]'], Op.transpose_size(self.query_size), del_sdp_1_k_size, mode='bwd')
 		self.bwd_base_ops.append(sdp_1_k_op)
 
 		assert self.mult_key_size == sdp_1_k_op.output_size()
@@ -449,12 +449,12 @@ class SelfAttentionOp(Op):
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_sdp_qk_k[wgt]-s', self.config, self.mult_key_size, 'weight', overwrite=True))
 
 		# Find gradient from sdp_2_op towards query output 
-		del_sdp_1_q_op = MatrixMultOp(f'{self.op_name}_sdp-qk_q[del]', self.config, [f'{self.op_name}_sdp-v[wgt]'], Op.transpose_size(sdp_2_op.output_size()), del_sdp_2_size)
+		del_sdp_1_q_op = MatrixMultOp(f'{self.op_name}_sdp-qk_q[del]', self.config, [f'{self.op_name}_sdp-v[wgt]'], Op.transpose_size(sdp_2_op.output_size()), del_sdp_2_size, mode='bwd')
 		del_sdp_1_q_size = del_sdp_1_q_op.output_size()
 		self.bwd_base_ops.append(del_sdp_1_q_op)
 
 		# Get weight update matrix for the query output 
-		sdp_1_q_op = MatrixMultOp(f'{self.op_name}_sdp_qk_q[wgt]', self.config, [f'{self.op_name}_sdp-qk_q[del]'], Op.transpose_size(self.mult_key_size), del_sdp_1_q_size)
+		sdp_1_q_op = MatrixMultOp(f'{self.op_name}_sdp_qk_q[wgt]', self.config, [f'{self.op_name}_sdp-qk_q[del]'], Op.transpose_size(self.mult_key_size), del_sdp_1_q_size, mode='bwd')
 		self.bwd_base_ops.append(sdp_1_q_op)
 
 		assert self.query_size == sdp_1_q_op.output_size()
@@ -463,12 +463,12 @@ class SelfAttentionOp(Op):
 
 		if self.type == 'wma':
 			# Find gradient from sdp_1_op towards wma matrix
-			del_wma_op = MatrixMultOp(f'{self.op_name}_wma[del]', self.config, [f'{self.op_name}_sdp-qk_k[del]'], sdp_1_k_op.output_size(), del_sdp_1_k_size)
+			del_wma_op = MatrixMultOp(f'{self.op_name}_wma[del]', self.config, [f'{self.op_name}_sdp-qk_k[del]'], sdp_1_k_op.output_size(), del_sdp_1_k_size, mode='bwd')
 			del_wma_size = del_wma_op.output_size()
 			self.bwd_base_ops.append(del_wma_op)
 
 			# Get weight update matrix for wma matrix
-			wma_op = MatrixMultOp(f'{self.op_name}_wma[wgt]', self.config, [f'{self.op_name}_wma[del]'], del_wma_size, Op.transpose_size(self.key_transposed_size))
+			wma_op = MatrixMultOp(f'{self.op_name}_wma[wgt]', self.config, [f'{self.op_name}_wma[del]'], del_wma_size, Op.transpose_size(self.key_transposed_size), mode='bwd')
 			self.bwd_base_ops.append(wma_op)
 
 			assert self.wma_size == wma_op.output_size()
@@ -476,12 +476,12 @@ class SelfAttentionOp(Op):
 			self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_wma[wgt]-s', self.config, self.wma_size, 'weight', overwrite=True))
 
 		# Find the gradient from query output to query matrix
-		del_query_op = MatrixMultOp(f'{self.op_name}_q[del]', self.config, [f'{self.op_name}_sdp_qk_q[wgt]'], del_sdp_1_q_size, Op.transpose_size(sdp_1_q_op.output_size()))
+		del_query_op = MatrixMultOp(f'{self.op_name}_q[del]', self.config, [f'{self.op_name}_sdp_qk_q[wgt]'], del_sdp_1_q_size, Op.transpose_size(sdp_1_q_op.output_size()), mode='bwd')
 		del_query_size = del_query_op.output_size()
 		self.bwd_base_ops.append(del_query_op)
 
 		# Get weight update matrix for query matrix
-		query_op = MatrixMultOp(f'{self.op_name}_q[wgt]', self.config, [f'{self.op_name}_q[del]'], Op.transpose_size(self.input_size), Op.transpose_size(del_query_size))
+		query_op = MatrixMultOp(f'{self.op_name}_q[wgt]', self.config, [f'{self.op_name}_q[del]'], Op.transpose_size(self.input_size), Op.transpose_size(del_query_size), mode='bwd')
 		self.bwd_base_ops.append(query_op)
 
 		assert self.weight_size == query_op.output_size()
@@ -489,12 +489,12 @@ class SelfAttentionOp(Op):
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_q[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
 
 		# Find the gradient from query output to key matrix
-		del_key_op = MatrixMultOp(f'{self.op_name}_k[del]', self.config, [f'{self.op_name}_sdp_qk_k[wgt]'], del_sdp_1_k_size, Op.transpose_size(sdp_1_k_op.output_size()))
+		del_key_op = MatrixMultOp(f'{self.op_name}_k[del]', self.config, [f'{self.op_name}_sdp_qk_k[wgt]'], del_sdp_1_k_size, Op.transpose_size(sdp_1_k_op.output_size()), mode='bwd')
 		del_key_size = del_key_op.output_size()
 		self.bwd_base_ops.append(del_key_op)
 
 		# Get weight update matrix for key matrix
-		key_op = MatrixMultOp(f'{self.op_name}_k[wgt]', self.config, [f'{self.op_name}_k[del]'], Op.transpose_size(self.input_size), del_key_size)
+		key_op = MatrixMultOp(f'{self.op_name}_k[wgt]', self.config, [f'{self.op_name}_k[del]'], Op.transpose_size(self.input_size), del_key_size, mode='bwd')
 		self.bwd_base_ops.append(key_op)
 
 		assert self.weight_size == key_op.output_size()
@@ -502,12 +502,12 @@ class SelfAttentionOp(Op):
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_k[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
 
 		# Find the gradient from query output to value matrix
-		del_value_op = MatrixMultOp(f'{self.op_name}_v[del]', self.config, [f'{self.op_name}_sdp_v[wgt]'], del_sdp_2_size, Op.transpose_size(sdp_2_op.output_size()))
+		del_value_op = MatrixMultOp(f'{self.op_name}_v[del]', self.config, [f'{self.op_name}_sdp_v[wgt]'], del_sdp_2_size, Op.transpose_size(sdp_2_op.output_size()), mode='bwd')
 		del_value_size = del_value_op.output_size()
 		self.bwd_base_ops.append(del_value_op)
 
 		# Get weight update matrix for value matrix
-		value_op = MatrixMultOp(f'{self.op_name}_v[wgt]', self.config, [f'{self.op_name}_v[del]'], Op.transpose_size(self.input_size), del_value_size)
+		value_op = MatrixMultOp(f'{self.op_name}_v[wgt]', self.config, [f'{self.op_name}_v[del]'], Op.transpose_size(self.input_size), del_value_size, mode='bwd')
 		self.bwd_base_ops.append(value_op)
 
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_v[wgt]-s', self.config, self.weight_size, 'weight', overwrite=True))
@@ -580,7 +580,7 @@ class ConvOp(Op):
 		# Size of the gradients should match the input
 		output_grad_size = self.input_size
 
-		conv_op = Conv1DOp(f'{self.op_name}_c[wgt]', self.config, [], output_grad_size, self.input_size[1])
+		conv_op = Conv1DOp(f'{self.op_name}_c[wgt]', self.config, [], output_grad_size, self.input_size[1], mode='bwd')
 		self.bwd_base_ops.append(conv_op)
 
 		self.bwd_base_ops.append(MemoryStoreOp(f'{self.op_name}_c[wgt]-s', self.config, self.conv_matrix_size, 'weight', overwrite=True))
@@ -721,9 +721,8 @@ class FeedForwardOp(Op):
 		# Incoming gradients are assumed to be in the activation buffer
 		del_f_size = (self.input_size[0], self.input_size[1], self.ff_weight_size[2])
 
-
 		# Get weight update matrix (del_W = x_[i-1].T * del_i)
-		ff_op = MatrixMultOp(f'{self.op_name}_f[wgt]', self.config, [], Op.transpose_size(self.input_size), del_f_size)
+		ff_op = MatrixMultOp(f'{self.op_name}_f[wgt]', self.config, [], Op.transpose_size(self.input_size), del_f_size, mode='bwd')
 		self.bwd_base_ops.append(ff_op)
 
 		assert self.ff_weight_size == ff_op.output_size()
