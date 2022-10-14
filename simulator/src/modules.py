@@ -185,8 +185,20 @@ class PostSparsity(Module):
 		self.assigned_op = op
 
 
-class MACLane(Module):
+class StochasticRounding(Module):
 	def __init__(self, module_name, config, constants):
+		Module.__init__(self, module_name, constants['stochastic_rounding']['dynamic'], constants['stochastic_rounding']['leakage'], constants['stochastic_rounding']['area'], constants['clock_frequency'])
+		self.assigned_op = None
+
+	def assign_op(self, op):
+		self.process_cycles = 1
+		self.ready = False
+
+		self.assigned_op = op
+
+
+class MACLane(Module):
+	def __init__(self, module_name, config, constants, mode='inference'):
 		Module.__init__(self, module_name, constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['dynamic'], constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['leakage'], constants['lane'][f'mac_per_lane_{config["mac_per_lane"]}'][config['non_linearity']]['area'], constants['clock_frequency'])
 		self.num_macs = config['mac_per_lane']
 		self.activation_sparsity = constants['sparsity']['activation']
@@ -194,10 +206,14 @@ class MACLane(Module):
 		self.gradient_sparsity = constants['sparsity']['gradient']
 		self.overlap_factor = constants['overlap_factor']
 		self.assigned_op = None
+		self.mode = mode
 
 		self.fifo = FIFO(f'{self.module_name}_fifo', config, constants)
 		self.pre_sparsity = PreSparsity(f'{self.module_name}_pre-s', config, constants)
 		self.post_sparsity = PostSparsity(f'{self.module_name}_post-s', config, constants)
+
+		if self.mode == 'training':
+			self.stochastic_rounding = StochasticRounding(f'{self.module_name}_sr', config, constants)
 
 	def assign_op(self, op):
 		if isinstance(op, (NonLinearityOp, NonLinearityTiledOp)):
@@ -212,4 +228,7 @@ class MACLane(Module):
 		self.fifo.assign_op(op)
 		self.pre_sparsity.assign_op(op)
 		self.post_sparsity.assign_op(op)
+
+		if self.mode == 'training':
+			self.stochastic_rounding.assign_op(op)
 
