@@ -191,6 +191,7 @@ class MACLane(Module):
 		self.num_macs = config['mac_per_lane']
 		self.activation_sparsity = constants['sparsity']['activation']
 		self.weight_sparsity = constants['sparsity']['weight']
+		self.gradient_sparsity = constants['sparsity']['gradient']
 		self.overlap_factor = constants['overlap_factor']
 		self.assigned_op = None
 
@@ -202,7 +203,8 @@ class MACLane(Module):
 		if isinstance(op, (NonLinearityOp, NonLinearityTiledOp)):
 			self.process_cycles = 1
 		else:
-			self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs * (1 - self.activation_sparsity))
+			sparsity = (1 - self.activation_sparsity) if op.mode == 'fwd' else (1 - self.gradient_sparsity)
+			self.process_cycles = math.ceil(op.num_muls * 1.0 / self.num_macs * sparsity)
 		self.ready = False
 
 		self.assigned_op = op
