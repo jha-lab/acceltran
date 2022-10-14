@@ -564,8 +564,8 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 	others_dynamic = constants['dma']['dynamic'] + constants['fifo']['dynamic'] + constants['dataflow']['dynamic']
 	others_leakage = constants['dma']['leakage'] + constants['fifo']['leakage'] + constants['dataflow']['leakage']
 	if mode == 'training':
-		others_dynamic += constants['stochastic_rounds']['dynamic']
-		others_leakage += constants['stochastic_rounds']['leakage']
+		others_dynamic += constants['stochastic_rounding']['dynamic']
+		others_leakage += constants['stochastic_rounding']['leakage']
 
 	# Get input embeddings into weight buffer
 	emb_data = memory_ops[0].convert_to_data()
