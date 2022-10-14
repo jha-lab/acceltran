@@ -126,6 +126,7 @@ class Buffer(object):
 		if self.data_in_buffer(data):
 			self.process_cycles = 0
 		else:
+			if data.overwrite: data.data_size = 0
 			for d in self.data:
 				if self.used + data.data_size * self.weight_factor <= self.buffer_size:
 					break
