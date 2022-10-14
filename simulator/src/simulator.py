@@ -295,18 +295,18 @@ def plot_metrics(logs_dir, constants):
 	plt.close()
 
 
-def simulate(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, plot_utilization=True, first_layer_only=False, debug=False):
+def simulate(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, mode='inference', plot_utilization=True, first_layer_only=False, debug=False):
 	"""Run a model_dict on an Accelerator object"""
 
 	# Check if configuration is valid
 	if not debug: check_config(config, design_space)
 
 	# Instantiate accelerator based on given configuration
-	accelerator = Accelerator(config, constants)
+	accelerator = Accelerator(config, constants, mode)
 	print(f'{color.GREEN}Accelerator area: {accelerator.area / 1e6 : 0.03f} mm\u00b2{color.ENDC}')
 	
 	# Get tiled ops from model dictionary
-	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, tile_compute_ops=config['scheduler']['compute_ops']['tiled'], tile_memory_ops=config['scheduler']['memory_ops']['tiled'], first_layer_only=first_layer_only, debug=debug)
+	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, mode=mode, tile_compute_ops=config['scheduler']['compute_ops']['tiled'], tile_memory_ops=config['scheduler']['memory_ops']['tiled'], first_layer_only=first_layer_only, debug=debug)
 
 	assert type(memory_ops[1]) == list and type(compute_ops[0]) == list
 	memory_op_idx, compute_op_idx, ops_done = [0, []], [0, [0] * len(compute_ops[0])], 0
@@ -515,18 +515,18 @@ def simulate(model_dict: dict, config: dict, constants: dict, design_space: dict
 	print(f'{color.GREEN}Finished simulation{color.ENDC}')
 
 
-def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, plot_utilization=True, first_layer_only=False, debug=False):
+def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, mode='inference', plot_utilization=True, first_layer_only=False, debug=False):
 	"""Run model_dict in an approximate manner on the Accelerator object"""
 
 	# Check if configuration is valid
 	if not debug: check_config(config, design_space)
 
 	# Instantiate accelerator based on given configuration
-	accelerator = Accelerator(config, constants)
+	accelerator = Accelerator(config, constants, mode)
 	print(f'{color.GREEN}Accelerator area: {accelerator.area / 1e6 : 0.03f} mm\u00b2{color.ENDC}')
 	
 	# Get ops from model_dict
-	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, tile_compute_ops=False, tile_memory_ops=False, first_layer_only=first_layer_only, debug=debug)
+	memory_ops, compute_ops, num_ops = dict2ops(model_dict, config, mode=mode, tile_compute_ops=False, tile_memory_ops=False, first_layer_only=first_layer_only, debug=debug)
 	print('No tiling implemented in a fast run')
 
 	assert type(memory_ops[1]) == list and type(compute_ops[0]) == list
@@ -617,7 +617,8 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 								if isinstance(head_op, NonLinearityOp):
 									mac_lanes_cycles = len(tiled_ops)
 								else:
-									mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * (1 - constants['sparsity']['activation']))
+									sparsity = (1 - constants['sparsity']['activation']) if head_op.mode == 'fwd' else (1 - constants['sparsity']['gradient'])
+									mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * sparsity)
 								energy['mac_lanes'][0] += (mac_lane_dynamic * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
 								energy['mac_lanes'][1] += (mac_lane_leakage * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
 								energy['sparsity'][0] += (sparsity_dynamic * num_mac_lanes) / clock_frequency * len(tiled_ops)
@@ -679,7 +680,8 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 					if isinstance(head_op, NonLinearityOp):
 						mac_lanes_cycles = len(tiled_ops)
 					else:
-						mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * (1 - constants['sparsity']['activation']))
+						sparsity = (1 - constants['sparsity']['activation']) if head_op.mode == 'fwd' else (1 - constants['sparsity']['gradient'])
+						mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * sparsity)
 					cycles += mac_lanes_cycles
 					energy['mac_lanes'][0] += (mac_lane_dynamic * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
 					energy['mac_lanes'][1] += (mac_lane_leakage * num_mac_lanes) / clock_frequency * mac_lanes_cycles
