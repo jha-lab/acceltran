@@ -3,6 +3,7 @@
 sparsity:
   activation: 0.5
   weight: 0.5
+  gradient: 0.9
 
 overlap_factor: 0.8
 
@@ -31,6 +32,11 @@ lane:
       area: 9418.667591
       dynamic: 5.1955
       leakage: 0.3189685
+
+stochastic_rounding:
+  area: 79.043665
+  dynamic: 0.0216570
+  leakage: 0.0040125
 
 dataflow:
   area: 75946.982008
