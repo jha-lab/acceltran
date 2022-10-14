@@ -17,12 +17,12 @@ class ProcessingElement(object):
 		layer_norm (LayerNorm): LayerNorm module object
 		softmax (Softmax): Softmax module object
 	"""
-	def __init__(self, pe_name, config, constants):
+	def __init__(self, pe_name, config, constants, mode='inference'):
 		self.pe_name = pe_name
 
 		self.mac_lanes = []
 		for n in range(config['lanes_per_pe']):
-			self.mac_lanes.append(MACLane(f'{self.pe_name}_maclane{(n + 1)}', config, constants))
+			self.mac_lanes.append(MACLane(f'{self.pe_name}_maclane{(n + 1)}', config, constants, mode=mode))
 
 		self.dataflow = Dataflow(f'{self.pe_name}_df', config, constants)
 		self.dma = DMA(f'{self.pe_name}_dma', config, constants)
@@ -37,6 +37,8 @@ class ProcessingElement(object):
 		for mac_lane in self.mac_lanes:
 			self.area += mac_lane.area
 			self.area += mac_lane.pre_sparsity.area + mac_lane.post_sparsity.area + mac_lane.fifo.area
+			if mode == 'training':
+				self.area += mac_lane.stochastic_rounding.area
 		for sftm in self.softmax:
 			self.area += sftm.area
 		self.area = self.area + self.dataflow.area + self.dma.area + self.layer_norm.area
