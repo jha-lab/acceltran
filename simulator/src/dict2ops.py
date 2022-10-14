@@ -14,14 +14,13 @@ SEQ_LENGTH = 128
 VOCAB_SIZE = 30522
 
 
-def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops=False, first_layer_only=False, debug=False):
-	"""Convert model dictionary to software compute operations"""
-	assert 'p' not in model_dict.keys(), 'Only model dictionaries in FlexiBERT 2.0 are supported'
-
+def get_ops(model_dict, config, direction, first_layer_only, debug):
+	"""Get forward/backward operations for the given model"""
+	ops = []
 	batch_size = config['batch_size']
 
-	ops = []
-	ops.append(MemoryLoadOp('emb', config, (VOCAB_SIZE + SEQ_LENGTH, model_dict['h'][0]), 'weight', preloaded=False))
+	if direction == 'fwd':
+		ops.append(MemoryLoadOp('emb', config, (VOCAB_SIZE + SEQ_LENGTH, model_dict['h'][0]), 'weight'))
 
 	for layer in range(model_dict['l'] if not first_layer_only else 1):
 		layer_hidden_size = model_dict['h'][layer]
@@ -59,7 +58,7 @@ def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops
 				op_name = 'ff' + '_' + str(layer + 1) + '_' + str(i + 2)
 				input_size = (batch_size, SEQ_LENGTH, last_hidden_size)
 				ops.append(FeedForwardOp(op_name, config, input_size, hidden_size=layer_hidden_size))
-				ops.append(NonLinearityOp(f'nl_{layer}_{(i+1)}', config, [f'{op_name}_f-s'], input_size, type=config['non_linearity']))
+				ops.append(NonLinearityOp(f'nl_{layer}_{(i+2)}', config, [f'{op_name}_f-s'], input_size, type=config['non_linearity']))
 
 				if debug: print(f'Added operation with name: {op_name}')
 
@@ -80,25 +79,36 @@ def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops
 
 			if debug: print(f'Added operation with name: {op_name}')
 
+	if direction == 'bwd':
+		ops.reverse()
+		
+	return ops
+
+
+def get_tiled_ops(ops, direction, tile_compute_ops, tile_memory_ops, debug):
+	"""Get tiled operations in forward/backward directions"""
 	memory_ops, compute_ops = [], []
 	num_ops = 0
-	for op in tqdm(ops, desc='Converting model to hardware operations'):
+	for op in tqdm(ops, desc=f'Converting model to hardware operations in {direction} direction'):
 		if isinstance(op, list):
 			memory_multihead_ops, compute_multihead_ops = [], []
 			for head_op in op:
 				memory_head_ops, compute_head_ops = [], []
 				if head_op.base_op:
 					if head_op.compute_op:
-						compute_head_ops.extend(head_op.tile_op() if tile_compute_ops else [head_op])
+						compute_head_ops.extend(head_op.tile_op(direction=direction) if tile_compute_ops else [head_op])
 					else:
-						memory_head_ops.extend(head_op.tile_op() if tile_memory_ops else [head_op])
+						memory_head_ops.extend(head_op.tile_op(direction=direction) if tile_memory_ops else [head_op])
 				else:
-					head_op.convert_to_base_ops()
-					for base_op in head_op.base_ops:
+					if direction == 'fwd':
+						head_op.convert_to_fwd_base_ops()
+					else:
+						head_op.convert_to_bwd_base_ops()
+					for base_op in head_op.fwd_base_ops if direction == 'fwd' else head_op.bwd_base_ops:
 						if base_op.compute_op:
-							compute_head_ops.extend(base_op.tile_op() if tile_compute_ops else [base_op])
+							compute_head_ops.extend(base_op.tile_op(direction=direction) if tile_compute_ops else [base_op])
 						else:
-							memory_head_ops.extend(base_op.tile_op() if tile_memory_ops else [base_op])
+							memory_head_ops.extend(base_op.tile_op(direction=direction) if tile_memory_ops else [base_op])
 				if memory_head_ops: 
 					num_ops += len(memory_head_ops)
 					memory_multihead_ops.append(memory_head_ops)
@@ -109,22 +119,25 @@ def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops
 		else:
 			if op.base_op:
 				if op.compute_op:
-					new_ops = op.tile_op() if tile_compute_ops else [op]
+					new_ops = op.tile_op(direction=direction) if tile_compute_ops else [op]
 					num_ops += len(new_ops)
 					compute_ops.extend(new_ops)
 				else:
-					new_ops = op.tile_op() if tile_memory_ops else [op]
+					new_ops = op.tile_op(direction=direction) if tile_memory_ops else [op]
 					num_ops += len(new_ops)
 					memory_ops.extend(new_ops)
 			else:
-				op.convert_to_base_ops()
-				for base_op in op.base_ops:
+				if direction == 'fwd':
+					op.convert_to_fwd_base_ops()
+				else:
+					op.convert_to_bwd_base_ops()
+				for base_op in op.fwd_base_ops if direction == 'fwd' else op.bwd_base_ops:
 					if base_op.compute_op:
-						new_ops = base_op.tile_op() if tile_compute_ops else [base_op]
+						new_ops = base_op.tile_op(direction=direction) if tile_compute_ops else [base_op]
 						num_ops += len(new_ops)
 						compute_ops.extend(new_ops)
 					else:
-						new_ops = base_op.tile_op() if tile_memory_ops else [base_op]
+						new_ops = base_op.tile_op(direction=direction) if tile_memory_ops else [base_op]
 						num_ops += len(new_ops)
 						memory_ops.extend(new_ops)
 
@@ -132,6 +145,26 @@ def main(model_dict: dict, config: dict, tile_compute_ops=False, tile_memory_ops
 		print(f'Number of operations: {num_ops}')
 
 	return memory_ops, compute_ops, num_ops
+
+
+def main(model_dict: dict, config: dict, mode='inference', tile_compute_ops=False, tile_memory_ops=False, first_layer_only=False, debug=False):
+	"""Convert model dictionary to software compute operations"""
+	assert 'p' not in model_dict.keys(), 'Only model dictionaries in FlexiBERT 2.0 are supported'
+
+	fwd_ops = get_ops(model_dict, config, direction='fwd', first_layer_only=first_layer_only, debug=debug)
+	bwd_ops = get_ops(model_dict, config, direction='bwd', first_layer_only=first_layer_only, debug=debug)
+
+	memory_ops, compute_ops = [], []
+
+	fwd_memory_ops, fwd_compute_ops, fwd_num_ops = get_tiled_ops(fwd_ops, direction='fwd', tile_compute_ops=tile_compute_ops, tile_memory_ops=tile_memory_ops, debug=debug)
+	bwd_memory_ops, bwd_compute_ops, bwd_num_ops = get_tiled_ops(bwd_ops, direction='bwd', tile_compute_ops=tile_compute_ops, tile_memory_ops=tile_memory_ops, debug=debug)
+
+	memory_ops.extend(fwd_memory_ops); memory_ops.extend(bwd_memory_ops)
+	compute_ops.extend(fwd_compute_ops); compute_ops.extend(bwd_compute_ops)
+
+	if mode == 'inference':
+		return fwd_memory_ops, fwd_compute_ops, fwd_num_ops
+	return memory_ops, compute_ops, (fwd_num_ops + bwd_num_ops)
 
 
 if __name__ == '__main__':
