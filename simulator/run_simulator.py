@@ -30,12 +30,12 @@ OVERWRITE_PLOT_STEPS_WITH_DEBUG = False
 OVERWRITE_LOGS = True
 
 
-def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, plot_utilization=True, first_layer_only=False, fast=False, debug=False):
+def main(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, mode: str, plot_utilization=True, first_layer_only=False, fast=False, debug=False):
 
 	if fast == False:
-		simulate(model_dict, config, constants, design_space, logs_dir, plot_steps, plot_utilization, first_layer_only, debug)
+		simulate(model_dict, config, constants, design_space, logs_dir, plot_steps, mode, plot_utilization, first_layer_only, debug)
 	else:
-		simulate_fast(model_dict, config, constants, design_space, logs_dir, plot_steps, plot_utilization, first_layer_only, debug)
+		simulate_fast(model_dict, config, constants, design_space, logs_dir, plot_steps, mode, plot_utilization, first_layer_only, debug)
 	
 
 if __name__ == '__main__':
@@ -72,6 +72,11 @@ if __name__ == '__main__':
 		type=str,
 		default='./results/bert_tiny/',
 		help='directory to store results')
+	parser.add_argument('--mode',
+		metavar='',
+		type=str,
+		default='inference',
+		help='mode of evaluation in: ["training", "inference"]')
 	parser.add_argument('--do_not_plot_utilization',
 		dest='plot_utilization',
 		help='do not plot accelerator utilization',
@@ -119,5 +124,5 @@ if __name__ == '__main__':
 	if os.path.exists(args.logs_dir) and OVERWRITE_LOGS: shutil.rmtree(args.logs_dir)
 	os.makedirs(os.path.join(args.logs_dir, 'metrics')); os.makedirs(os.path.join(args.logs_dir, 'utilization'))
 
-	main(model_dict, config, constants, design_space, args.logs_dir, args.plot_steps, args.plot_utilization, args.first_layer_only, args.fast, args.debug)
+	main(model_dict, config, constants, design_space, args.logs_dir, args.plot_steps, args.mode, args.plot_utilization, args.first_layer_only, args.fast, args.debug)
 
