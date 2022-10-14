@@ -63,12 +63,14 @@ class MatrixMultTiledOp(TiledOp):
 		input_2_size (tuple): size of the input_2 matrix
 		compute_op (bool): if the operation is a compute operation
 		required_in_buffer (list): list of data object names required in buffer
+		mode (str): mode of operation in ['fwd', 'bwd']
 	"""
-	def __init__(self, op_name, required_in_buffer, input_1_size, input_2_size):
+	def __init__(self, op_name, required_in_buffer, input_1_size, input_2_size, mode='fwd'):
 		TiledOp.__init__(self, op_name)
 		self.required_in_buffer = required_in_buffer
 		self.input_1_size = input_1_size
 		self.input_2_size = input_2_size
+		self.mode = mode
 		self.compute_op = True
 		
 		self.check_input_sizes()
@@ -100,13 +102,15 @@ class Conv1DTiledOp(TiledOp):
 		kernel_size (tuple): size of the convolutional kernel
 		compute_op (bool): if the operation is a compute operation
 		required_in_buffer (list): list of data object names required in buffer 
+		mode (str): mode of operation in ['fwd', 'bwd']
 	"""
-	def __init__(self, op_name, required_in_buffer, input_size, kernel_size, stride):
+	def __init__(self, op_name, required_in_buffer, input_size, kernel_size, stride, mode='fwd'):
 		TiledOp.__init__(self, op_name)
 		self.required_in_buffer = required_in_buffer
 		self.input_size = input_size
 		self.kernel_size = kernel_size
 		self.stride = stride
+		self.mode = mode
 		self.compute_op = True
 
 		self.num_muls = input_size[0] * input_size[1] * math.floor((input_size[2] - kernel_size) * 1.0 / stride)
