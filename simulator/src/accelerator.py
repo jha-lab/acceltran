@@ -24,13 +24,13 @@ class Accelerator(object):
 		mask_buffer (Buffer): Buffer class object for binary masks
 		weight_buffer (Buffer): Buffer class object for weights
 	"""
-	def __init__(self, config, constants):
+	def __init__(self, config, constants, mode='inference'):
 		self.config = config
 		self.constants = constants
 
 		self.pes = []
 		for p in range(config['pe']):
-			self.pes.append(ProcessingElement(f'pe{p}', config, constants))
+			self.pes.append(ProcessingElement(f'pe{p}', config, constants, mode))
 
 		self.activation_buffer = Buffer('activation', config, constants)
 		self.weight_buffer = Buffer('weight', config, constants)
