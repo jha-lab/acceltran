@@ -295,6 +295,29 @@ def plot_metrics(logs_dir, constants):
 	plt.close()
 
 
+def tile_ops_fast(op, config):
+	num_muls = None
+
+	if isinstance(op, MatrixMultOp):
+		num_tiles_b = math.ceil(op.input_1_size[0] * 1.0 / config['tile']['tile_b'])
+		num_tiles_1_x = math.ceil(op.input_1_size[1] * 1.0 / config['tile']['tile_x'])
+		num_tiles_1_y = math.ceil(op.input_1_size[2] * 1.0 / config['tile']['tile_y'])
+		num_tiles_2_x = math.ceil(op.input_2_size[1] * 1.0 / config['tile']['tile_x'])
+		num_tiles_2_y = math.ceil(op.input_2_size[2] * 1.0 / config['tile']['tile_y'])
+		num_tiled_ops = num_tiles_b * num_tiles_1_x * num_tiles_1_y * num_tiles_2_x * num_tiles_2_y
+
+		num_muls = config['tile']['tile_b'] * config['tile']['tile_x'] * config['tile']['tile_y'] * config['tile']['tile_y']
+	else:
+		tiled_ops = op.tile_op()
+		num_tiled_ops = len(tiled_ops)
+		try:
+			num_muls = tiled_ops[0].num_muls
+		except:
+			pass
+
+	return num_tiled_ops, num_muls
+
+
 def simulate(model_dict: dict, config: dict, constants: dict, design_space: dict, logs_dir: str, plot_steps: int, mode='inference', plot_utilization=True, first_layer_only=False, debug=False):
 	"""Run a model_dict on an Accelerator object"""
 
@@ -616,18 +639,18 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 						head_op = compute_ops[compute_fast_idx][i][head_id]
 						if isinstance(head_op, (MatrixMultOp, Conv1DOp, NonLinearityOp)):
 							if mac_lanes_head is None:
-								tiled_ops = head_op.tile_op()
+								num_tiled_ops, num_muls = tile_ops_fast(head_op, config)
 								if isinstance(head_op, NonLinearityOp):
-									mac_lanes_cycles = len(tiled_ops)
+									mac_lanes_cycles = num_tiled_ops
 								else:
 									sparsity = (1 - constants['sparsity']['activation']) if head_op.mode == 'fwd' else (1 - constants['sparsity']['gradient'])
-									mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * sparsity)
+									mac_lanes_cycles = math.ceil(num_tiled_ops * num_muls * 1.0 / num_macs * sparsity)
 								energy['mac_lanes'][0] += (mac_lane_dynamic * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
 								energy['mac_lanes'][1] += (mac_lane_leakage * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
-								energy['sparsity'][0] += (sparsity_dynamic * num_mac_lanes) / clock_frequency * len(tiled_ops)
-								energy['sparsity'][1] += (sparsity_leakage * num_mac_lanes) / clock_frequency * len(tiled_ops)
-								energy['others'][0] += (others_dynamic * config['pe']) / clock_frequency * len(tiled_ops)
-								energy['others'][1] += (others_leakage * config['pe']) / clock_frequency * len(tiled_ops)
+								energy['sparsity'][0] += (sparsity_dynamic * num_mac_lanes) / clock_frequency * num_tiled_ops
+								energy['sparsity'][1] += (sparsity_leakage * num_mac_lanes) / clock_frequency * num_tiled_ops
+								energy['others'][0] += (others_dynamic * config['pe']) / clock_frequency * num_tiled_ops
+								energy['others'][1] += (others_leakage * config['pe']) / clock_frequency * num_tiled_ops
 								pe_cycles[0], mac_lanes_head = mac_lanes_cycles, i
 								head_ids[i] = min(head_ids[i] + 1, len(compute_ops[compute_fast_idx][i]))
 						elif isinstance(head_op, SoftmaxOp):
@@ -679,12 +702,12 @@ def simulate_fast(model_dict: dict, config: dict, constants: dict, design_space:
 			else:
 				head_op = compute_ops[compute_fast_idx]
 				if isinstance(head_op, (MatrixMultOp, Conv1DOp, NonLinearityOp)):
-					tiled_ops = head_op.tile_op()
+					num_tiled_ops, num_muls = tile_ops_fast(head_op, config)
 					if isinstance(head_op, NonLinearityOp):
 						mac_lanes_cycles = len(tiled_ops)
 					else:
 						sparsity = (1 - constants['sparsity']['activation']) if head_op.mode == 'fwd' else (1 - constants['sparsity']['gradient'])
-						mac_lanes_cycles = math.ceil(len(tiled_ops) * tiled_ops[0].num_muls * 1.0 / num_macs * sparsity)
+						mac_lanes_cycles = math.ceil(num_tiled_ops * num_muls * 1.0 / num_macs * sparsity)
 					cycles += mac_lanes_cycles
 					energy['mac_lanes'][0] += (mac_lane_dynamic * num_mac_lanes) / clock_frequency * mac_lanes_cycles 
 					energy['mac_lanes'][1] += (mac_lane_leakage * num_mac_lanes) / clock_frequency * mac_lanes_cycles
