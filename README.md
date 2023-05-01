@@ -18,6 +18,9 @@ The figure below shows the utilization of different modules in an AccelTran arch
 - [Run synthesis](#run-synthesis)
 - [Run pruning](#run-pruning)
 - [Run simulator](#run-simulator)
+- [Developer](#developer)
+- [Cite this work](#cite-this-work)
+- [License](#license)
 
 ## Environment setup
 
@@ -91,3 +94,36 @@ cd ./simulator/
 python3 run_simulator.py --help
 cd ..
 ```
+
+## Developer
+
+[Shikhar Tuli](https://github.com/shikhartuli). For any questions, comments or suggestions, please reach me at [stuli@princeton.edu](mailto:stuli@princeton.edu).
+
+## Cite this work
+
+Cite our work using the following bitex entry:
+```bibtex
+@article{tuli2023acceltran,
+  title={{AccelTran}: A Sparsity-Aware Accelerator for Dynamic Inference with Transformers},
+  author={Tuli, Shikhar and Jha, Niraj K},
+  journal={arXiv preprint arXiv:2302.14705},
+  year={2023}
+}
+```
+If you use the AccelTran design space to implement transformer-accelerator co-design, please also cite:
+```bibtex
+@article{tuli2023transcode,
+  title={{TransCODE}: Co-design of Transformers and Accelerators for Efficient Training and Inference},
+  author={Tuli, Shikhar and Jha, Niraj K},
+  journal={arXiv preprint arXiv:2303.14882},
+  year={2023}
+}
+```
+
+## License
+
+BSD-3-Clause. 
+Copyright (c) 2022, Shikhar Tuli and Jha Lab.
+All rights reserved.
+
+See License file for more details.
