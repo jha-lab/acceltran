@@ -206,7 +206,7 @@ def get_utilization(accelerator):
 
 def log_metrics(logs, total_pe_energy, activation_buffer_energy, weight_buffer_energy, mask_buffer_energy, stalls, logs_dir, accelerator, plot_steps):
 	"""Log energy values for every cycle"""
-	if logs:
+	if 'cycle' in logs:
 		last_cycle = logs['cycle'][-1]
 	else:
 		last_cycle = 0

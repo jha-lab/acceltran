@@ -96,9 +96,9 @@ def get_tiled_ops(ops, direction, tile_compute_ops, tile_memory_ops, debug):
 				memory_head_ops, compute_head_ops = [], []
 				if head_op.base_op:
 					if head_op.compute_op:
-						compute_head_ops.extend(head_op.tile_op(direction=direction) if tile_compute_ops else [head_op])
+						compute_head_ops.extend(head_op.tile_op() if tile_compute_ops else [head_op])
 					else:
-						memory_head_ops.extend(head_op.tile_op(direction=direction) if tile_memory_ops else [head_op])
+						memory_head_ops.extend(head_op.tile_op() if tile_memory_ops else [head_op])
 				else:
 					if direction == 'fwd':
 						head_op.convert_to_fwd_base_ops()
@@ -106,9 +106,9 @@ def get_tiled_ops(ops, direction, tile_compute_ops, tile_memory_ops, debug):
 						head_op.convert_to_bwd_base_ops()
 					for base_op in head_op.fwd_base_ops if direction == 'fwd' else head_op.bwd_base_ops:
 						if base_op.compute_op:
-							compute_head_ops.extend(base_op.tile_op(direction=direction) if tile_compute_ops else [base_op])
+							compute_head_ops.extend(base_op.tile_op() if tile_compute_ops else [base_op])
 						else:
-							memory_head_ops.extend(base_op.tile_op(direction=direction) if tile_memory_ops else [base_op])
+							memory_head_ops.extend(base_op.tile_op() if tile_memory_ops else [base_op])
 				if memory_head_ops: 
 					num_ops += len(memory_head_ops)
 					memory_multihead_ops.append(memory_head_ops)
@@ -119,11 +119,11 @@ def get_tiled_ops(ops, direction, tile_compute_ops, tile_memory_ops, debug):
 		else:
 			if op.base_op:
 				if op.compute_op:
-					new_ops = op.tile_op(direction=direction) if tile_compute_ops else [op]
+					new_ops = op.tile_op() if tile_compute_ops else [op]
 					num_ops += len(new_ops)
 					compute_ops.extend(new_ops)
 				else:
-					new_ops = op.tile_op(direction=direction) if tile_memory_ops else [op]
+					new_ops = op.tile_op() if tile_memory_ops else [op]
 					num_ops += len(new_ops)
 					memory_ops.extend(new_ops)
 			else:
@@ -133,11 +133,11 @@ def get_tiled_ops(ops, direction, tile_compute_ops, tile_memory_ops, debug):
 					op.convert_to_bwd_base_ops()
 				for base_op in op.fwd_base_ops if direction == 'fwd' else op.bwd_base_ops:
 					if base_op.compute_op:
-						new_ops = base_op.tile_op(direction=direction) if tile_compute_ops else [base_op]
+						new_ops = base_op.tile_op() if tile_compute_ops else [base_op]
 						num_ops += len(new_ops)
 						compute_ops.extend(new_ops)
 					else:
-						new_ops = base_op.tile_op(direction=direction) if tile_memory_ops else [base_op]
+						new_ops = base_op.tile_op() if tile_memory_ops else [base_op]
 						num_ops += len(new_ops)
 						memory_ops.extend(new_ops)
 
