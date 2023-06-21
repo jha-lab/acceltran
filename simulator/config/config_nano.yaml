@@ -13,6 +13,8 @@ lanes_per_pe: 4
 
 mac_per_lane: 16
 
+softmax_per_pe: 1
+
 batch_size: 4
 
 activation_buffer_size: 1
