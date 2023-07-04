@@ -27,6 +27,7 @@ loop_unrolling: 'b_i_j_k'
 
 main_memory:
   type: 'rram'
+  mode: 'hb'
   banks: 16
   ranks: 2
   channels: 2
