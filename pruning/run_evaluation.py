@@ -31,7 +31,7 @@ sys.path.append('../txf_design-space/transformers/src/transformers')
 from transformers import BertTokenizer
 from transformers.models.bert.configuration_bert import BertConfig
 from transformers.models.bert.modeling_modular_bert import BertModelModular, BertForMaskedLMModular, BertForSequenceClassificationModular
-from transformers.models.bert.modeling_dpbert import DPBertModel, DPBertForMaskedLM, DPBertForSequenceClassification, DPBertForQuestionAnswering
+from transformers.models.bert.modeling_dtbert import DTBertModel, DTBertForMaskedLM, DTBertForSequenceClassification, DTBertForQuestionAnswering
 
 import logging
 #logging.disable(logging.INFO)
@@ -120,20 +120,20 @@ def main(args):
 				tokenizer.save_pretrained('./models/bert-base-sst2/')
 				
 				# Initialize and save given model
-				model = DPBertForSequenceClassification.from_pretrained('howey/bert-base-uncased-sst2')
+				model = DTBertForSequenceClassification.from_pretrained('howey/bert-base-uncased-sst2')
 				model.save_pretrained('./models/bert-base-sst2/')
 			tokenizer = BertTokenizer.from_pretrained('./models/bert-base-sst2/')
-			model = DPBertForSequenceClassification.from_pretrained('./models/bert-base-sst2/')
+			model = DTBertForSequenceClassification.from_pretrained('./models/bert-base-sst2/')
 			if not os.path.exists('./models/bert-base-sst2-weight_pruned/pytorch_model.bin'):
 				# Load tokenizer and model
 				tokenizer = BertTokenizer.from_pretrained('echarlaix/bert-base-uncased-sst2-acc91.1-d37-hybrid')
 				tokenizer.save_pretrained('./models/bert-base-sst2-weight_pruned/')
 				
 				# Initialize and save given model
-				model = DPBertForSequenceClassification.from_pretrained('echarlaix/bert-base-uncased-sst2-acc91.1-d37-hybrid')
+				model = DTBertForSequenceClassification.from_pretrained('echarlaix/bert-base-uncased-sst2-acc91.1-d37-hybrid')
 				model.save_pretrained('./models/bert-base-sst2-weight_pruned/')
 			tokenizer_wp = BertTokenizer.from_pretrained('./models/bert-base-sst2-weight_pruned/')
-			model_wp = DPBertForSequenceClassification.from_pretrained('./models/bert-base-sst2-weight_pruned/')
+			model_wp = DTBertForSequenceClassification.from_pretrained('./models/bert-base-sst2-weight_pruned/')
 		elif args.model_name == 'bert-tiny':
 			if not os.path.exists('./models/bert-tiny-sst2/pytorch_model.bin'):
 				# Load tokenizer and model
@@ -141,10 +141,10 @@ def main(args):
 				tokenizer.save_pretrained('./models/bert-tiny-sst2/')
 				
 				# Initialize and save given model
-				model = DPBertForSequenceClassification.from_pretrained('philschmid/tiny-bert-sst2-distilled')
+				model = DTBertForSequenceClassification.from_pretrained('philschmid/tiny-bert-sst2-distilled')
 				model.save_pretrained('./models/bert-tiny-sst2/')
 			tokenizer = BertTokenizer.from_pretrained('./models/bert-tiny-sst2/')
-			model = DPBertForSequenceClassification.from_pretrained('./models/bert-tiny-sst2/')
+			model = DTBertForSequenceClassification.from_pretrained('./models/bert-tiny-sst2/')
 	elif args.task == 'squad_v2':
 		if args.model_name == 'bert-base':
 			if not os.path.exists('./models/bert-base-squad_v2/pytorch_model.bin'):
@@ -153,10 +153,10 @@ def main(args):
 				tokenizer.save_pretrained('./models/bert-base-squad_v2/')
 				
 				# Initialize and save given model
-				model = DPBertForQuestionAnswering.from_pretrained('deepset/bert-base-uncased-squad2')
+				model = DTBertForQuestionAnswering.from_pretrained('deepset/bert-base-uncased-squad2')
 				model.save_pretrained('./models/bert-base-squad_v2/')
 			tokenizer = BertTokenizer.from_pretrained('./models/bert-base-squad_v2/')
-			model = DPBertForQuestionAnswering.from_pretrained('./models/bert-base-squad_v2/')
+			model = DTBertForQuestionAnswering.from_pretrained('./models/bert-base-squad_v2/')
 		elif args.model_name == 'bert-tiny':
 			if not os.path.exists('./models/bert-tiny-squad_v2/pytorch_model.bin'):
 				# Load tokenizer and model
@@ -164,10 +164,10 @@ def main(args):
 				tokenizer.save_pretrained('./models/bert-tiny-squad_v2/')
 				
 				# Initialize and save given model
-				model = DPBertForQuestionAnswering.from_pretrained('mrm8488/bert-tiny-finetuned-squadv2')
+				model = DTBertForQuestionAnswering.from_pretrained('mrm8488/bert-tiny-finetuned-squadv2')
 				model.save_pretrained('./models/bert-tiny-squad_v2/')
 			tokenizer = BertTokenizer.from_pretrained('./models/bert-tiny-squad_v2/')
-			model = DPBertForQuestionAnswering.from_pretrained('./models/bert-tiny-squad_v2/')
+			model = DTBertForQuestionAnswering.from_pretrained('./models/bert-tiny-squad_v2/')
 
 	if args.throughput_test is not None:
 		assert args.task == 'sst2', 'Only SST-2 task supported for throughput test'
@@ -212,7 +212,7 @@ def main(args):
 			config.save_pretrained(temp_dir)
 
 			# Load model
-			temp_model = DPBertForSequenceClassification.from_pretrained(temp_dir)
+			temp_model = DTBertForSequenceClassification.from_pretrained(temp_dir)
 
 			# Run evaluation on the SST-2 task or the SQuAD task
 			training_args = get_training_args(temp_dir, args.task, args.throughput_test)
@@ -291,9 +291,9 @@ def main(args):
 			config.save_pretrained(temp_dir)
 
 			if args.task == 'sst2':
-				temp_model = DPBertForSequenceClassification.from_pretrained(temp_dir)
+				temp_model = DTBertForSequenceClassification.from_pretrained(temp_dir)
 			else:
-				temp_model = DPBertForQuestionAnswering.from_pretrained(temp_dir)
+				temp_model = DTBertForQuestionAnswering.from_pretrained(temp_dir)
 
 			if config.pruning_threshold > 0:
 				temp_model.prune_weights()
@@ -318,9 +318,9 @@ def main(args):
 
 		# Load model
 		if args.task == 'sst2':
-			temp_model = DPBertForSequenceClassification.from_pretrained(temp_dir)
+			temp_model = DTBertForSequenceClassification.from_pretrained(temp_dir)
 		else:
-			temp_model = DPBertForQuestionAnswering.from_pretrained(temp_dir)
+			temp_model = DTBertForQuestionAnswering.from_pretrained(temp_dir)
 
 		if os.path.exists(config.sparsity_file): 
 			os.rename(config.sparsity_file, os.path.join(temp_dir, 'weight_sparsity.json'))
