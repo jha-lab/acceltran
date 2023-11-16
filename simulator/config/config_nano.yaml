@@ -13,6 +13,8 @@ lanes_per_pe: 4
 
 mac_per_lane: 16
 
+softmax_per_pe: 1
+
 batch_size: 4
 
 activation_buffer_size: 1
@@ -25,6 +27,7 @@ loop_unrolling: 'b_i_j_k'
 
 main_memory:
   type: 'rram'
+  mode: 'hb'
   banks: 16
   ranks: 2
   channels: 2
